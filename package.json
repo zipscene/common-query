@@ -1,6 +1,6 @@
 {
   "name": "common-query",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "private": true,
   "description": "Base framework for common mongo-style query language.",
   "main": "./lib/index.js",
@@ -12,7 +12,7 @@
     "lint": "node node_modules/zs-linter/scripts/zslint"
   },
   "dependencies": {
-    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.5",
+    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.6",
     "regexp-quote": "0.0.0",
     "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.6",
     "zs-jq-stub": "git+ssh://git@git.zipscene.com:zsapilibs/zs-jq-stub.git#v0.0.1",
