@@ -1,6 +1,6 @@
 {
   "name": "common-query",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "private": true,
   "description": "Base framework for common mongo-style query language.",
   "main": "./lib/index.js",
