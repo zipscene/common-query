@@ -9,9 +9,9 @@
     "url": "git@git.zipscene.com:zsapilibs/common-query.git"
   },
   "dependencies": {
-    "objtools": "git@git.zipscene.com:zsapilibs/objtools.git#v0.0.11",
+    "objtools": "git@git.zipscene.com:zsapilibs/objtools.git#v0.0.7",
     "zs-error": "git@git.zipscene.com:zsapicore/zs-error.git#v0.0.10",
-    "zs-jq-stub": "git+ssh://git@git.zipscene.com:zsapilibs/zs-jq-stub.git#v0.0.1"
+    "extend": "*"
   },
   "devDependencies": {}
 }
