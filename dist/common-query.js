@@ -1,12 +1,12 @@
-/** common-query.js - v0.0.21 - Mon, 22 Sep 2014 14:54:46 GMT */
+/** common-query.js - v0.0.22 - Mon, 22 Sep 2014 17:49:26 GMT */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),(o.ZS||(o.ZS={})).commonQuery=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var ZSError = _dereq_('zs-error');
+var ZSError = (typeof window !== "undefined" ? window.ZS.Error : typeof global !== "undefined" ? global.ZS.Error : null);
 var regexp_quote = _dereq_('regexp-quote');
-var doc_utils = _dereq_('objtools');
+var doc_utils = (typeof window !== "undefined" ? window.ZS.objtools : typeof global !== "undefined" ? global.ZS.objtools : null);
 var getPath = doc_utils.getPath;
 var setPath = doc_utils.setPath;
 var deepEquals = doc_utils.deepEquals;
-var extend = _dereq_('extend');
+var extend = (typeof window !== "undefined" ? window.extend : typeof global !== "undefined" ? global.extend : null);
 
 var textMatches = function(value, query) {
 	return new RegExp(query.replace(' ', '.+')).test(value);
@@ -522,12 +522,12 @@ function queryMatches(objType, query, obj, options) {
 exports.queryMatches = queryMatches;
 
 },{"extend":"extend","objtools":"objtools","regexp-quote":3,"zs-error":"zs-error"}],2:[function(_dereq_,module,exports){
-var objtools = _dereq_('objtools');
+var objtools = (typeof window !== "undefined" ? window.ZS.objtools : typeof global !== "undefined" ? global.ZS.objtools : null);
 var getPath = objtools.getPath;
 var setPath = objtools.setPath;
 var deletePath = objtools.deletePath;
-var ZSError = _dereq_('zs-error');
-var extend = _dereq_('extend');
+var ZSError = (typeof window !== "undefined" ? window.ZS.Error : typeof global !== "undefined" ? global.ZS.Error : null);
+var extend = (typeof window !== "undefined" ? window.extend : typeof global !== "undefined" ? global.extend : null);
 
 function getUpdatedFields(objType, doc, update, options) {
 	if(!options) options = {};
