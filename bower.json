@@ -9,9 +9,12 @@
     "url": "git@git.zipscene.com:zsapilibs/common-query.git"
   },
   "dependencies": {
-    "objtools": "git@git.zipscene.com:zsapilibs/objtools.git#v0.0.7",
+    "objtools": "git@git.zipscene.com:zsapilibs/objtools.git#v0.0.12",
     "zs-error": "git@git.zipscene.com:zsapicore/zs-error.git#v0.0.10",
     "extend": "*"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "bowerify": {
+    "standalone": "ZS.commonQuery"
+  }
 }
