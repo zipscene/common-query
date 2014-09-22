@@ -9,14 +9,17 @@
     "url": "git@git.zipscene.com:zsapilibs/common-query.git"
   },
   "scripts": {
-    "lint": "node node_modules/zs-linter/scripts/zslint"
+    "lint": "node node_modules/zs-linter/scripts/zslint",
+    "bowerify": "node node_modules/bowerify/bin/cmd.js"
   },
   "dependencies": {
-    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.11",
+    "extend": "^1.3.0",
+    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.12",
     "regexp-quote": "0.0.0",
-    "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.8",
-    "zs-jq-stub": "git+ssh://git@git.zipscene.com:zsapilibs/zs-jq-stub.git#v0.0.1",
-    "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git"
+    "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.10"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git",
+    "bowerify": "git+ssh://git@git.zipscene.com:zsapilibs/bowerify.git"
+  }
 }
