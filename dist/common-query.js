@@ -1,4 +1,4 @@
-/** common-query.js - v0.0.14 - Mon, 22 Sep 2014 14:36:52 GMT */
+/** common-query.js - v0.0.21 - Mon, 22 Sep 2014 14:54:46 GMT */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),(o.ZS||(o.ZS={})).commonQuery=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var ZSError = _dereq_('zs-error');
 var regexp_quote = _dereq_('regexp-quote');
@@ -202,6 +202,39 @@ function substituteVars(query, vars, ignoreMissing) {
 	return res;
 }
 exports.substituteVars = substituteVars;
+
+function combineQueriesAnd(query1, query2) {
+	var result = {};
+	var key;
+	function addClause(key, val) {
+		if(val === undefined) return;
+		if(result[key] === undefined) {
+			result[key] = val;
+		} else if(result[key] !== val) {
+			if(Array.isArray(result.$and) && key === '$and' && Array.isArray(val)) {
+				// The key is $and and both are arrays
+				result.$and = result.$and.concat(val);
+			} else if(key === '$and') {
+				// This is a malformed query, but try to handle it anyway
+				if(result.$and !== undefined && !Array.isArray(result.$and)) result.$and = [result.$and];
+				if(!Array.isArray(val)) val = [val];
+				result.$and = result.$and.concat(val);
+			} else {
+				// Need to add both qualifications to an and clause
+				if(result.$and && !Array.isArray(result.$and)) result.$and = [result.$and];
+				if(!result.$and) result.$and = [];
+				var clause = {};
+				clause[key] = val;
+				result.$and.push(clause);
+			}
+		}
+
+	}
+	for(key in query1) addClause(key, query1[key]);
+	for(key in query2) addClause(key, query2[key]);
+	return result;
+}
+exports.combineQueriesAnd = combineQueriesAnd;
 
 /**
  * Ensures that a common query is valid.
@@ -520,6 +553,7 @@ function getUpdatedFields(objType, doc, update, options) {
 			function compareObject(toObj, fromObj, path) {
 				var key, keyPath, toVal, fromVal;
 				for(key in fromObj) {
+					if(!fromObj.hasOwnProperty(key)) continue;
 					toVal = toObj[key];
 					fromVal = fromObj[key];
 					keyPath = path ? (path + '.' + key) : key;
@@ -534,6 +568,7 @@ function getUpdatedFields(objType, doc, update, options) {
 					}
 				}
 				for(key in toObj) {
+					if(!toObj.hasOwnProperty(key)) continue;
 					// Look for keys in toObj that don't exist in fromObj (for deletion)
 					keyPath = path ? (path + '.' + key) : key;
 					if(fromObj[key] === undefined && !isInternalField(keyPath)) {
@@ -553,9 +588,11 @@ function getUpdatedFields(objType, doc, update, options) {
 
 
 	for(var operator in update) {
+		if(!update.hasOwnProperty(operator)) continue;
 		var opParam = update[operator];
 		if(opParam && typeof opParam == 'object') {
 			for(var field in opParam) {
+				if(!opParam.hasOwnProperty(field)) continue;
 				fieldSet[field] = true;
 			}
 		}
@@ -569,9 +606,11 @@ function transformUpdatedFields(objType, update, transform) {
 	if(updateHasOperators(update)) {
 		update = extend(true, {}, update);
 		for(var operator in update) {
+			if(!update.hasOwnProperty(operator)) continue;
 			var opParam = update[operator];
 			if(opParam && typeof opParam == 'object') {
 				for(var okey in opParam) {
+					if(!opParam.hasOwnProperty(okey)) continue;
 					opParam[transform(okey)] = opParam[okey];
 				}
 			}
@@ -580,6 +619,7 @@ function transformUpdatedFields(objType, update, transform) {
 	} else {
 		var newUpdate = {};
 		for(var key in update) {
+			if(!update.hasOwnProperty(key)) continue;
 			newUpdate[transform(key)] = update[key];
 		}
 		return newUpdate;
@@ -601,6 +641,7 @@ function validateUpdate(objType, update, allowedOperators, extraOperators) {
 
 	// half-assed update validation ... the main applyUpdate function will catch most things
 	for(var operator in update) {
+		if(!update.hasOwnProperty(operator)) continue;
 		if(!allowedOpSet[operator]) {
 			return new ZSError(ZSError.INVALID_QUERY, 'Update contains invalid, disallowed, or unknown operator: ' + operator);
 		}
@@ -612,6 +653,7 @@ exports.validateUpdate = validateUpdate;
 function updateHasOperators(update) {
 	var hasOperator = false;
 	for(var key in update) {
+		if(!update.hasOwnProperty(key)) continue;
 		if(key[0] == '$') hasOperator = true;
 	}
 	return hasOperator;
@@ -668,6 +710,7 @@ function applyUpdate(objType, doc, update, options) {
 			function syncObject(toObj, fromObj, path) {
 				var key, keyPath, toVal, fromVal;
 				for(key in fromObj) {
+					if(!fromObj.hasOwnProperty(key)) continue;
 					toVal = toObj[key];
 					fromVal = fromObj[key];
 					keyPath = path ? (path + '.' + key) : key;
@@ -684,6 +727,7 @@ function applyUpdate(objType, doc, update, options) {
 					}
 				}
 				for(key in toObj) {
+					if(!toObj.hasOwnProperty(key)) continue;
 					keyPath = path ? (path + '.' + key) : key;
 					if(isInternalField(keyPath)) continue;
 					// Look for keys in toObj that don't exist in fromObj (for deletion)
@@ -705,6 +749,7 @@ function applyUpdate(objType, doc, update, options) {
 
 	// Handle each update operator
 	for(var operator in update) {
+		if(!update.hasOwnProperty(operator)) continue;
 
 		// Make sure the operator is actually an operator
 		if(operator[0] != '$') return new ZSError(ZSError.INVALID_QUERY, 'Update cannot contain mix of operators and non-operators');
@@ -717,6 +762,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle increment operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $inc must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -732,6 +778,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle multiply operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $mul must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -749,6 +796,7 @@ function applyUpdate(objType, doc, update, options) {
 				var renameOldValues = {};
 				// loop twice to perform the operation correctly in the instance of, ie, swapping two fields
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -757,6 +805,7 @@ function applyUpdate(objType, doc, update, options) {
 					deleteField(field);
 				}
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					setField(opParams[field], renameOldValues[field]);
 				}
 				break;
@@ -765,6 +814,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle set fields operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $set must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					paramVal = opParams[field];
 					setField(field, paramVal);
@@ -775,6 +825,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle unset fields operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $unset must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					deleteField(field);
 				}
@@ -784,6 +835,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle minimum value operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $min must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -804,6 +856,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle maximum value operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $max must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -824,6 +877,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle current date operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $currentDate must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					paramVal = opParams[field];
 					if(paramVal === true || (paramVal && typeof paramVal == 'object' && Object.keys(paramVal).length == 1 && (paramVal.$type === 'timestamp' || paramVal.$type === 'date'))) {
@@ -838,6 +892,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle add to set array operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $addToSet must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -869,6 +924,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle array pop operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $pop must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
@@ -889,6 +945,7 @@ function applyUpdate(objType, doc, update, options) {
 				// Handle $push operator
 				if(!opParams || typeof opParams != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Parameter to $push must be object');
 				for(field in opParams) {
+					if(!opParams.hasOwnProperty(field)) continue;
 					if(field[0] == '$') return new ZSError(ZSError.INVALID_QUERY, 'Invalid field name ' + field);
 					fieldVal = getField(field);
 					paramVal = opParams[field];
