@@ -12,6 +12,7 @@
     "lint": "node node_modules/zs-linter/scripts/zslint"
   },
   "dependencies": {
+    "extend": "^2.0.0",
     "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.11",
     "regexp-quote": "0.0.0",
     "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.8",
