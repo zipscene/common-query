@@ -1,6 +1,6 @@
 {
   "name": "common-query",
-  "version": "0.0.21",
+  "version": "0.0.23",
   "private": true,
   "description": "Base framework for common mongo-style query language.",
   "main": "./lib/index.js",
@@ -9,7 +9,8 @@
     "url": "git@git.zipscene.com:zsapilibs/common-query.git"
   },
   "scripts": {
-    "lint": "node node_modules/zs-linter/scripts/zslint"
+    "lint": "node node_modules/zs-linter/scripts/zslint",
+    "bowerify": "node node_modules/bowerify/bin/cmd.js"
   },
   "dependencies": {
     "extend": "^2.0.0",
@@ -19,5 +20,8 @@
     "zs-jq-stub": "git+ssh://git@git.zipscene.com:zsapilibs/zs-jq-stub.git#v0.0.2",
     "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git",
+    "bowerify": "git+ssh://git@git.zipscene.com:zsapilibs/bowerify.git"
+  }
 }
