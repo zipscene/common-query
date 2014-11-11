@@ -14,11 +14,9 @@
   },
   "dependencies": {
     "extend": "^2.0.0",
-    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.13",
+    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.16",
     "regexp-quote": "0.0.0",
-    "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.11",
-    "zs-jq-stub": "git+ssh://git@git.zipscene.com:zsapilibs/zs-jq-stub.git#v0.0.2",
-    "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git"
+    "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.13"
   },
   "devDependencies": {
     "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git",

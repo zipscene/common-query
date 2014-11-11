@@ -1,8 +1,8 @@
-/** common-query.js - v0.0.22 - Mon, 22 Sep 2014 17:49:26 GMT */
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),(o.ZS||(o.ZS={})).commonQuery=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var ZSError = (typeof window !== "undefined" ? window.ZS.Error : typeof global !== "undefined" ? global.ZS.Error : null);
+/** common-query.js - v0.0.23 - Tue, 11 Nov 2014 20:55:31 GMT */
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),(o.ZSModule||(o.ZSModule={})).commonQuery=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+var ZSError = (typeof window !== "undefined" ? window.ZSModule.ZSError : typeof global !== "undefined" ? global.ZSModule.ZSError : null);
 var regexp_quote = _dereq_('regexp-quote');
-var doc_utils = (typeof window !== "undefined" ? window.ZS.objtools : typeof global !== "undefined" ? global.ZS.objtools : null);
+var doc_utils = (typeof window !== "undefined" ? window.ZSModule.objtools : typeof global !== "undefined" ? global.ZSModule.objtools : null);
 var getPath = doc_utils.getPath;
 var setPath = doc_utils.setPath;
 var deepEquals = doc_utils.deepEquals;
@@ -12,42 +12,50 @@ var textMatches = function(value, query) {
 	return new RegExp(query.replace(' ', '.+')).test(value);
 };
 
+function Query(query) {
+	this.query = query;
+}
+module.exports = Query;
+
 /**
  * Returns a list of fields that are taken into account for a given common query.
  *
- * @param objType string The type of object (ie, model name)
- * @param query object The common query
  * @return Array List of fields
  */
-function getQueriedFields(objType, query) {
-	var fieldSet = {};
-	function helper(query) {
-		if(!query || typeof query != 'object' || Array.isArray(query)) return;
-		Object.keys(query).forEach(function(key) {
-			if((key == '$and' || key == '$or' || key == '$nor') && Array.isArray(query[key])) {
-				query[key].forEach(function(queryExp) {
-					helper(queryExp);
-				});
-			} else if(key[0] != '$') {
-				fieldSet[key] = true;
-				if(typeof query[key] == 'object' && query[key] && query[key].$elemMatch) {
-					var subFields = getQueriedFields(null, query[key].$elemMatch);
-					if(Array.isArray(subFields)) {
-						subFields.forEach(function(f) {
-							fieldSet[key + '.' + f] = true;
-						});
+Query.prototype.getFields = function() {
+	function getQueryFields(query) {
+		var fieldSet = {};
+		function helper(query) {
+			if(!query || typeof query != 'object' || Array.isArray(query)) return;
+			Object.keys(query).forEach(function(key) {
+				if((key == '$and' || key == '$or' || key == '$nor') && Array.isArray(query[key])) {
+					query[key].forEach(function(queryExp) {
+						helper(queryExp);
+					});
+				} else if(key[0] != '$') {
+					fieldSet[key] = true;
+					if(typeof query[key] == 'object' && query[key] && query[key].$elemMatch) {
+						var subFields = getQueryFields(query[key].$elemMatch);
+						if(Array.isArray(subFields)) {
+							subFields.forEach(function(f) {
+								fieldSet[key + '.' + f] = true;
+							});
+						}
 					}
 				}
-			}
-		});
+			});
+		}
+		helper(query);
+		return Object.keys(fieldSet);
 	}
-	helper(query);
-	return Object.keys(fieldSet);
-}
-exports.getQueriedFields = getQueriedFields;
+	return getQueryFields(this.query);
+};
 
-function transformQueriedFields(objType, query, transform) {
-	query = extend(true, {}, query);
+/**
+ * For each field referenced in the query, execute a given transform function to transform the field name.
+ */
+Query.prototype.transformFields = function(transform) {
+	var query = extend(true, {}, this.query);
 	function helper(query) {
 		if(!query || typeof query != 'object' || Array.isArray(query)) return query;
 		var ret = {};
@@ -69,13 +77,16 @@ function transformQueriedFields(objType, query, transform) {
 		});
 		return ret;
 	}
-	return helper(query);
-}
-exports.transformQueriedFields = transformQueriedFields;
+	this.query = helper(query);
+};
 
-// Tries to convert a query to the most general object that it will match
-// This does NOT take into account any operators
-function queryToObject(query) {
+/**
+ * Returns an object containing a map from field names to values, for each exact match the query
+ * contains.  The returned query will always match a superset of objects that the original query
+ * will match.
+ */
+Query.prototype.getExactMatches = function() {
+	var query = this.query;
 	if(!query || typeof query != 'object') return {};
 	var obj = {};
 	for(var key in query) {
@@ -84,11 +95,11 @@ function queryToObject(query) {
 		}
 	}
 	return obj;
-}
-exports.queryToObject = queryToObject;
+};
 
 // Returns true iff the query contains only exact value matches and no operators
-function isBasicQuery(query) {
+Query.prototype.isTrivial = function() {
+	var query = this.query;
 	if(!query || typeof query != 'object') return false;
 	for(var key in query) {
 		if(!(typeof query[key] != 'object' && query[key] !== null && query[key] !== undefined && key[0] != '$')) {
@@ -96,11 +107,11 @@ function isBasicQuery(query) {
 		}
 	}
 	return true;
-}
-exports.isBasicQuery = isBasicQuery;
+};
 
-// Returns true iff the given query is a basic query AND matches all of, and only, the array of fields given
-function queryMatchesExactFieldSet(query, fields) {
+// Returns true iff the given query is a basic query AND matches against all of, and only, the array of fields given
+Query.prototype.matchesExactFieldSet = function(fields) {
+	var query = this.query;
 	if(!query || typeof query != 'object') return false;
 	var fieldSet = {};
 	for(var i = 0; i < fields.length; i++) fieldSet[fields[i]] = true;
@@ -115,17 +126,9 @@ function queryMatchesExactFieldSet(query, fields) {
 		}
 	}
 	return true;
-}
-exports.queryMatchesExactFieldSet = queryMatchesExactFieldSet;
+};
 
-/**
- * Returns a list of operators that are used in a common query.
- *
- * @param objType string The type of object (ie, model name)
- * @param query object The common query
- * @return Array list of used operators
- */
-function getOperators(objType, query) {
+function getOperators(query) {
 	var opSet = {};
 	function helper(query) {
 		if(!query || typeof query != 'object') return;
@@ -139,7 +142,17 @@ function getOperators(objType, query) {
 	helper(query);
 	return Object.keys(opSet);
 }
-exports.getOperators = getOperators;
+
+/**
+ * Returns a list of operators that are used in a common query.
+ *
+ * @param objType string The type of object (ie, model name)
+ * @param query object The common query
+ * @return Array list of used operators
+ */
+Query.prototype.getOperators = function() {
+	return getOperators(this.query);
+};
 
 // Determines whether an expression contains entirely operators or not
 function isOperatorExpr(expr) {
@@ -156,7 +169,7 @@ function isOperatorExpr(expr) {
 		return false;
 	}
 }
-exports.isOperatorExpr = isOperatorExpr;
+Query.isOperatorExpr = isOperatorExpr;
 
 // Determines if the expression is a variable substitution expression (for substituting a scalar value)
 // in the form of { $var: "VARNAME" }
@@ -174,7 +187,8 @@ function isVarExpression(expr) {
  * @param vars object Map from variable names to values
  * @return mixed query, or instance of ZSError
  */
-function substituteVars(query, vars, ignoreMissing) {
+Query.prototype.substituteVars = function(vars, ignoreMissing) {
+	var query = this.query;
 	var missingVars = [];
 	function subst(obj) {
 		if(isVarExpression(obj)) {
@@ -198,12 +212,21 @@ function substituteVars(query, vars, ignoreMissing) {
 		}
 	}
 	var res = subst(query);
-	if(missingVars.length) return new ZSError(ZSError.INVALID_QUERY, 'Missing query variables: ' + missingVars.join(', '), { missingVars: missingVars });
-	return res;
-}
-exports.substituteVars = substituteVars;
+	if(missingVars.length) throw new ZSError(ZSError.INVALID_QUERY, 'Missing query variables: ' + missingVars.join(', '), { missingVars: missingVars });
+	this.query = res;
+};
 
-function combineQueriesAnd(query1, query2) {
+Query.prototype.toObject = function() {
+	return this.query;
+};
+
+/**
+ * Combine this query with another query such that the result query will match the intersection of
+ * the two queries.  Returns a new instance of Query .
+ */
+Query.prototype.combineAnd = function(otherQuery) {
+	var query1 = this.query;
+	var query2 = otherQuery;
 	var result = {};
 	var key;
 	function addClause(key, val) {
@@ -232,9 +255,8 @@ function combineQueriesAnd(query1, query2) {
 	}
 	for(key in query1) addClause(key, query1[key]);
 	for(key in query2) addClause(key, query2[key]);
-	return result;
-}
-exports.combineQueriesAnd = combineQueriesAnd;
+	return new Query(result);
+};
 
 /**
  * Ensures that a common query is valid.
@@ -243,9 +265,10 @@ exports.combineQueriesAnd = combineQueriesAnd;
  * @param query object The query
  * @param allowedOperators Array Optional list of operators that are allowed.  Defaults to all supported operators.
  * @param extraOperators Array Optional list of allowed operators in addition to the default ones
- * @return mixed Returns boolean true if valid.  Returns an instance of of ZSError if not valid.
+ * @return mixed Returns boolean true if valid.  Throws an instance of of ZSError if not valid.
  */
-function validateQuery(objType, query, allowedOperators, extraOperators, allowVar) {
+Query.prototype.validate = function(allowedOperators, extraOperators, allowVar) {
+	var query = this.query;
 	if(!allowedOperators) allowedOperators = [ '$and', '$or', '$nor', '$exists', '$in', '$not', '$text', '$wildcard', '$regex', '$gt', '$gte', '$lt', '$lte', '$ne', '$elemMatch', '$options' ];
 	if(extraOperators) allowedOperators = allowedOperators.concat(extraOperators);
 	var allowedOpSet = {};
@@ -258,7 +281,7 @@ function validateQuery(objType, query, allowedOperators, extraOperators, allowVa
 	function validatePlainValue(val) {
 		if(val === null) return;
 		if(typeof val == 'object' && (!allowVar || !isVarExpression(val))) {
-			if(getOperators(null, val).length) {
+			if(getOperators(val).length) {
 				errors.push(new ZSError(ZSError.INVALID_QUERY, 'Plain value object may not contain operators', { value: val }));
 			}
 		} else {
@@ -366,11 +389,10 @@ function validateQuery(objType, query, allowedOperators, extraOperators, allowVa
 
 	validateQueryExpr(query);
 	if(errors.length) {
-		return errors[0];
+		throw errors[0];
 	}
 	return true;
-}
-exports.validateQuery = validateQuery;
+};
 
 function makeWildcardRegex(str) {
 	var ret = '^';
@@ -383,22 +405,13 @@ function makeWildcardRegex(str) {
 	}
 	return ret + '$';
 }
-exports.makeWildcardRegex = makeWildcardRegex;
+Query.makeWildcardRegex = makeWildcardRegex;
 
-/**
- * Determines whether a common query matches an object.
- *
- * @param objType string Object type (ie, model name)
- * @param query object Common query
- * @param obj object Object to match against
- * @return mixed Boolean true/false or an instance of ZSError
- */
-function queryMatches(objType, query, obj, options) {
+function queryMatches(query, obj, options) {
 	if(!options) options = {};
 	// Validate the query
 	if(!options.skipValidate) {
-		var validateError = validateQuery(objType, query);
-		if(validateError !== true) return validateError;
+		this.validate();
 	}
 
 	var errors = [];
@@ -453,7 +466,7 @@ function queryMatches(objType, query, obj, options) {
 			//console.log(key, keyVal, operator, operatorVal, operatorExpr);
 			if(Array.isArray(keyVal)) {
 				return keyVal.some(function(el) {
-					var r = queryMatches(null, operatorVal, el, true);
+					var r = queryMatches(operatorVal, el, { skipValidate: true });
 					if(r instanceof ZSError) {
 						errors.push(r);
 						return false;
@@ -516,20 +529,37 @@ function queryMatches(objType, query, obj, options) {
 	}
 
 	var matches = matchQuery(query);
-	if(errors.length) return errors[0];
+	if(errors.length) throw errors[0];
 	return !!matches;
 }
-exports.queryMatches = queryMatches;
+
+/**
+ * Determines whether a common query matches an object.
+ *
+ * @param objType string Object type (ie, model name)
+ * @param query object Common query
+ * @param obj object Object to match against
+ * @return mixed Boolean true/false or throws an instance of ZSError
+ */
+Query.prototype.matches = function(obj, options) {
+	return queryMatches(this.query, obj, options);
+};
 
 },{"extend":"extend","objtools":"objtools","regexp-quote":3,"zs-error":"zs-error"}],2:[function(_dereq_,module,exports){
-var objtools = (typeof window !== "undefined" ? window.ZS.objtools : typeof global !== "undefined" ? global.ZS.objtools : null);
+var objtools = (typeof window !== "undefined" ? window.ZSModule.objtools : typeof global !== "undefined" ? global.ZSModule.objtools : null);
 var getPath = objtools.getPath;
 var setPath = objtools.setPath;
 var deletePath = objtools.deletePath;
-var ZSError = (typeof window !== "undefined" ? window.ZS.Error : typeof global !== "undefined" ? global.ZS.Error : null);
+var ZSError = (typeof window !== "undefined" ? window.ZSModule.ZSError : typeof global !== "undefined" ? global.ZSModule.ZSError : null);
 var extend = (typeof window !== "undefined" ? window.extend : typeof global !== "undefined" ? global.extend : null);
 
-function getUpdatedFields(objType, doc, update, options) {
+function Update(update) {
+	this.update = update;
+}
+module.exports = Update;
+
+Update.prototype.getUpdatedFields = function(doc, options) {
+	var update = this.update;
 	if(!options) options = {};
 	if(!update || typeof update != 'object') return [];
 
@@ -546,7 +576,7 @@ function getUpdatedFields(objType, doc, update, options) {
 
 	var fieldSet = {};
 
-	if(!updateHasOperators(update)) {
+	if(!this.updateHasOperators()) {
 		if(options.allowFullReplace) {
 
 			// Need to replace the entire document with the new document, but do it in-place as much as possible (in the case we're updating a mongoose doc or something)
@@ -581,7 +611,7 @@ function getUpdatedFields(objType, doc, update, options) {
 
 		} else {
 			update = {
-				$set: update
+				$set: objtools.collapseToDotted(update, false, true)
 			};
 		}
 	}
@@ -598,12 +628,12 @@ function getUpdatedFields(objType, doc, update, options) {
 		}
 	}
 	return Object.keys(fieldSet);
-}
-exports.getUpdatedFields = getUpdatedFields;
+};
 
-function transformUpdatedFields(objType, update, transform) {
-	if(!update || typeof update != 'object') return update;
-	if(updateHasOperators(update)) {
+Update.prototype.transformUpdatedFields = function(transform) {
+	var update = this.update;
+	if(!update || typeof update != 'object') return;
+	if(this.hasOperators()) {
 		update = extend(true, {}, update);
 		for(var operator in update) {
 			if(!update.hasOwnProperty(operator)) continue;
@@ -615,22 +645,22 @@ function transformUpdatedFields(objType, update, transform) {
 				}
 			}
 		}
-		return update;
+		this.update = update;
 	} else {
 		var newUpdate = {};
 		for(var key in update) {
 			if(!update.hasOwnProperty(key)) continue;
 			newUpdate[transform(key)] = update[key];
 		}
-		return newUpdate;
+		this.update = newUpdate;
 	}
-}
-exports.transformUpdatedFields = transformUpdatedFields;
+};
 
-function validateUpdate(objType, update, allowedOperators, extraOperators) {
+Update.prototype.validate = function(allowedOperators, extraOperators) {
+	var update = this.update;
 	if(!update || typeof update != 'object') return new ZSError(ZSError.INVALID_QUERY, 'Update must be object');
 
-	if(!updateHasOperators(update)) return true;
+	if(!this.hasOperators()) return true;
 
 	if(!allowedOperators) allowedOperators = [ '$inc', '$mul', '$rename', '$set', '$unset', '$min', '$max', '$currentDate', '$addToSet', '$pop', '$push' ];
 	if(extraOperators) allowedOperators = allowedOperators.concat(extraOperators);
@@ -647,25 +677,25 @@ function validateUpdate(objType, update, allowedOperators, extraOperators) {
 		}
 	}
 	return true;
-}
-exports.validateUpdate = validateUpdate;
+};
 
-function updateHasOperators(update) {
+Update.prototype.hasOperators = function() {
+	var update = this.update;
 	var hasOperator = false;
 	for(var key in update) {
 		if(!update.hasOwnProperty(key)) continue;
 		if(key[0] == '$') hasOperator = true;
 	}
 	return hasOperator;
-}
-exports.updateHasOperators = updateHasOperators;
+};
 
 // options:
 // - allowFullReplace - If true, use the mongo of replacing the entire document if no operators are present
 // - modifiedCallback - function called for each modified path in the document: function(field, newValue), called with this=doc
 // - internalFields - Array of internal fields that cannot be modified (or map from field name to true).  This can also be a function
 // in the form function(fieldName) which returns true if the field is an internal field.
-function applyUpdate(objType, doc, update, options) {
+Update.prototype.apply = function(doc, options) {
+	var update = this.update;
 	var field, fieldVal, paramVal, i, eachVals;
 	if(!options) options = {};
 
@@ -703,7 +733,7 @@ function applyUpdate(objType, doc, update, options) {
 	}
 
 	// If the update contains no operators, assume it's a $set
-	if(!updateHasOperators(update)) {
+	if(!this.hasOperators()) {
 		if(options.allowFullReplace) {
 
 			// Need to replace the entire document with the new document, but do it in-place as much as possible (in the case we're updating a mongoose doc or something)
@@ -742,7 +772,7 @@ function applyUpdate(objType, doc, update, options) {
 
 		} else {
 			update = {
-				$set: update
+				$set: objtools.collapseToDotted(update, false, true)
 			};
 		}
 	}
@@ -977,8 +1007,8 @@ function applyUpdate(objType, doc, update, options) {
 	}
 
 	return doc;
-}
-exports.applyUpdate = applyUpdate;
+};
+
 
 },{"extend":"extend","objtools":"objtools","zs-error":"zs-error"}],3:[function(_dereq_,module,exports){
 module.exports = function (string) {
@@ -989,9 +1019,8 @@ module.exports = function (string) {
 var query = _dereq_('./query');
 var update = _dereq_('./update');
 
-var key;
-for(key in query) exports[key] = query[key];
-for(key in update) exports[key] = update[key];
+exports.Query = query;
+exports.Update = update;
 
 },{"./query":1,"./update":2}]},{},[])("common-query")
 });
