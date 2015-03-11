@@ -1,25 +1,43 @@
 {
-  "name": "common-query",
-  "version": "0.0.23",
-  "private": true,
-  "description": "Base framework for common mongo-style query language.",
-  "main": "./lib/index.js",
+  "name": "zs-common-query",
+  "version": "0.0.1",
+  "description": "Base framework for common mongo-style query language",
+  "main": "./dist/lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git@git.zipscene.com:zsapilibs/common-query.git"
+    "url": "git@git.zipscene.com:zsapilibs/zs-common-query.git"
   },
   "scripts": {
-    "lint": "node node_modules/zs-linter/scripts/zslint",
-    "bowerify": "node node_modules/bowerify/bin/cmd.js"
+    "lint": "node ./node_modules/.bin/eslint . || exit 0",
+    "docs": "node ./node_modules/.bin/yuidoc .",
+    "test": "npm run-script build && node ./node_modules/.bin/mocha ./dist/test -R spec",
+    "build": "./node_modules/.bin/grunt build && rm -rf tmp",
+    "watch": "./node_modules/.bin/grunt watch && rm -rf tmp",
+    "prepublish": "npm run-script build && npm run-script docs"
   },
   "dependencies": {
-    "extend": "^2.0.0",
-    "objtools": "git+ssh://git@git.zipscene.com:zsapilibs/objtools.git#v0.0.16",
-    "regexp-quote": "0.0.0",
-    "zs-error": "git+ssh://git@git.zipscene.com:zsapicore/zs-error.git#v0.0.13"
+    "babel-runtime": "^4.7.8",
+    "crisphooks": "^2.0.0",
+    "lodash": "^3.5.0",
+    "xerror": "^1.0.0",
+    "zs-objtools": "^0.2.2"
   },
   "devDependencies": {
-    "zs-linter": "git+ssh://git@git.zipscene.com:zsapicore/zs-linter.git",
-    "bowerify": "git+ssh://git@git.zipscene.com:zsapilibs/bowerify.git"
+    "broccoli": "^0.15.0",
+    "broccoli-babel-transpiler": "^4.0.1",
+    "broccoli-cli": "0.0.1",
+    "broccoli-merge-trees": "^0.2.1",
+    "broccoli-static-compiler": "^0.2.1",
+    "chai": "^2.1.1",
+    "es6-promise": "^2.0.1",
+    "eslint": "^0.16.2",
+    "grunt": "^0.4.5",
+    "grunt-broccoli": "^0.4.0",
+    "grunt-cli": "^0.1.13",
+    "mocha": "^2.2.1",
+    "yuidocjs": "^0.6.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.zipscene.com/"
   }
 }

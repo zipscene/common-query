@@ -1,0 +1,8 @@
+{
+	"name": "zs-common-query",
+	"description": "Base framework for common mongo-style query language",
+	"options": {
+		"outdir": "./docs",
+		"exclude": "dist"
+	}
+}
