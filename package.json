@@ -20,7 +20,7 @@
     "crisphooks": "^2.0.0",
     "lodash": "^3.5.0",
     "xerror": "^1.0.0",
-    "zs-objtools": "^0.2.2"
+    "zs-objtools": "^0.2.3"
   },
   "devDependencies": {
     "broccoli": "^0.15.0",
