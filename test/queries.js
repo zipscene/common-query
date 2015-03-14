@@ -27,12 +27,12 @@ describe('Query', function() {
 		});
 
 		it('full object exact match', function(done) {
-			let query1 = {
+			let query1 = createQuery({
 				foo: {
 					bar: 'biz',
 					baz: 'buz'
 				}
-			};
+			});
 			expect(query1.matches({
 				foo: {
 					bar: 'biz',
@@ -48,6 +48,72 @@ describe('Query', function() {
 				},
 				zip: 'fuz'
 			})).to.equal(false);
+			done();
+		});
+
+		it('$and', function(done) {
+			let query1 = createQuery({
+				$and: [
+					{
+						foo: 'bar'
+					},
+					{
+						biz: 'baz'
+					}
+				]
+			});
+			expect(query1.matches({
+				foo: 'bar',
+				biz: 'baz'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'bar',
+				biz: 'buz'
+			})).to.equal(false);
+			done();
+		});
+
+		it('$or', function(done) {
+			let query1 = createQuery({
+				$or: [
+					{
+						foo: 'bar'
+					},
+					{
+						biz: 'baz'
+					}
+				]
+			});
+			expect(query1.matches({
+				foo: 'bar',
+				biz: 'buz'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'bam',
+				biz: 'buz'
+			})).to.equal(false);
+			done();
+		});
+
+		it('$nor', function(done) {
+			let query1 = createQuery({
+				$nor: [
+					{
+						foo: 'bar'
+					},
+					{
+						biz: 'baz'
+					}
+				]
+			});
+			expect(query1.matches({
+				foo: 'bar',
+				biz: 'buz'
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'bam',
+				biz: 'buz'
+			})).to.equal(true);
 			done();
 		});
 
