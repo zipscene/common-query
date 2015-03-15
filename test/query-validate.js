@@ -60,4 +60,18 @@ describe('Query validate()', function() {
 		done();
 	});
 
+	it('$exists', function(done) {
+		valid({
+			foo: {
+				$exists: true
+			}
+		});
+		invalid({
+			foo: {
+				$exists: 3
+			}
+		});
+		done();
+	});
+
 });
