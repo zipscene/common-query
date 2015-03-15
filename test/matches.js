@@ -110,6 +110,16 @@ describe('Query matches()', function() {
 		done();
 	});
 
+	it('match primitive with expression opreators', function(done) {
+		let query1 = createQuery({
+			$gt: 5,
+			$lt: 10
+		});
+		expect(query1.matches(7)).to.equal(true);
+		expect(query1.matches(2)).to.equal(false);
+		done();
+	});
+
 	it('$and', function(done) {
 		let query1 = createQuery({
 			$and: [
