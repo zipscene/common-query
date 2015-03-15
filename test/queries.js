@@ -163,6 +163,29 @@ describe('Query', function() {
 			done();
 		});
 
+		it('$exists', function(done) {
+			let query1 = createQuery({
+				foo: { $exists: true },
+				bar: { $exists: false }
+			});
+			expect(query1.matches({
+				foo: 'fuz'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: null
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: undefined
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'fuz',
+				bar: 'biz'
+			})).to.equal(false);
+			expect(query1.matches({
+			})).to.equal(false);
+			done();
+		});
+
 	});
 
 });
