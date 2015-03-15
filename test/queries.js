@@ -324,6 +324,45 @@ describe('Query', function() {
 			done();
 		});
 
+		it('$text', function(done) {
+			let query1 = createQuery({
+				foo: {
+					$text: 'zip zup'
+				}
+			});
+			expect(query1.matches({
+				foo: 'zip van zup'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'zip bar'
+			})).to.equal(false);
+			done();
+		});
+
+		it('$wildcard', function(done) {
+			let query1 = createQuery({
+				foo: {
+					$wildcard: 'zip*zup?'
+				}
+			});
+			expect(query1.matches({
+				foo: 'zipasdzupa'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'zipzup'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'zipzupas'
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'zizup'
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'azipzup'
+			})).to.equal(false);
+			done();
+		});
+
 	});
 
 });
