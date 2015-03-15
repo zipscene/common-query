@@ -224,6 +224,21 @@ describe('Query', function() {
 			done();
 		});
 
+		it('$not', function(done) {
+			let query1 = createQuery({
+				foo: { $not: { $exists: true } },
+				bar: { $not: { $exists: false } }
+			});
+			expect(query1.matches({
+				bar: 123
+			})).to.equal(true);
+			expect(query1.matches({
+				bar: 123,
+				foo: 123
+			})).to.equal(false);
+			done();
+		});
+
 	});
 
 });
