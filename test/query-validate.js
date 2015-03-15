@@ -1,15 +1,62 @@
 var expect = require('chai').expect;
 var createQuery = require('../lib/index').createQuery;
 
-describe('Query matches()', function() {
+describe('Query validate()', function() {
 
-	it('basic valid query', function(done) {
+	function valid(query) {
+		createQuery(query).validate();
+	}
+
+	function invalid(query) {
+		let invalidFlag = false;
+		query = createQuery(query);
+		try {
+			query.validate();
+		} catch (ex) {
+			invalidFlag = true;
+		}
+		if (!invalidFlag) {
+			throw new Error('Expected query to be invalid');
+		}
+	}
+
+	it('basic valid query and return value', function(done) {
 		let query1 = createQuery({
 			foo: 'bar',
 			biz: 'baz'
 		});
 		let validateResult = query1.validate();
 		expect(validateResult).to.equal(true);
+		done();
+	});
+
+	it('$and, $or, $nor', function(done) {
+		valid({
+			$and: [
+				{
+					foo: 'bar'
+				},
+				{
+					biz: 'baz',
+					qux: 'bum'
+				}
+			],
+			$nor: [
+				{
+					zip: 'zap'
+				}
+			]
+		});
+		invalid({
+			$and: [
+				{
+					foo: 'bar'
+				}
+			],
+			$or: {
+				biz: 'baz'
+			}
+		});
 		done();
 	});
 
