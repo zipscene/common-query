@@ -513,6 +513,11 @@ describe('Query', function() {
 			})).to.equal(false);
 			expect(query1.getMatchProperty('distance')).to.exist;
 			expect(query1.getMatchProperty('distance')).to.be.above(10000);
+			expect(query1.matches({
+				loc: [ [ -84.5087746, 39.0972566 ], [ -84.168767, 39.1413997 ] ]
+			})).to.equal(true);
+			expect(query1.getMatchProperty('distance')).to.be.above(500);
+			expect(query1.getMatchProperty('distance')).to.be.below(800);
 			done();
 		});
 
