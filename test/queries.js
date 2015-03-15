@@ -51,6 +51,19 @@ describe('Query', function() {
 			done();
 		});
 
+		it('exact match to array', function(done) {
+			let query1 = createQuery({
+				foo: 'bar'
+			});
+			expect(query1.matches({
+				foo: [ 1, 2, 'bar', 3 ]
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: [ 1, 2, 3 ]
+			})).to.equal(false);
+			done();
+		});
+
 		it('ignore match to undefined', function(done) {
 			let query1 = createQuery({
 				foo: undefined,
@@ -235,6 +248,78 @@ describe('Query', function() {
 			expect(query1.matches({
 				bar: 123,
 				foo: 123
+			})).to.equal(false);
+			done();
+		});
+
+		it('$elemMatch', function(done) {
+			let query1 = createQuery({
+				foo: {
+					$elemMatch: {
+						bar: 'baz',
+						zip: 'buz'
+					}
+				}
+			});
+			expect(query1.matches({
+				foo: [
+					1,
+					{
+						bar: 'baz',
+						zip: 'buz'
+					}
+				]
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: [
+					1,
+					{
+						bar: 'baz',
+						zip: 'bip'
+					}
+				]
+			})).to.equal(false);
+			let query2 = createQuery({
+				foo: {
+					$elemMatch: {
+						$exists: true
+					}
+				}
+			});
+			expect(query2.matches({
+				foo: [
+					undefined,
+					undefined,
+					2
+				]
+			})).to.equal(true);
+			expect(query2.matches({
+				foo: [
+					undefined,
+					undefined,
+					undefined
+				]
+			})).to.equal(false);
+			done();
+		});
+
+		it('$in', function(done) {
+			let query1 = createQuery({
+				foo: {
+					$in: [ 1, 2, 3 ]
+				}
+			});
+			expect(query1.matches({
+				foo: 2
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: [ 3, 4, 5 ]
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: [ 4, 5, 6 ]
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'bar'
 			})).to.equal(false);
 			done();
 		});
