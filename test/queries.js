@@ -102,6 +102,16 @@ describe('Query', function() {
 			done();
 		});
 
+		it('case sensitive', function(done) {
+			let query1 = createQuery({
+				foo: 'bar'
+			});
+			expect(query1.matches({
+				foo: 'Bar'
+			})).to.equal(false);
+			done();
+		});
+
 		it('$and', function(done) {
 			let query1 = createQuery({
 				$and: [
@@ -388,6 +398,62 @@ describe('Query', function() {
 			expect(query1.matches({
 				foo: 'ZIPZUP'
 			})).to.equal(true);
+			done();
+		});
+
+		it('$gt, $gte, $lt, $lte', function(done) {
+			let query1 = createQuery({
+				foo: { $gt: 10, $lt: 20 },
+				bar: { $gte: 11, $lte: 19 }
+			});
+			expect(query1.matches({
+				foo: 15,
+				bar: 15
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 11,
+				bar: 11
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 19,
+				bar: 19
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: [ 100, 19, 0 ],
+				bar: 19
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 11,
+				bar: 20
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 10,
+				bar: 11
+			})).to.equal(false);
+			let query2 = createQuery({
+				foo: {
+					$gte: new Date('2012-01-01T00:00:00Z'),
+					$lte: new Date('2013-01-01T00:00:00Z')
+				}
+			});
+			expect(query2.matches({
+				foo: new Date('2012-01-20T00:00:00Z')
+			})).to.equal(true);
+			expect(query2.matches({
+				foo: new Date('2011-01-20T00:00:00Z')
+			})).to.equal(false);
+			let query3 = createQuery({
+				foo: {
+					$gt: 'cat',
+					$lt: 'dog'
+				}
+			});
+			expect(query3.matches({
+				foo: 'cuttlefish'
+			})).to.equal(true);
+			expect(query3.matches({
+				foo: 'elephant'
+			})).to.equal(false);
 			done();
 		});
 
