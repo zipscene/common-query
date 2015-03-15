@@ -334,6 +334,27 @@ describe('Query', function() {
 			done();
 		});
 
+		it('$nin', function(done) {
+			let query1 = createQuery({
+				foo: {
+					$nin: [ 1, 2, 3 ]
+				}
+			});
+			expect(query1.matches({
+				foo: 2
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: [ 3, 4, 5 ]
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: [ 4, 5, 6 ]
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'bar'
+			})).to.equal(true);
+			done();
+		});
+
 		it('$text', function(done) {
 			let query1 = createQuery({
 				foo: {
@@ -453,6 +474,19 @@ describe('Query', function() {
 			})).to.equal(true);
 			expect(query3.matches({
 				foo: 'elephant'
+			})).to.equal(false);
+			done();
+		});
+
+		it('$ne', function(done) {
+			var query1 = createQuery({
+				foo: { $ne: 'bar' }
+			});
+			expect(query1.matches({
+				foo: 'baz'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'bar'
 			})).to.equal(false);
 			done();
 		});
