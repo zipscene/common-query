@@ -51,6 +51,44 @@ describe('Query', function() {
 			done();
 		});
 
+		it('ignore match to undefined', function(done) {
+			let query1 = createQuery({
+				foo: undefined,
+				bar: 'zip'
+			});
+			expect(query1.matches({
+				bar: 'zip',
+				foo: 'bam'
+			})).to.equal(true);
+			expect(query1.matches({
+				bar: 'zip'
+			})).to.equal(true);
+			done();
+		});
+
+		it('null matches null or nonexistent', function(done) {
+			let query1 = createQuery({
+				foo: 123,
+				bar: null
+			});
+			expect(query1.matches({
+				foo: 123,
+				bar: null
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 123,
+				bar: undefined
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 123
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 123,
+				bar: 123
+			})).to.equal(false);
+			done();
+		});
+
 		it('$and', function(done) {
 			let query1 = createQuery({
 				$and: [
