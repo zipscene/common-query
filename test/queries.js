@@ -479,7 +479,7 @@ describe('Query', function() {
 		});
 
 		it('$ne', function(done) {
-			var query1 = createQuery({
+			let query1 = createQuery({
 				foo: { $ne: 'bar' }
 			});
 			expect(query1.matches({
@@ -488,6 +488,31 @@ describe('Query', function() {
 			expect(query1.matches({
 				foo: 'bar'
 			})).to.equal(false);
+			done();
+		});
+
+		it('$near', function(done) {
+			let query1 = createQuery({
+				loc: {
+					$near: {
+						$geometry: {
+							type: 'Point',
+							coordinates: [ -84.5099628, 39.1031535 ] // 602 Main St 45202
+						},
+						$maxDistance: 10000
+					}
+				}
+			});
+			expect(query1.matches({
+				loc: [ -84.5087746, 39.0972566 ]
+			})).to.equal(true);
+			expect(query1.getMatchProperty('distance')).to.be.above(500);
+			expect(query1.getMatchProperty('distance')).to.be.below(800);
+			expect(query1.matches({
+				loc: [ -84.168767, 39.1413997 ]
+			})).to.equal(false);
+			expect(query1.getMatchProperty('distance')).to.exist;
+			expect(query1.getMatchProperty('distance')).to.be.above(10000);
 			done();
 		});
 
