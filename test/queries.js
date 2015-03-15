@@ -561,6 +561,17 @@ describe('Query', function() {
 					] ]
 				}
 			})).to.equal(true);
+			expect(query1.matches({
+				poly: {
+					type: 'Polygon',
+					coordinates: [ [
+						[ -85.51316, 39.1052099 ],
+						[ -85.5058322, 39.1053431 ],
+						[ -85.5101237, 39.1004809 ],
+						[ -85.51316, 39.1052099 ]
+					] ]
+				}
+			})).to.equal(false);
 			done();
 		});
 
