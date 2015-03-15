@@ -363,6 +363,34 @@ describe('Query', function() {
 			done();
 		});
 
+		it('$regex', function(done) {
+			let query1 = createQuery({
+				foo: {
+					$regex: '^zip.*zup.?$',
+					$options: 'i'
+				}
+			});
+			expect(query1.matches({
+				foo: 'zipasdzupa'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'zipzup'
+			})).to.equal(true);
+			expect(query1.matches({
+				foo: 'zipzupas'
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'zizup'
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'azipzup'
+			})).to.equal(false);
+			expect(query1.matches({
+				foo: 'ZIPZUP'
+			})).to.equal(true);
+			done();
+		});
+
 	});
 
 });
