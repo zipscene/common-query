@@ -114,4 +114,28 @@ describe('Query validate()', function() {
 		done();
 	});
 
+	it('$elemMatch', function(done) {
+		valid({
+			foo: {
+				$elemMatch: {
+					bar: {
+						$elemMatch: {
+							biz: 'bam'
+						}
+					}
+				}
+			}
+		});
+		invalid({
+			foo: {
+				$elemMatch: {
+					bar: {
+						$elemMatch: 'zip'
+					}
+				}
+			}
+		});
+		done();
+	});
+
 });
