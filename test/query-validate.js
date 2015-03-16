@@ -57,6 +57,28 @@ describe('Query validate()', function() {
 				biz: 'baz'
 			}
 		});
+		valid({
+			$and: [
+				{
+					$or: [
+						{
+							foo: 'bar'
+						}
+					]
+				}
+			]
+		});
+		invalid({
+			$and: [
+				{
+					$or: [
+						{
+							$and: 'bar'
+						}
+					]
+				}
+			]
+		});
 		done();
 	});
 
@@ -69,6 +91,24 @@ describe('Query validate()', function() {
 		invalid({
 			foo: {
 				$exists: 3
+			}
+		});
+		done();
+	});
+
+	it('$not', function(done) {
+		valid({
+			foo: {
+				$not: {
+					$exists: true
+				}
+			}
+		});
+		invalid({
+			foo: {
+				$not: {
+					$exists: 'zip'
+				}
 			}
 		});
 		done();
