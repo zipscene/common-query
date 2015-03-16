@@ -68,3 +68,69 @@ describe('Query getQueriedFields()', function() {
 	});
 
 });
+
+describe('Query transformQueriedFields()', function() {
+
+	it('test1', function(done) {
+		var query = createQuery({
+			foo: 'bar'
+		});
+		query.transformQueriedFields(function(field) {
+			return 'prefix' + field;
+		});
+		expect(query.getData()).to.deep.equal({
+			prefixfoo: 'bar'
+		});
+		done();
+	});
+
+	it('test2', function(done) {
+		var query = createQuery({
+			foo: 1,
+			$and: [
+				{
+					bar: 1,
+					baz: 1
+				},
+				{
+					qux: 1
+				}
+			],
+			$nor: [
+				{
+					zip: {
+						$elemMatch: {
+							buz: 1
+						}
+					}
+				}
+			]
+		});
+		query.transformQueriedFields(function(field) {
+			return 'prefix' + field;
+		});
+		expect(query.getData()).to.deep.equal({
+			prefixfoo: 1,
+			$and: [
+				{
+					prefixbar: 1,
+					prefixbaz: 1
+				},
+				{
+					prefixqux: 1
+				}
+			],
+			$nor: [
+				{
+					prefixzip: {
+						$elemMatch: {
+							buz: 1
+						}
+					}
+				}
+			]
+		});
+		done();
+	});
+
+});
