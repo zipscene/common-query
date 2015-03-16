@@ -138,4 +138,18 @@ describe('Query validate()', function() {
 		done();
 	});
 
+	it('$in, $nin', function(done) {
+		valid({
+			foo: { $in: [ 1, 2, 3 ] },
+			bar: { $nin: [ 1, 2, 3 ] }
+		});
+		invalid({
+			foo: { $in: 'zip' }
+		});
+		invalid({
+			foo: { $nin: 'zip' }
+		});
+		done();
+	});
+
 });
