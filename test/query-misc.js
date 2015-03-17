@@ -276,3 +276,58 @@ describe('Query getOperators()', function() {
 	});
 
 });
+
+describe('Query substituteVars()', function() {
+
+	it('test1', function(done) {
+		var query = createQuery({
+			foo: 'bar',
+			$and: [
+				{
+					zip: { $var: 'var1' }
+				},
+				{
+					$elemMatch: {
+						zap: 'buz',
+						baz: { $var: 'var2' }
+					}
+				},
+				{
+					$in: [
+						1,
+						2,
+						{ $var: 'var3' }
+					]
+				}
+			]
+		});
+		query.substituteVars({
+			var1: 'zip1',
+			var2: 'baz2',
+			var3: 3
+		});
+		expect(query.getData()).to.deep.equal({
+			foo: 'bar',
+			$and: [
+				{
+					zip: 'zip1'
+				},
+				{
+					$elemMatch: {
+						zap: 'buz',
+						baz: 'baz2'
+					}
+				},
+				{
+					$in: [
+						1,
+						2,
+						3
+					]
+				}
+			]
+		});
+		done();
+	});
+
+});
