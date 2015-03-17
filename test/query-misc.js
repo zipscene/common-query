@@ -134,3 +134,116 @@ describe('Query transformQueriedFields()', function() {
 	});
 
 });
+
+describe('Query getExactMatches()', function() {
+
+	it('trivial exact matches', function(done) {
+		expect(createQuery({
+			foo: 'bar',
+			biz: 'baz'
+		}).getExactMatches()).to.deep.equal({
+			exactMatches: {
+				foo: 'bar',
+				biz: 'baz'
+			},
+			onlyExactMatches: true
+		});
+		done();
+	});
+
+	it('nested exact matches', function(done) {
+		expect(createQuery({
+			foo: 'bar',
+			biz: 'baz',
+			$and: [
+				{
+					zip: 'zap'
+				},
+				{
+					$and: [
+						{
+							qux: 'buz'
+						}
+					]
+				}
+			]
+		}).getExactMatches()).to.deep.equal({
+			exactMatches: {
+				foo: 'bar',
+				biz: 'baz',
+				zip: 'zap',
+				qux: 'buz'
+			},
+			onlyExactMatches: true
+		});
+		done();
+	});
+
+	it('no exact matches', function(done) {
+		expect(createQuery({
+			foo: { $ne: 10 },
+			$or: [
+				{
+					bar: 'baz'
+				},
+				{
+					zip: 'zap'
+				}
+			]
+		}).getExactMatches()).to.deep.equal({
+			exactMatches: {},
+			onlyExactMatches: false
+		});
+		done();
+	});
+
+	it('single-clause or exact match', function(done) {
+		expect(createQuery({
+			foo: { $ne: 10 },
+			$or: [
+				{
+					bar: 'baz'
+				}
+			]
+		}).getExactMatches()).to.deep.equal({
+			exactMatches: {
+				bar: 'baz'
+			},
+			onlyExactMatches: false
+		});
+		done();
+	});
+
+	it('conflicting match', function(done) {
+		expect(createQuery({
+			foo: 'bar',
+			$and: [
+				{
+					zip: 'zap'
+				},
+				{
+					zip: 'buz'
+				}
+			]
+		}).getExactMatches()).to.deep.equal({
+			exactMatches: {
+				foo: 'bar'
+			},
+			onlyExactMatches: false
+		});
+		done();
+	});
+
+	it('can never match', function(done) {
+		expect(createQuery({
+			foo: 'bar',
+			$or: []
+		}).getExactMatches()).to.deep.equal({
+			exactMatches: {},
+			onlyExactMatches: false
+		});
+		done();
+	});
+
+});
+
