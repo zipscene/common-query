@@ -247,3 +247,32 @@ describe('Query getExactMatches()', function() {
 
 });
 
+describe('Query getOperators()', function() {
+
+	it('test1', function(done) {
+		expect(createQuery({
+			foo: 1,
+			bar: { $ne: 3 },
+			$and: [
+				{
+					zip: { $in: [ 1, 2, 3 ] }
+				},
+				{
+					zap: {
+						$elemMatch: {
+							baz: { $gt: 5 }
+						}
+					}
+				}
+			]
+		}).getOperators().sort()).to.deep.equal([
+			'$ne',
+			'$and',
+			'$in',
+			'$elemMatch',
+			'$gt'
+		].sort());
+		done();
+	});
+
+});
