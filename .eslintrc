@@ -164,7 +164,7 @@
 		"space-unary-ops": 2,
 		"spaced-line-comment": 0,
 		"wrap-regex": 0,
-		"no-var": 0,
+		"no-var": 2,
 		"generator-star": 0,
 		"max-len": [2, 120, 4],
 		"max-params": [2, 10],
