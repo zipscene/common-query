@@ -16,7 +16,7 @@
     "prepublish": "npm run-script build && npm run-script docs"
   },
   "dependencies": {
-    "babel-runtime": "^4.7.8",
+    "babel-runtime": "^4.7.12",
     "crisphooks": "^2.0.0",
     "geolib": "^2.0.14",
     "lodash": "^3.5.0",
