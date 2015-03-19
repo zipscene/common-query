@@ -89,4 +89,24 @@ describe('Update apply()', function() {
 		done();
 	});
 
+	it('$rename', function(done) {
+		let obj = {
+			hi: 'hi',
+			bye: 'bye'
+		};
+		let update = {
+			$rename: {
+				hi: 'hello',
+				sup: 'wassup'
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			hello: 'hi',
+			bye: 'bye'
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
 });
