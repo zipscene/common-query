@@ -137,4 +137,141 @@ describe('Update apply()', function() {
 		done();
 	});
 
+	it('scalar $addToSet', function(done) {
+		let obj = {
+			set: [ 1, 14, '1', 2, false, 'gareth' ],
+			nested: {
+				set: [ true, 'waifu', 976 ]
+			}
+		};
+		let update = {
+			$addToSet: {
+				set: {
+					$each: [ true, false, 2, '2', 'gareth' ]
+				},
+				'nested.set': 'appendectomy'
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			set: [ 1, 14, '1', 2, false, 'gareth', true, '2' ],
+			nested: {
+				set: [ true, 'waifu', 976, 'appendectomy' ]
+			}
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('complex $addToSet', function(done) {
+		let obj = {
+			set: [
+				true,
+				{
+					happy: 'happy',
+					joy: 'joy'
+				},
+				{
+					unhappy: 'unhappy',
+					grief: 'grief'
+				},
+				[ 1, 2, 3 ],
+				[ 3, 2, 1 ],
+				new Date(2014, 5, 5).toISOString()
+			]
+		};
+		let update = {
+			$addToSet: {
+				set: {
+					$each: [
+						{
+							happy: 'happy',
+							joy: 'joy'
+						},
+						{
+							unhappy: 'unhappy'
+						},
+						[ 1, 2, 3 ],
+						[ 3, 2, 1, 0 ],
+						new Date(2014, 5, 5).toISOString(),
+						new Date(2015, 5, 5).toISOString()
+					]
+				}
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			set: [
+				true,
+				{
+					happy: 'happy',
+					joy: 'joy'
+				},
+				{
+					unhappy: 'unhappy',
+					grief: 'grief'
+				},
+				[ 1, 2, 3 ],
+				[ 3, 2, 1 ],
+				new Date(2014, 5, 5).toISOString(),
+				{
+					unhappy: 'unhappy'
+				},
+				[ 3, 2, 1, 0 ],
+				new Date(2015, 5, 5).toISOString()
+			]
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('$push', function(done) {
+		let obj = {
+			set: [ 1, 14, '1', 2, false, 'gareth' ],
+			nested: {
+				set: [ true, 'waifu', 976 ]
+			}
+		};
+		let update = {
+			$push: {
+				set: {
+					$each: [ true, false, 2, '2', 'gareth' ]
+				},
+				'nested.set': 'appendectomy'
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			set: [ 1, 14, '1', 2, false, 'gareth', true, false, 2, '2', 'gareth' ],
+			nested: {
+				set: [ true, 'waifu', 976, 'appendectomy' ]
+			}
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('$pop', function(done) {
+		let obj = {
+			set: [ 1, 14, '1', 2, false, 'gareth' ],
+			nested: {
+				set: [ true, 'waifu', 976 ]
+			}
+		};
+		let update = {
+			$pop: {
+				set: 1,
+				'nested.set': -1
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			set: [ 1, 14, '1', 2, false ],
+			nested: {
+				set: [ 'waifu', 976 ]
+			}
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
 });
