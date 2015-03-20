@@ -1,5 +1,7 @@
 let expect = require('chai').expect;
 let createUpdate = require('../lib/index').createUpdate;
+let Update = require('../lib/index').Update;
+let defaultUpdateFactory = require('../lib/index').defaultUpdateFactory;
 let objtools = require('zs-objtools');
 
 describe('Update apply()', function() {
@@ -270,6 +272,39 @@ describe('Update apply()', function() {
 			nested: {
 				set: [ 'waifu', 976 ]
 			}
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('full replace 1', function(done) {
+		let obj = {
+			hi: 'hi',
+			bye: 'bye'
+		};
+		let update = {
+			hi: 'hello'
+		};
+		let newObj = new Update(update, false, defaultUpdateFactory).apply(obj);
+		let expectedObj = {
+			hi: 'hello',
+			bye: 'bye'
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('full replace 2', function(done) {
+		let obj = {
+			hi: 'hi',
+			bye: 'bye'
+		};
+		let update = {
+			hi: 'hello'
+		};
+		let newObj = new Update(update, true, defaultUpdateFactory).apply(obj);
+		let expectedObj = {
+			hi: 'hello'
 		};
 		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
 		done();
