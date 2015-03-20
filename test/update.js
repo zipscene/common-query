@@ -109,4 +109,32 @@ describe('Update apply()', function() {
 		done();
 	});
 
+	it('$min, $max', function(done) {
+		let obj = {
+			minusten: -10,
+			zero: 0,
+			five: 5,
+			twenty: 20
+		};
+		let update = {
+			$min: {
+				zero: -2,
+				five: 6
+			},
+			$max: {
+				minusten: -14,
+				twenty: 44
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			minusten: -10,
+			zero: -2,
+			five: 5,
+			twenty: 44
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
 });
