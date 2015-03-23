@@ -300,11 +300,12 @@ describe('Query substituteVars()', function() {
 					]
 				}
 			]
-		});
-		query.substituteVars({
-			var1: 'zip1',
-			var2: 'baz2',
-			var3: 3
+		}, {
+			varSubstitutions: {
+				var1: 'zip1',
+				var2: 'baz2',
+				var3: 3
+			}
 		});
 		expect(query.getData()).to.deep.equal({
 			foo: 'bar',

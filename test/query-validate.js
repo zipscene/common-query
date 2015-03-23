@@ -1,5 +1,6 @@
 let expect = require('chai').expect;
 let createQuery = require('../lib/index').createQuery;
+let QueryValidationError = require('../lib/query-validation-error');
 
 describe('Query validate()', function() {
 
@@ -7,17 +8,8 @@ describe('Query validate()', function() {
 		createQuery(query).validate();
 	}
 
-	function invalid(query) {
-		let invalidFlag = false;
-		query = createQuery(query);
-		try {
-			query.validate();
-		} catch (ex) {
-			invalidFlag = true;
-		}
-		if (!invalidFlag) {
-			throw new Error('Expected query to be invalid');
-		}
+	function invalid(queryData) {
+		expect(function() { createQuery(queryData); }).to.throw(QueryValidationError);
 	}
 
 	it('basic valid query and return value', function(done) {
