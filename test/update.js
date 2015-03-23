@@ -139,7 +139,33 @@ describe('Update apply()', function() {
 		done();
 	});
 
-	it('scalar $addToSet', function(done) {
+	it('uniform scalar $addToSet', function(done) {
+		let obj = {
+			set: [ 1, 2, 3, 4, 5 ],
+			nested: {
+				set: [ 'a', 'b', 'c', 'd', 'e' ]
+			}
+		};
+		let update = {
+			$addToSet: {
+				set: {
+					$each: [ 6, 3, 1, 7 ]
+				},
+				'nested.set': 'f'
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			set: [ 1, 2, 3, 4, 5, 6, 7 ],
+			nested: {
+				set: [ 'a', 'b', 'c', 'd', 'e', 'f' ]
+			}
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('mixed scalar $addToSet', function(done) {
 		let obj = {
 			set: [ 1, 14, '1', 2, false, 'gareth' ],
 			nested: {
