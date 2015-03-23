@@ -310,39 +310,6 @@ describe('Update apply()', function() {
 		done();
 	});
 
-	it('full replace 1', function(done) {
-		let obj = {
-			hi: 'hi',
-			bye: 'bye'
-		};
-		let update = {
-			hi: 'hello'
-		};
-		let newObj = new Update(update, false, defaultUpdateFactory).apply(obj);
-		let expectedObj = {
-			hi: 'hello',
-			bye: 'bye'
-		};
-		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
-		done();
-	});
-
-	it('full replace 2', function(done) {
-		let obj = {
-			hi: 'hi',
-			bye: 'bye'
-		};
-		let update = {
-			hi: 'hello'
-		};
-		let newObj = new Update(update, true, defaultUpdateFactory).apply(obj);
-		let expectedObj = {
-			hi: 'hello'
-		};
-		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
-		done();
-	});
-
 	// Used by the shouldSkip testers
 	function shouldSkipTester(shouldSkipParam, done) {
 		let obj = {
