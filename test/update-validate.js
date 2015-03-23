@@ -1,18 +1,11 @@
 let expect = require('chai').expect;
 let createUpdate = require('../lib/index').createUpdate;
+let UpdateValidationError = require('../lib/update-validation-error');
 
 describe('Update validate()', function() {
 
 	function expectInvalid(updateData) {
-		let invalidFlag = false;
-		try {
-			createUpdate(updateData);
-		} catch (ex) {
-			invalidFlag = true;
-		}
-		if (!invalidFlag) {
-			throw new Error('Expected query to be invalid');
-		}
+		expect(function() { createUpdate(updateData); }).to.throw(UpdateValidationError);
 	}
 
 	it('complex update validates correctly', function(done) {
@@ -82,6 +75,63 @@ describe('Update validate()', function() {
 			c: 3
 		};
 		expectInvalid(updateData);
+		done();
+	});
+
+	it('invalid operator', function(done) {
+		expectInvalid({
+			$set: {
+				a: 'b'
+			},
+			$ultraset: {
+				c: 'd'
+			}
+		});
+		done();
+	});
+
+	it('$set, $unset', function(done) {
+		expectInvalid({
+			$set: 123
+		});
+		expectInvalid({
+			$unset: '321'
+		});
+		done();
+	});
+
+	it('$inc, $mul', function(done) {
+		expectInvalid({
+			$inc: '123aa'
+		});
+		expectInvalid({
+			$mul: {
+				value: '1234aaa'
+			}
+		});
+		done();
+	});
+
+	it('$rename', function(done) {
+		expectInvalid({
+			$rename: {
+				oldName: {
+					new: 'name'
+				}
+			}
+		});
+		done();
+	});
+
+	it('$min, $max', function(done) {
+		expectInvalid({
+			$min: 123
+		});
+		expectInvalid({
+			$max: {
+				value: '1234aaa'
+			}
+		});
 		done();
 	});
 
