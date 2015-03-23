@@ -135,4 +135,36 @@ describe('Update validate()', function() {
 		done();
 	});
 
+	it('$addToSet', function(done) {
+		expectInvalid({
+			$addToSet: 'doggy'
+		});
+		expectInvalid({
+			$addToSet: {
+				theseones: {
+					$each: {
+						'thisone': 'yes',
+						'thatone': 'yes'
+					}
+				}
+			}
+		});
+		done();
+	});
+
+	it('$push, $pop', function(done) {
+		expectInvalid({
+			$push: 'this thing'
+		});
+		expectInvalid({
+			$pop: 'this thing as well'
+		});
+		expectInvalid({
+			$pop: {
+				'a.cool.array': 0
+			}
+		});
+		done();
+	});
+
 });
