@@ -309,4 +309,98 @@ describe('Update apply()', function() {
 		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
 		done();
 	});
+
+	it('full replace 1', function(done) {
+		let obj = {
+			hi: 'hi',
+			bye: 'bye'
+		};
+		let update = {
+			hi: 'hello'
+		};
+		let newObj = new Update(update, false, defaultUpdateFactory).apply(obj);
+		let expectedObj = {
+			hi: 'hello',
+			bye: 'bye'
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	it('full replace 2', function(done) {
+		let obj = {
+			hi: 'hi',
+			bye: 'bye'
+		};
+		let update = {
+			hi: 'hello'
+		};
+		let newObj = new Update(update, true, defaultUpdateFactory).apply(obj);
+		let expectedObj = {
+			hi: 'hello'
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
+	// Used by the shouldSkip testers
+	function shouldSkipTester(shouldSkipParam, done) {
+		let obj = {
+			purdueAwesomeness: 0,
+			ukAwesomeness: 0,
+			adjectives: {
+				purdue: [ 'cool', 'ballin', 'tubular' ],
+				uk: [ 'dumb', 'stupid', 'horrible' ]
+			}
+		};
+		let update = {
+			$set: {
+				purdue: 'great',
+				uk: 'amazing'
+			},
+			$inc: {
+				purdueAwesomeness: 10000,
+				ukAwesomeness: 1000000
+			},
+			$addToSet: {
+				'adjectives.purdue': 'swell',
+				'adjectives.uk': 'coolio'
+			}
+		};
+		let newObj = new Update(update, true, defaultUpdateFactory).apply(obj, { skipFields: shouldSkipParam });
+		let expectedObj = {
+			purdue: 'great',
+			purdueAwesomeness: 10000,
+			ukAwesomeness: 0,
+			adjectives: {
+				purdue: [ 'cool', 'ballin', 'tubular', 'swell' ],
+				uk: [ 'dumb', 'stupid', 'horrible' ]
+			}
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	}
+
+	it('shouldSkip as array', function(done) {
+		let shouldSkipParam = [ 'uk', 'ukAwesomeness', 'adjectives.uk' ];
+		shouldSkipTester(shouldSkipParam, done);
+	});
+
+	it('shouldSkip as map', function(done) {
+		let shouldSkipParam = {
+			uk: true,
+			ukAwesomeness: true,
+			'adjectives.uk': true
+		};
+		shouldSkipTester(shouldSkipParam, done);
+	});
+
+	it('shouldSkip as function', function(done) {
+		let shouldSkipParam = function(fieldName) {
+			if (fieldName.indexOf('uk') === -1) return false;
+			return true;
+		};
+		shouldSkipTester(shouldSkipParam, done);
+	});
+
 });
