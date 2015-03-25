@@ -1,5 +1,5 @@
-var expect = require('chai').expect;
-var createQuery = require('../lib/index').createQuery;
+let expect = require('chai').expect;
+let createQuery = require('../lib/index').createQuery;
 
 describe('Query getQueriedFields()', function() {
 
@@ -72,7 +72,7 @@ describe('Query getQueriedFields()', function() {
 describe('Query transformQueriedFields()', function() {
 
 	it('test1', function(done) {
-		var query = createQuery({
+		let query = createQuery({
 			foo: 'bar'
 		});
 		query.transformQueriedFields(function(field) {
@@ -85,7 +85,7 @@ describe('Query transformQueriedFields()', function() {
 	});
 
 	it('test2', function(done) {
-		var query = createQuery({
+		let query = createQuery({
 			foo: 1,
 			$and: [
 				{
@@ -280,7 +280,7 @@ describe('Query getOperators()', function() {
 describe('Query substituteVars()', function() {
 
 	it('test1', function(done) {
-		var query = createQuery({
+		let query = createQuery({
 			foo: 'bar',
 			$and: [
 				{
@@ -300,11 +300,12 @@ describe('Query substituteVars()', function() {
 					]
 				}
 			]
-		});
-		query.substituteVars({
-			var1: 'zip1',
-			var2: 'baz2',
-			var3: 3
+		}, {
+			vars: {
+				var1: 'zip1',
+				var2: 'baz2',
+				var3: 3
+			}
 		});
 		expect(query.getData()).to.deep.equal({
 			foo: 'bar',

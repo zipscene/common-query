@@ -1,5 +1,5 @@
-var expect = require('chai').expect;
-var createQuery = require('../lib/index').createQuery;
+let expect = require('chai').expect;
+let createQuery = require('../lib/index').createQuery;
 
 describe('Query matches()', function() {
 
