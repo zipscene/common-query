@@ -301,7 +301,7 @@ describe('Query substituteVars()', function() {
 				}
 			]
 		}, {
-			varSubstitutions: {
+			vars: {
 				var1: 'zip1',
 				var2: 'baz2',
 				var3: 3

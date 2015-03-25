@@ -111,6 +111,26 @@ describe('Update apply()', function() {
 		done();
 	});
 
+	it('$rename to identical name', function(done) {
+		let obj = {
+			hi: 'hi',
+			bye: 'bye'
+		};
+		let update = {
+			$rename: {
+				hi: 'hi',
+				bye: 'goodbye'
+			}
+		};
+		let newObj = createUpdate(update).apply(obj);
+		let expectedObj = {
+			hi: 'hi',
+			goodbye: 'bye'
+		};
+		expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
+		done();
+	});
+
 	it('$min, $max', function(done) {
 		let obj = {
 			minusten: -10,
