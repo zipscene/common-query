@@ -1,5 +1,6 @@
 let expect = require('chai').expect;
 let createQuery = require('../lib/index').createQuery;
+let QueryValidationError = require('../lib/query-validation-error');
 
 describe('Query getQueriedFields()', function() {
 
@@ -328,6 +329,22 @@ describe('Query substituteVars()', function() {
 				}
 			]
 		});
+		done();
+	});
+
+});
+
+describe('Query skipValidate', function() {
+
+	it('test 1', function(done) {
+		let queryData = {
+			'really': 'invalid',
+			'$super': 'invalid'
+		};
+		expect(() => createQuery(queryData)).to.throw(QueryValidationError);
+		expect(() => createQuery(queryData, {
+			skipValidate: true
+		})).to.not.throw(Error);
 		done();
 	});
 
