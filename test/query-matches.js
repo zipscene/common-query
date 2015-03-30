@@ -62,6 +62,57 @@ describe('Query matches()', function() {
 		done();
 	});
 
+	it('exact match within array', function(done) {
+		let query = createQuery({
+			'a.b.c': 'd'
+		});
+		expect(query.matches({
+			a: [
+				{ b: { e: 'f' } },
+				{ b: { c: 'd' } }
+			]
+		})).to.equal(true);
+		expect(query.matches({
+			a: [
+				{ b: { e: 'f' } },
+				{ b: { c: 'e' } }
+			]
+		})).to.equal(false);
+		done();
+	});
+
+	it('exact match within array to specified index', function(done) {
+		let query = createQuery({
+			'scott-pilgrim-aliases.1': 'naruto'
+		});
+		expect(query.matches({
+			'scott-pilgrim-aliases': [ 'captain falcon', 'naruto' ]
+		})).to.equal(true);
+		expect(query.matches({
+			'scott-pilgrim-aliases': [ 'naruto', 'captain falcon' ]
+		})).to.equal(false);
+		expect(query.matches({
+			'scott-pilgrim-aliases': [ 'naruto' ]
+		})).to.equal(false);
+		done();
+	});
+
+	it('exact match within array with numeric key', function(done) {
+		let query = createQuery({
+			'array.1': 'hello'
+		});
+		expect(query.matches({
+			array: [ 'hi', 'hello' ]
+		})).to.equal(true);
+		expect(query.matches({
+			array: [
+				{ 1: 'hello' },
+				{ 1: 'hi' }
+			]
+		})).to.equal(true);
+		done();
+	});
+
 	it('ignore match to undefined', function(done) {
 		let query1 = createQuery({
 			foo: undefined,
