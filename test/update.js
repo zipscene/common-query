@@ -331,7 +331,9 @@ describe('Update apply()', function() {
 		let update = {
 			hi: 'hello'
 		};
-		let newObj = new Update(update, false, defaultUpdateFactory).apply(obj);
+		let newObj = new Update(update, defaultUpdateFactory, {
+			allowFullReplace: false
+		}).apply(obj);
 		let expectedObj = {
 			hi: 'hello',
 			bye: 'bye'
@@ -348,7 +350,9 @@ describe('Update apply()', function() {
 		let update = {
 			hi: 'hello'
 		};
-		let newObj = new Update(update, true, defaultUpdateFactory).apply(obj);
+		let newObj = new Update(update, defaultUpdateFactory, {
+			allowFullReplace: true
+		}).apply(obj);
 		let expectedObj = {
 			hi: 'hello'
 		};
@@ -380,7 +384,7 @@ describe('Update apply()', function() {
 				'adjectives.uk': 'coolio'
 			}
 		};
-		let newObj = new Update(update, true, defaultUpdateFactory).apply(obj, { skipFields: shouldSkipParam });
+		let newObj = new Update(update, defaultUpdateFactory).apply(obj, { skipFields: shouldSkipParam });
 		let expectedObj = {
 			purdue: 'great',
 			purdueAwesomeness: 10000,
