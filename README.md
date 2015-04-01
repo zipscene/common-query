@@ -1,6 +1,6 @@
 # zs-common-query
 
-A javascript implementation of the MongoDB query and update syntax. It also has some useful methods built on top,
+A javascript implementation of the MongoDB-style query and update syntax. It also has some useful methods built on top,
 and provides an extensible framework for adding new query and update operators.
 
 ## Basic usage
@@ -8,7 +8,7 @@ and provides an extensible framework for adding new query and update operators.
 ```javascript
 let commonQuery = require('zs-common-query');
 let createQuery = commonQuery.createQuery;
-let createUpdate = commonQuery.createUpdate;\
+let createUpdate = commonQuery.createUpdate;
 
 let obj = { foo: 'bar', abc: 3 };
 
@@ -35,6 +35,9 @@ let newObj = update.apply(obj);
 console.log(newObj);  // { foo: 'baz', abc: 5 }
 console.log(query.matches(newObj));  // false
 ```
+
+Note that createQuery(), createUpdate, query.matches(), and query.apply() can all throw errors if the query/update
+data object is invalid, or if the query/update is applied to an invalid object.
 
 ## Supported operators
 
@@ -104,7 +107,7 @@ console.log(query.matches({
 }));  // true
 ```
 
-During query construction, the $var object are replaced with the value specified by the vars option. Note that
+During query construction, the $var objects are replaced with the value specified by the vars option. Note that
 any missing $var substitution will result in an invalid query.
 
 The query object also includes some additional functionality:
@@ -119,7 +122,7 @@ query.getQueryFactory();
 /* Get a generated function to match a query. This may be more efficient than query.matches(), and should
    be used if a query is to be used many times. */
 let func = query.createMatchFn();
-func(objectToMatch);
+func(objectToMatch);  // true
 
 /* Ensure that a query is valid; will throw an error if the query is invalid. This is done by default
    in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
@@ -130,6 +133,7 @@ query.validate();  // throws QueryValidationError
 query.getQueriedFields();  // [ 'field1', 'field2', 'field3' ]
 
 // Get a list of fields that a query matches exactly. These are fields that must match a single scalar value.
+// See the code documentation for details.
 query.getExactMatches();  // { exactMatches: [ 'field1', 'field2' ], onlyExactMatches: false }
 
 // Get a list of operators used by this query
@@ -137,8 +141,13 @@ query.getOperators();  // [ '$and', '$gt', '$regex' ]
 ```
 ## Update
 
-createUpdate() takes an optional options object as the second argument - see the docs directory for
-a complete list.
+createUpdate() takes an optional options object as the second argument. Some options are:
+
+- allowFullReplace: By default, if an update has no operators, it will be automatically wrapped in a $set
+  operation, and updated only the stated fields. If you set allowFullReplace, this will not occur, and such
+  an update will replace the entire object (as is the default MongoDB behavior).
+
+See the docs directory for a complete list.
 
 On top of apply(), the update object also includes some additional functionality:
 
@@ -152,12 +161,12 @@ update.getUpdateFactory();
 /* Get a generated function to apply an update. This may be more efficient than update.apply(),
    and should be used if a query is to be used many times. */
 let func = update.createUpdateFn();
-func(objectToUpdate);
+func(objectToUpdate);  // true
 
 /* Ensure that an update is valid; will throw an error if the update is invalid. This is done by default
    in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
    apply() on an invalid update results in undefined behavior. */
-update.validate();  // throws QueryValidationError
+update.validate();  // throws UpdateValidationError
 
 // Get a list of fields that will be updated
 update.getUpdatedFields();  // [ 'field1', 'field2', 'field3' ]
@@ -189,10 +198,14 @@ let update = updateFactory.createUpdate(/* updateData */, /* options */);
 
 Each factory will load the default set of operators when it is instantiated. Additional custom operators can be
 added by subclassing QueryOperator or ExprOperator for queries, or UpdateOperator for updates, and registering them
-to the query factory. And example follows:
+to the query factory. An example follows:
 
 ```javascript```
 class HorseUpdateOperator extends commonQuery.ExprOperator {
+
+	constructor(name) {
+		super(name || '$horse');
+	}
 
 	matchesValue(value) {
 		return ([ 'horse', 'foal', 'colt', 'pony' ].indexOf(value) !== -1);
@@ -201,7 +214,7 @@ class HorseUpdateOperator extends commonQuery.ExprOperator {
 }
 
 let queryFactory = new commonQuery.QueryFactory();
-queryFactory.registerExprOperator('$horse', new HorseUpdateOperator('$horse'));
+queryFactory.registerExprOperator('$horse', new HorseUpdateOperator());
 
 let query = queryFactory.createQuery({
 	name: {
@@ -217,4 +230,4 @@ console.log(query.matches({
 }));  // true
 ```
 
-See the docs directory for full documentation on creating and registering customer operators.
+See the docs directory for full documentation on creating and registering custom operators.
