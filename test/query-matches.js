@@ -62,6 +62,16 @@ describe('Query matches()', function() {
 		done();
 	});
 
+	it('exact match nested arrays', function(done) {
+		let query = createQuery({
+			foo: 'bar'
+		});
+		expect(query.matches({
+			foo: [ [ 1, 2, 'bar', 3 ] ]
+		})).to.equal(true);
+		done();
+	});
+
 	it('exact match within array', function(done) {
 		let query = createQuery({
 			'a.b.c': 'd'
@@ -110,6 +120,19 @@ describe('Query matches()', function() {
 				{ 1: 'hi' }
 			]
 		})).to.equal(true);
+		done();
+	});
+
+	it('exact match to full array', function(done) {
+		let query = createQuery({
+			foo: [ 1, 2, 3 ]
+		});
+		expect(query.matches({
+			foo: [ 1, 2, 3 ]
+		})).to.equal(true);
+		expect(query.matches({
+			foo: [ 1, 2, 3, 4 ]
+		})).to.equal(false);
 		done();
 	});
 
