@@ -61,7 +61,7 @@ describe('Schema Functions', function() {
 		});
 	});
 
-	describe.skip('#getQueriedFields', function() {
+	describe('#getQueriedFields', function() {
 
 		const schema = createSchema({
 			foo: String,
@@ -82,7 +82,7 @@ describe('Schema Functions', function() {
 			]);
 		});
 
-		it('test1', function() {
+		it('test2', function() {
 			expect(createQuery({
 				foo: 'abc',
 				'bar.baz': {
