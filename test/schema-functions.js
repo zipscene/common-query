@@ -1,12 +1,12 @@
 let expect = require('chai').expect;
-//let createQuery = require('../lib/index').createQuery;
+let createQuery = require('../lib/index').createQuery;
 let Query = require('../lib/index').Query;
 let createSchema = require('zs-common-schema').createSchema;
 let ObjectMatchError = require('../lib/index').ObjectMatchError;
 
 describe('Schema Functions', function() {
 
-	describe('getQueryPathSubschema', function() {
+	describe('#getQueryPathSubschema', function() {
 
 		const schema = createSchema({
 			foo: String,
@@ -50,6 +50,50 @@ describe('Schema Functions', function() {
 		it('invalid schema path', function() {
 			expect( () => Query.getQueryPathSubschema(schema, 'bar.boop') )
 				.to.throw(ObjectMatchError);
+		});
+
+	});
+
+	describe('#replaceArrayPlaceholderComponent', function() {
+		it('test1', function() {
+			expect(Query.replaceArrayPlaceholderComponent('$.foo.$.bar.$', '0'))
+				.to.equal('0.foo.0.bar.0');
+		});
+	});
+
+	describe.skip('#getQueriedFields', function() {
+
+		const schema = createSchema({
+			foo: String,
+			bar: [ {
+				baz: [ {
+					qux: Number
+				} ]
+			} ]
+		});
+
+		it('test1', function() {
+			expect(createQuery({
+				foo: 'abc',
+				'bar.baz.qux': 3
+			}).getQueriedFields({ schema: schema })).to.deep.equal([
+				'foo',
+				'bar.$.baz.$.qux'
+			]);
+		});
+
+		it('test1', function() {
+			expect(createQuery({
+				foo: 'abc',
+				'bar.baz': {
+					$elemMatch: {
+						qux: 3
+					}
+				}
+			}).getQueriedFields({ schema: schema })).to.deep.equal([
+				'foo',
+				'bar.$.baz.$.qux'
+			]);
 		});
 
 	});
