@@ -147,7 +147,12 @@ describe('Query getExactMatches()', function() {
 				foo: 'bar',
 				biz: 'baz'
 			},
-			onlyExactMatches: true
+			onlyExactMatches: true,
+			exactFieldMatches: {
+				foo: 'bar',
+				biz: 'baz'
+			},
+			onlyExactFieldMatches: true
 		});
 		done();
 	});
@@ -175,7 +180,14 @@ describe('Query getExactMatches()', function() {
 				zip: 'zap',
 				qux: 'buz'
 			},
-			onlyExactMatches: true
+			onlyExactMatches: true,
+			exactFieldMatches: {
+				foo: 'bar',
+				biz: 'baz',
+				zip: 'zap',
+				qux: 'buz'
+			},
+			onlyExactFieldMatches: true
 		});
 		done();
 	});
@@ -193,7 +205,9 @@ describe('Query getExactMatches()', function() {
 			]
 		}).getExactMatches()).to.deep.equal({
 			exactMatches: {},
-			onlyExactMatches: false
+			onlyExactMatches: false,
+			exactFieldMatches: {},
+			onlyExactFieldMatches: false
 		});
 		done();
 	});
@@ -210,7 +224,11 @@ describe('Query getExactMatches()', function() {
 			exactMatches: {
 				bar: 'baz'
 			},
-			onlyExactMatches: false
+			onlyExactMatches: false,
+			exactFieldMatches: {
+				bar: 'baz'
+			},
+			onlyExactFieldMatches: false
 		});
 		done();
 	});
@@ -230,7 +248,11 @@ describe('Query getExactMatches()', function() {
 			exactMatches: {
 				foo: 'bar'
 			},
-			onlyExactMatches: false
+			onlyExactMatches: false,
+			exactFieldMatches: {
+				foo: 'bar'
+			},
+			onlyExactFieldMatches: false
 		});
 		done();
 	});
@@ -241,7 +263,9 @@ describe('Query getExactMatches()', function() {
 			$or: []
 		}).getExactMatches()).to.deep.equal({
 			exactMatches: {},
-			onlyExactMatches: false
+			onlyExactMatches: false,
+			exactFieldMatches: {},
+			onlyExactFieldMatches: false
 		});
 		done();
 	});

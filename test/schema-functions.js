@@ -98,4 +98,31 @@ describe('Schema Functions', function() {
 
 	});
 
+	describe('#getExactMatches', function() {
+
+		const schema = createSchema({
+			foo: String,
+			bar: [ {
+				baz: [ {
+					qux: Number
+				} ]
+			} ]
+		});
+
+		it('test1', function() {
+			expect(createQuery({
+				'bar.baz.4.qux': 123,
+				foo: 'biz'
+			}).getExactMatches({ schema }).exactMatches).to.deep.equal({
+				'bar.$.baz.4.qux': 123,
+				foo: 'biz'
+			});
+			expect(createQuery({
+				'bar.baz.4.qux': 123,
+				foo: 'biz'
+			}).getExactMatches({ schema }).onlyExactMatches).to.equal(true);
+		});
+
+	});
+
 });
