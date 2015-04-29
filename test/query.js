@@ -8,7 +8,7 @@ let QueryValidationError = require('../lib/query-validation-error');
 describe('Query', function() {
 
 	describe('constructor', function() {
-		it('test 1', function(done) {
+		it('test 1', function() {
 			let queryData = {
 				'really': 'invalid',
 				'$super': 'invalid'
@@ -17,7 +17,6 @@ describe('Query', function() {
 			expect(() => createQuery(queryData, {
 				skipValidate: true
 			})).to.not.throw(Error);
-			done();
 		});
 	});
 
@@ -31,7 +30,7 @@ describe('Query', function() {
 			} ]
 		});
 
-		it('trivial exact matches', function(done) {
+		it('trivial exact matches', function() {
 			expect(createQuery({
 				foo: 'bar',
 				biz: 'baz'
@@ -47,9 +46,8 @@ describe('Query', function() {
 				},
 				onlyExactFieldMatches: true
 			});
-			done();
 		});
-		it('nested exact matches', function(done) {
+		it('nested exact matches', function() {
 			expect(createQuery({
 				foo: 'bar',
 				biz: 'baz',
@@ -81,9 +79,8 @@ describe('Query', function() {
 				},
 				onlyExactFieldMatches: true
 			});
-			done();
 		});
-		it('no exact matches', function(done) {
+		it('no exact matches', function() {
 			expect(createQuery({
 				foo: { $ne: 10 },
 				$or: [
@@ -100,9 +97,8 @@ describe('Query', function() {
 				exactFieldMatches: {},
 				onlyExactFieldMatches: false
 			});
-			done();
 		});
-		it('single-clause or exact match', function(done) {
+		it('single-clause or exact match', function() {
 			expect(createQuery({
 				foo: { $ne: 10 },
 				$or: [
@@ -120,9 +116,8 @@ describe('Query', function() {
 				},
 				onlyExactFieldMatches: false
 			});
-			done();
 		});
-		it('conflicting match', function(done) {
+		it('conflicting match', function() {
 			expect(createQuery({
 				foo: 'bar',
 				$and: [
@@ -143,9 +138,8 @@ describe('Query', function() {
 				},
 				onlyExactFieldMatches: false
 			});
-			done();
 		});
-		it('can never match', function(done) {
+		it('can never match', function() {
 			expect(createQuery({
 				foo: 'bar',
 				$or: []
@@ -155,7 +149,6 @@ describe('Query', function() {
 				exactFieldMatches: {},
 				onlyExactFieldMatches: false
 			});
-			done();
 		});
 		it('test1', function() {
 			expect(createQuery({
@@ -173,7 +166,7 @@ describe('Query', function() {
 	});
 
 	describe('#getOperators()', function() {
-		it('test1', function(done) {
+		it('test1', function() {
 			expect(createQuery({
 				foo: 1,
 				bar: { $ne: 3 },
@@ -196,12 +189,11 @@ describe('Query', function() {
 				'$elemMatch',
 				'$gt'
 			].sort());
-			done();
 		});
 	});
 
 	describe('#getQueriedFields()', function() {
-		it('test1', function(done) {
+		it('test1', function() {
 			expect(createQuery({
 				foo: 1,
 				$and: [
@@ -262,7 +254,6 @@ describe('Query', function() {
 				'qux.$.buz',
 				'nan.$.nan.$.nan.$.nan.$.batman'
 			].sort());
-			done();
 		});
 
 		const schema = createSchema({
@@ -340,7 +331,7 @@ describe('Query', function() {
 	});
 
 	describe('#matches()', function() {
-		it('basic exact match', function(done) {
+		it('basic exact match', function() {
 			let query1 = createQuery({
 				foo: 'bar',
 				biz: 'baz'
@@ -358,9 +349,8 @@ describe('Query', function() {
 				biz: 'bam',
 				qux: 'buz'
 			})).to.equal(false);
-			done();
 		});
-		it('full object exact match', function(done) {
+		it('full object exact match', function() {
 			let query1 = createQuery({
 				foo: {
 					bar: 'biz',
@@ -382,9 +372,8 @@ describe('Query', function() {
 				},
 				zip: 'fuz'
 			})).to.equal(false);
-			done();
 		});
-		it('exact match to array', function(done) {
+		it('exact match to array', function() {
 			let query1 = createQuery({
 				foo: 'bar'
 			});
@@ -394,18 +383,16 @@ describe('Query', function() {
 			expect(query1.matches({
 				foo: [ 1, 2, 3 ]
 			})).to.equal(false);
-			done();
 		});
-		it('exact match nested arrays', function(done) {
+		it('exact match nested arrays', function() {
 			let query = createQuery({
 				foo: 'bar'
 			});
 			expect(query.matches({
 				foo: [ [ 1, 2, 'bar', 3 ] ]
 			})).to.equal(true);
-			done();
 		});
-		it('exact match within array', function(done) {
+		it('exact match within array', function() {
 			let query = createQuery({
 				'a.b.c': 'd'
 			});
@@ -421,9 +408,8 @@ describe('Query', function() {
 					{ b: { c: 'e' } }
 				]
 			})).to.equal(false);
-			done();
 		});
-		it('exact match within array to specified index', function(done) {
+		it('exact match within array to specified index', function() {
 			let query = createQuery({
 				'scott-pilgrim-aliases.1': 'naruto'
 			});
@@ -436,9 +422,8 @@ describe('Query', function() {
 			expect(query.matches({
 				'scott-pilgrim-aliases': [ 'naruto' ]
 			})).to.equal(false);
-			done();
 		});
-		it('exact match within array with numeric key', function(done) {
+		it('exact match within array with numeric key', function() {
 			let query = createQuery({
 				'array.1': 'hello'
 			});
@@ -451,9 +436,8 @@ describe('Query', function() {
 					{ 1: 'hi' }
 				]
 			})).to.equal(true);
-			done();
 		});
-		it('exact match to full array', function(done) {
+		it('exact match to full array', function() {
 			let query = createQuery({
 				foo: [ 1, 2, 3 ]
 			});
@@ -463,9 +447,8 @@ describe('Query', function() {
 			expect(query.matches({
 				foo: [ 1, 2, 3, 4 ]
 			})).to.equal(false);
-			done();
 		});
-		it('ignore match to undefined', function(done) {
+		it('ignore match to undefined', function() {
 			let query1 = createQuery({
 				foo: undefined,
 				bar: 'zip'
@@ -477,9 +460,8 @@ describe('Query', function() {
 			expect(query1.matches({
 				bar: 'zip'
 			})).to.equal(true);
-			done();
 		});
-		it('null matches null or nonexistent', function(done) {
+		it('null matches null or nonexistent', function() {
 			let query1 = createQuery({
 				foo: 123,
 				bar: null
@@ -499,25 +481,22 @@ describe('Query', function() {
 				foo: 123,
 				bar: 123
 			})).to.equal(false);
-			done();
 		});
-		it('case sensitive', function(done) {
+		it('case sensitive', function() {
 			let query1 = createQuery({
 				foo: 'bar'
 			});
 			expect(query1.matches({
 				foo: 'Bar'
 			})).to.equal(false);
-			done();
 		});
-		it('match primitive with expression opreators', function(done) {
+		it('match primitive with expression opreators', function() {
 			let query1 = createQuery({
 				$gt: 5,
 				$lt: 10
 			});
 			expect(query1.matches(7)).to.equal(true);
 			expect(query1.matches(2)).to.equal(false);
-			done();
 		});
 	});
 
@@ -529,7 +508,7 @@ describe('Query', function() {
 	});
 
 	describe('#substituteVars()', function() {
-		it('test1', function(done) {
+		it('test1', function() {
 			let query = createQuery({
 				foo: 'bar',
 				$and: [
@@ -578,12 +557,11 @@ describe('Query', function() {
 					}
 				]
 			});
-			done();
 		});
 	});
 
 	describe('#transformQueriedFields()', function() {
-		it('test1', function(done) {
+		it('test1', function() {
 			let query = createQuery({
 				foo: 'bar'
 			});
@@ -593,9 +571,8 @@ describe('Query', function() {
 			expect(query.getData()).to.deep.equal({
 				prefixfoo: 'bar'
 			});
-			done();
 		});
-		it('test2', function(done) {
+		it('test2', function() {
 			let query = createQuery({
 				foo: 1,
 				$and: [
@@ -641,19 +618,17 @@ describe('Query', function() {
 					}
 				]
 			});
-			done();
 		});
 	});
 
 	describe('#validate()', function() {
-		it('basic valid query and return value', function(done) {
+		it('basic valid query and return value', function() {
 			let query1 = createQuery({
 				foo: 'bar',
 				biz: 'baz'
 			});
 			let validateResult = query1.validate();
 			expect(validateResult).to.equal(true);
-			done();
 		});
 	});
 });
