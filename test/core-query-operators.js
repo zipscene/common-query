@@ -1,6 +1,5 @@
-let expect = require('chai').expect;
-let createQuery = require('../lib/index').createQuery;
-let QueryValidationError = require('../lib/query-validation-error');
+let { expect } = require('chai');
+let { createQuery, QueryValidationError } = require('../lib/index');
 
 describe('Query Operators', function() {
 	function valid(query) {

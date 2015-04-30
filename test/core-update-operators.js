@@ -1,6 +1,5 @@
-let expect = require('chai').expect;
-let createUpdate = require('../lib/index').createUpdate;
-let UpdateValidationError = require('../lib/index').UpdateValidationError;
+let { expect } = require('chai');
+let { createUpdate, UpdateValidationError } = require('../lib/index');
 let objtools = require('zs-objtools');
 
 describe('Core Update Operators', function() {

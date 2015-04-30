@@ -1,9 +1,6 @@
-let expect = require('chai').expect;
-let createQuery = require('../lib/index').createQuery;
-let createSchema = require('zs-common-schema').createSchema;
-let Query = require('../lib/index').Query;
-let ObjectMatchError = require('../lib/index').ObjectMatchError;
-let QueryValidationError = require('../lib/query-validation-error');
+let { expect } = require('chai');
+let { createSchema } = require('zs-common-schema');
+let { createQuery, Query, ObjectMatchError, QueryValidationError } = require('../lib/index');
 
 describe('Query', function() {
 	describe('constructor', function() {

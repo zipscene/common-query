@@ -1,8 +1,5 @@
-let expect = require('chai').expect;
-let createUpdate = require('../lib/index').createUpdate;
-let Update = require('../lib/index').Update;
-let UpdateValidationError = require('../lib/index').UpdateValidationError;
-let defaultUpdateFactory = require('../lib/index').defaultUpdateFactory;
+let { expect } = require('chai');
+let { createUpdate, Update, UpdateValidationError, defaultUpdateFactory } = require('../lib/index');
 
 describe('Update', function() {
 	describe('constructor', function() {

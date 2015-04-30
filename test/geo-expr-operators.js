@@ -1,5 +1,5 @@
-let expect = require('chai').expect;
-let createQuery = require('../lib/index').createQuery;
+let { expect } = require('chai');
+let { createQuery } = require('../lib/index');
 
 describe('Expression Operators', function() {
 	describe('$near', function() {
