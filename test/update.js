@@ -3,27 +3,29 @@ let createUpdate = require('../lib/index').createUpdate;
 let Update = require('../lib/index').Update;
 let UpdateValidationError = require('../lib/index').UpdateValidationError;
 let defaultUpdateFactory = require('../lib/index').defaultUpdateFactory;
-let objtools = require('zs-objtools');
 
 describe('Update', function() {
 	describe('constructor', function() {
-		it('test 1', function(done) {
-			let updateData = {
-				'$mega': 'invalid',
-				'$dude': 'like are you even trying'
-			};
-			expect(() => createUpdate(updateData)).to.throw(UpdateValidationError);
-			expect(() => createUpdate(updateData, {
-				skipValidate: true
-			})).to.not.throw(Error);
-			done();
+		it('skips validation with the skipValidate option', function() {
+			const updateData = { '$mega': 'invalid', '$dude': 'like are you even trying' };
+			const options = { skipValidate: true };
+			const wrappedNoSkip = () => new Update(updateData, defaultUpdateFactory);
+			expect(wrappedNoSkip).to.throw(UpdateValidationError);
+			const wrappedSkip = () => new Update(updateData, defaultUpdateFactory, options);
+			expect(wrappedSkip).to.not.throw(Error);
 		});
 	});
 
 	describe('#apply()', function() {
 		// Used by the shouldSkip testers
-		function shouldSkipTester(shouldSkipParam, done) {
-			let obj = {
+		function shouldSkipTester(shouldSkipParam) {
+			const options = { skipFields: shouldSkipParam };
+			const update = new Update({
+				$set: { purdue: 'great', uk: 'amazing' },
+				$inc: { purdueAwesomeness: 10000, ukAwesomeness: 1000000 },
+				$addToSet: { 'adjectives.purdue': 'swell', 'adjectives.uk': 'coolio' }
+			}, defaultUpdateFactory, options);
+			const obj = {
 				purdueAwesomeness: 0,
 				ukAwesomeness: 0,
 				adjectives: {
@@ -31,22 +33,8 @@ describe('Update', function() {
 					uk: [ 'dumb', 'stupid', 'horrible' ]
 				}
 			};
-			let update = {
-				$set: {
-					purdue: 'great',
-					uk: 'amazing'
-				},
-				$inc: {
-					purdueAwesomeness: 10000,
-					ukAwesomeness: 1000000
-				},
-				$addToSet: {
-					'adjectives.purdue': 'swell',
-					'adjectives.uk': 'coolio'
-				}
-			};
-			let newObj = new Update(update, defaultUpdateFactory).apply(obj, { skipFields: shouldSkipParam });
-			let expectedObj = {
+			const result = update.apply(obj, options);
+			const expected = {
 				purdue: 'great',
 				purdueAwesomeness: 10000,
 				ukAwesomeness: 0,
@@ -55,158 +43,69 @@ describe('Update', function() {
 					uk: [ 'dumb', 'stupid', 'horrible' ]
 				}
 			};
-			expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
-			done();
+			expect(result).to.deep.equal(expected);
 		}
-
-		it('empty update does nothing', function(done) {
-			let obj = {
-				foo: 'bar',
-				abc: 123,
-				arr: [ 1, null, '1' ]
-			};
-			let newObj = createUpdate({}).apply(obj);
-			expect(objtools.deepEquals(obj, newObj)).to.equal(true);
-			done();
+		it('empty update does nothing', function() {
+			const obj = { foo: 'bar', abc: 123, arr: [ 1, null, '1' ] };
+			const newObj = createUpdate({}).apply(obj);
+			expect(newObj).to.deep.equal(obj);
 		});
-		it('full replace 1', function(done) {
-			let obj = {
-				hi: 'hi',
-				bye: 'bye'
-			};
-			let update = {
-				hi: 'hello'
-			};
-			let newObj = new Update(update, defaultUpdateFactory, {
-				allowFullReplace: false
-			}).apply(obj);
-			let expectedObj = {
-				hi: 'hello',
-				bye: 'bye'
-			};
-			expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
-			done();
+		it('doesnt allow a full replace w/o the fullReplace option', function() {
+			const obj = { hi: 'hi', bye: 'bye' };
+			const update = new Update({ hi: 'hello' }, defaultUpdateFactory);
+			const result = update.apply(obj);
+			const expected = { hi: 'hello', bye: 'bye' };
+			expect(result).to.deep.equal(expected);
 		});
-		it('full replace 2', function(done) {
-			let obj = {
-				hi: 'hi',
-				bye: 'bye'
-			};
-			let update = {
-				hi: 'hello'
-			};
-			let newObj = new Update(update, defaultUpdateFactory, {
-				allowFullReplace: true
-			}).apply(obj);
-			let expectedObj = {
-				hi: 'hello'
-			};
-			expect(objtools.deepEquals(newObj, expectedObj)).to.equal(true);
-			done();
+		it('performs a full replace if the update does not include operators', function() {
+			const obj = { hi: 'hi', bye: 'bye' };
+			const options = { allowFullReplace: true };
+			const update = new Update({ hi: 'hello' }, defaultUpdateFactory, options);
+			const result = update.apply(obj);
+			const expected = { hi: 'hello' };
+			expect(result).to.deep.equal(expected);
 		});
-		it('shouldSkip as array', function(done) {
-			let shouldSkipParam = [ 'uk', 'ukAwesomeness', 'adjectives.uk' ];
-			shouldSkipTester(shouldSkipParam, done);
+		it('shouldSkip as array', function() {
+			const shouldSkipParam = [ 'uk', 'ukAwesomeness', 'adjectives.uk' ];
+			shouldSkipTester(shouldSkipParam);
 		});
-		it('shouldSkip as map', function(done) {
-			let shouldSkipParam = {
-				uk: true,
-				ukAwesomeness: true,
-				'adjectives.uk': true
-			};
-			shouldSkipTester(shouldSkipParam, done);
+		it('shouldSkip as map', function() {
+			const shouldSkipParam = { uk: true, ukAwesomeness: true, 'adjectives.uk': true };
+			shouldSkipTester(shouldSkipParam);
 		});
-		it('shouldSkip as function', function(done) {
-			let shouldSkipParam = function(fieldName) {
-				if (fieldName.indexOf('uk') === -1) return false;
-				return true;
-			};
-			shouldSkipTester(shouldSkipParam, done);
+		it('shouldSkip as function', function() {
+			const shouldSkipParam = (fieldName) => fieldName.indexOf('uk') !== -1;
+			shouldSkipTester(shouldSkipParam);
 		});
 	});
 
 	describe('#validate()', function() {
 		function expectInvalid(updateData) {
-			expect(function() { createUpdate(updateData); }).to.throw(UpdateValidationError);
+			expect(() => createUpdate(updateData)).to.throw(UpdateValidationError);
 		}
-
-		it('complex update validates correctly', function(done) {
-			let updateData = {
-				$set: {
-					bob: 1,
-					alice: 2,
-					alexander: {
-						three: 3,
-						four: 4
-					}
-				},
-				$unset: {
-					rachel: true
-				},
-				$inc: {
-					frank: -1,
-					forrest: 777
-				},
-				$mul: {
-					thomas: -8
-				},
-				$rename: {
-					'evan.kappa': 'evan.frankerz'
-				},
-				$min: {
-					apples: 12341234
-				},
-				$addToSet: {
-					peopleArr: { name: 'Doug', favoriteColor: 'periwinkle' }
-				},
-				$push: {
-					foodArr: {
-						$each: [ 'rice', 'cookies', 'pancakes' ]
-					}
-				},
-				$pop: {
-					balloon: 1
-				}
+		it('complex update validates correctly', function() {
+			const updateData = {
+				$set: { bob: 1, alice: 2, alexander: { three: 3, four: 4 } },
+				$unset: { rachel: true },
+				$inc: { frank: -1, forrest: 777 },
+				$mul: { thomas: -8 },
+				$rename: { 'evan.kappa': 'evan.frankerz' },
+				$min: { apples: 12341234 },
+				$addToSet: { peopleArr: { name: 'Doug', favoriteColor: 'periwinkle' } },
+				$push: { foodArr: { $each: [ 'rice', 'cookies', 'pancakes' ] } },
+				$pop: { balloon: 1 }
 			};
 			createUpdate(updateData);  // Will validate in constructor
-			done();
 		});
-		it('can call validate() explicitly', function(done) {
-			let updateData = {
-				$set: {
-					a: 1
-				},
-				$unset: {
-					b: true
-				}
-			};
-			let update = createUpdate(updateData);
+		it('can call validate() explicitly', function() {
+			const update = createUpdate({ $set: { a: 1 }, $unset: { b: true } });
 			expect(update.validate()).to.equal(true);
-			done();
 		});
-		it('mixed properties and operators', function(done) {
-			let updateData = {
-				$set: {
-					a: 1
-				},
-				$unset: {
-					b: 2
-				},
-				c: 3
-			};
-			expectInvalid(updateData);
-			done();
+		it('mixed properties and operators', function() {
+			expectInvalid({ $set: { a: 1 }, $unset: { b: 2 }, c: 3 });
 		});
-		it('invalid operator', function(done) {
-			expectInvalid({
-				$set: {
-					a: 'b'
-				},
-				$ultraset: {
-					c: 'd'
-				}
-			});
-			done();
+		it('invalid operator', function() {
+			expectInvalid({ $set: { a: 'b' }, $ultraset: { c: 'd' } });
 		});
 	});
 });
