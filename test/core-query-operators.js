@@ -1,5 +1,5 @@
-let { expect } = require('chai');
-let { createQuery, QueryValidationError } = require('../lib/index');
+const { expect } = require('chai');
+const { createQuery, QueryValidationError } = require('../lib/index');
 
 describe('Query Operators', function() {
 	function valid(query) {
@@ -8,272 +8,57 @@ describe('Query Operators', function() {
 	function invalid(queryData) {
 		expect(function() { createQuery(queryData); }).to.throw(QueryValidationError);
 	}
-
 	describe('$and', function() {
-		it('$and', function() {
-			let query1 = createQuery({
-				$and: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz'
-					}
-				]
-			});
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'baz'
-			})).to.equal(true);
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'buz'
-			})).to.equal(false);
+		it('matches the conjunction of its arguments', function() {
+			const query = createQuery({ $and: [ { foo: 'bar' }, { biz: 'baz' } ] });
+			expect(query.matches({ foo: 'bar', biz: 'baz' })).to.be.true;
+			expect(query.matches({ foo: 'bar', biz: 'buz' })).to.be.false;
 		});
-		it('validates properly', function() {
-			valid({
-				$and: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz',
-						qux: 'bum'
-					}
-				],
-				$nor: [
-					{
-						zip: 'zap'
-					}
-				]
-			});
-			invalid({
-				$and: [
-					{
-						foo: 'bar'
-					}
-				],
-				$or: {
-					biz: 'baz'
-				}
-			});
-			valid({
-				$and: [
-					{
-						$or: [
-							{
-								foo: 'bar'
-							}
-						]
-					}
-				]
-			});
-			invalid({
-				$and: [
-					{
-						$or: [
-							{
-								$and: 'bar'
-							}
-						]
-					}
-				]
-			});
+		it('takes an array of queries', function() {
+			valid({ $and: [ { foo: 'bar' }, { biz: 'baz', qux: 'bum' } ] });
+			invalid({ $and: { foo: 'bar' } });
 		});
 	});
 
 	describe('$or', function() {
-		it('$or', function() {
-			let query1 = createQuery({
-				$or: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz'
-					}
-				]
-			});
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'buz'
-			})).to.equal(true);
-			expect(query1.matches({
-				foo: 'bam',
-				biz: 'buz'
-			})).to.equal(false);
+		it('matches the disjunction of its arguments', function() {
+			const query = createQuery({ $or: [ { foo: 'bar' }, { biz: 'baz' } ] });
+			expect(query.matches({ foo: 'bar', biz: 'buz' })).to.be.true;
+			expect(query.matches({ foo: 'bam', biz: 'buz' })).to.be.false;
 		});
-		it('validates properly', function() {
-			valid({
-				$and: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz',
-						qux: 'bum'
-					}
-				],
-				$nor: [
-					{
-						zip: 'zap'
-					}
-				]
-			});
-			invalid({
-				$and: [
-					{
-						foo: 'bar'
-					}
-				],
-				$or: {
-					biz: 'baz'
-				}
-			});
-			valid({
-				$and: [
-					{
-						$or: [
-							{
-								foo: 'bar'
-							}
-						]
-					}
-				]
-			});
-			invalid({
-				$and: [
-					{
-						$or: [
-							{
-								$and: 'bar'
-							}
-						]
-					}
-				]
-			});
+		it('takes an array of queries', function() {
+			valid({ $or: [ { foo: 'bar' }, { biz: 'baz', qux: 'bum' } ] });
+			invalid({ $or: { biz: 'baz' } });
 		});
 	});
 
 	describe('$nor', function() {
-		it('$nor', function() {
-			let query1 = createQuery({
-				$nor: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz'
-					}
-				]
-			});
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'buz'
-			})).to.equal(false);
-			expect(query1.matches({
-				foo: 'bam',
-				biz: 'buz'
-			})).to.equal(true);
+		it('matches the negation of the disjunction of its arguments', function() {
+			const query = createQuery({ $nor: [ { foo: 'bar' }, { biz: 'baz' } ] });
+			expect(query.matches({ foo: 'bar', biz: 'buz' })).to.be.false;
+			expect(query.matches({ foo: 'bam', biz: 'buz' })).to.be.true;
 		});
-		it('validates properly', function() {
-			valid({
-				$and: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz',
-						qux: 'bum'
-					}
-				],
-				$nor: [
-					{
-						zip: 'zap'
-					}
-				]
-			});
-			invalid({
-				$and: [
-					{
-						foo: 'bar'
-					}
-				],
-				$or: {
-					biz: 'baz'
-				}
-			});
-			valid({
-				$and: [
-					{
-						$or: [
-							{
-								foo: 'bar'
-							}
-						]
-					}
-				]
-			});
-			invalid({
-				$and: [
-					{
-						$or: [
-							{
-								$and: 'bar'
-							}
-						]
-					}
-				]
-			});
+		it('takes an array of queries', function() {
+			valid({ $nor: [ { foo: 'bar' }, { biz: 'baz', qux: 'bum' } ] });
+			invalid({ $nor: { biz: 'baz' } });
 		});
 	});
 
 	describe('combined $and, $or, $nor', function() {
-		it('combined $and, $or, $nor', function() {
-			let query1 = createQuery({
-				$and: [
-					{
-						foo: 'bar'
-					},
-					{
-						biz: 'baz'
-					}
-				],
-				$or: [
-					{
-						qux: 'buz'
-					},
-					{
-						bam: 'fuz'
-					}
-				],
-				$nor: [
-					{
-						zip: 'foo'
-					}
-				]
+		it('matches if every query operator at a level matches', function() {
+			const query = createQuery({
+				$and: [ { foo: 'bar' }, { biz: 'baz' } ],
+				$or: [ { qux: 'buz' }, { bam: 'fuz' } ],
+				$nor: [ { zip: 'foo' } ]
 			});
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'baz',
-				qux: 'buz'
-			})).to.equal(true);
-			expect(query1.matches({
-				foo: 'bar',
-				qux: 'buz'
-			})).to.equal(false);
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'baz',
-				qux: 'buz',
-				zip: 'foo'
-			})).to.equal(false);
-			expect(query1.matches({
-				foo: 'bar',
-				biz: 'baz'
-			})).to.equal(false);
+			expect(query.matches({ foo: 'bar', biz: 'baz', qux: 'buz' })).to.be.true;
+			expect(query.matches({ foo: 'bar', qux: 'buz' })).to.be.false;
+			expect(query.matches({ foo: 'bar', biz: 'baz', qux: 'buz', zip: 'foo' })).to.be.false;
+			expect(query.matches({ foo: 'bar', biz: 'baz' })).to.be.false;
 		});
-		it.skip('validates properly', function() {
+		it('accepts the result of a valid query operator as an argument', function() {
+			valid({ $and: [ { $or: [ { foo: 'bar' } ] } ] });
+			invalid({ $and: [ { $or: [ { $and: 'bar' } ] } ] });
 		});
 	});
 });
