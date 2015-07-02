@@ -17,9 +17,6 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ bar: 123 })).to.be.true;
 			expect(query1.matches({ bar: 123, foo: 123 })).to.be.false;
 		});
-		it.skip('negates a query expression', function() {
-			expect(false);
-		});
 	});
 
 	describe('$elemMatch', function() {
