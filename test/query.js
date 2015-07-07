@@ -302,4 +302,211 @@ describe('Query', function() {
 			expect(validateResult).to.be.true;
 		});
 	});
+
+	describe('#_traverse', function() {
+		it('should traverse a query and call handlers with proper arguments', function() {
+			const query = createQuery({
+				foo: 'bar',
+				baz: {
+					bazzy: 123
+				},
+				$and: [
+					{
+						buz: { $gt: 10, $lt: 20 }
+					},
+					{
+						$or: [
+							{
+								zip: 'boo'
+							}
+						]
+					},
+					{
+						zap: 123
+					}
+				],
+				bip: {
+					$elemMatch: {
+						bop: { $lt: 4 }
+					}
+				}
+			});
+			const data = query.getData();
+			let expectedTriggers = [
+				{
+					type: 'query',
+					query: query
+				},
+				{
+					type: 'exactMatch',
+					value: 'bar',
+					field: 'foo',
+					parent: data,
+					parentKey: 'foo'
+				},
+				{
+					type: 'exactMatch',
+					value: data.baz,
+					field: 'baz',
+					parent: data,
+					parentKey: 'baz'
+				},
+				{
+					type: 'queryOperator',
+					exprValue: data.$and,
+					operator: '$and',
+					query: query,
+					parent: data,
+					parentKey: '$and'
+				},
+				{
+					type: 'query'
+				},
+				{
+					type: 'exprOperator',
+					exprValue: 10,
+					field: 'buz',
+					operator: '$gt',
+					expr: data.$and[0].buz,
+					parent: data.$and[0].buz,
+					parentKey: '$gt'
+				},
+				{
+					type: 'exprOperator',
+					exprValue: 20,
+					field: 'buz',
+					operator: '$lt',
+					expr: data.$and[0].buz,
+					parent: data.$and[0].buz,
+					parentKey: '$lt'
+				},
+				{
+					type: 'query'
+				},
+				{
+					type: 'queryOperator',
+					exprValue: data.$and[1].$or,
+					operator: '$or',
+					parent: data.$and[1],
+					parentKey: '$or'
+				},
+				{
+					type: 'query'
+				},
+				{
+					type: 'exactMatch',
+					value: 'boo',
+					field: 'zip',
+					parent: data.$and[1].$or[0],
+					parentKey: 'zip'
+				},
+				{
+					type: 'query'
+				},
+				{
+					type: 'exactMatch',
+					value: 123,
+					field: 'zap',
+					parent: data.$and[2],
+					parentKey: 'zap'
+				},
+				{
+					type: 'exprOperator',
+					exprValue: data.bip.$elemMatch,
+					field: 'bip',
+					operator: '$elemMatch',
+					expr: data.bip,
+					query: query,
+					parent: data.bip,
+					parentKey: '$elemMatch'
+				},
+				{
+					type: 'query'
+				},
+				{
+					type: 'exprOperator',
+					exprValue: 4,
+					field: 'bip.$.bop',
+					operator: '$lt',
+					expr: data.bip.$elemMatch.bop,
+					parent: data.bip.$elemMatch.bop,
+					parentKey: '$lt'
+				}
+			];
+			query._traverse({
+				queryOperator: function(exprValue, operator, query, parent, parentKey) {
+					expect(expectedTriggers.length).to.not.equal(0);
+					const next = expectedTriggers.shift();
+					expect(next.type).to.equal('queryOperator');
+					if (next.exprValue) {
+						expect(next.exprValue).to.equal(exprValue);
+					}
+					if (next.operator) {
+						expect(next.operator).to.equal(operator);
+					}
+					if (next.query) {
+						expect(next.query).to.equal(query);
+					}
+					if (next.parent) {
+						expect(next.parent).to.equal(parent);
+					}
+					if (next.parentKey) {
+						expect(next.parentKey).to.equal(parentKey);
+					}
+				},
+				exprOperator: function(exprValue, field, operator, expr, query, parent, parentKey) {
+					expect(expectedTriggers.length).to.not.equal(0);
+					const next = expectedTriggers.shift();
+					expect(next.type).to.equal('exprOperator');
+					if (next.exprValue) {
+						expect(next.exprValue).to.equal(exprValue);
+					}
+					if (next.field) {
+						expect(next.field).to.equal(field);
+					}
+					if (next.operator) {
+						expect(next.operator).to.equal(operator);
+					}
+					if (next.expr) {
+						expect(next.expr).to.equal(expr);
+					}
+					if (next.query) {
+						expect(next.query).to.equal(query);
+					}
+					if (next.parent) {
+						expect(next.parent).to.equal(parent);
+					}
+					if (next.parentKey) {
+						expect(next.parentKey).to.equal(parentKey);
+					}
+				},
+				exactMatch: function(value, field, parent, parentKey) {
+					expect(expectedTriggers.length).to.not.equal(0);
+					const next = expectedTriggers.shift();
+					expect(next.type).to.equal('exactMatch');
+					if (next.value) {
+						expect(next.value).to.equal(value);
+					}
+					if (next.field) {
+						expect(next.field).to.equal(field);
+					}
+					if (next.parent) {
+						expect(next.parent).to.equal(parent);
+					}
+					if (next.parentKey) {
+						expect(next.parentKey).to.equal(parentKey);
+					}
+				},
+				query: function(query) {
+					expect(expectedTriggers.length).to.not.equal(0);
+					const next = expectedTriggers.shift();
+					expect(next.type).to.equal('query');
+					if (next.query) {
+						expect(next.query).to.equal(query);
+					}
+				}
+			});
+			expect(expectedTriggers.length).to.equal(0);
+		});
+	});
 });

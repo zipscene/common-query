@@ -1,5 +1,5 @@
 let { expect } = require('chai');
-let { createQuery, QueryValidationError } = require('../lib/index');
+let { createQuery } = require('../lib/index');
 
 describe('Core Expression Operators', function() {
 	describe('$exists', function() {
