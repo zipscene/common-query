@@ -303,6 +303,83 @@ describe('Query', function() {
 		});
 	});
 
+	describe('#normalize()', function() {
+		it('normalizes queries', function() {
+			// `createQuery` calls `query.normalize`
+			const query = createQuery({
+				foo: 'bar',
+				baz: {
+					$exists: 'truthy because string'
+				},
+				$and: [
+					{
+						buz: {
+							$text: 1024,
+							$in: 64
+						}
+					},
+					{
+						$or: [
+							{
+								$nin: 'this should become an array'
+							}
+						]
+					},
+					{
+						$regex: 123
+					}
+				],
+				bip: {
+					$elemMatch: {
+						bop: {
+							$wildcard: 4
+						}
+					}
+				}
+			});
+
+			const expected = {
+				foo: 'bar',
+				baz: {
+					$exists: true
+				},
+				$and: [
+					{
+						buz: {
+							$text: '1024',
+							$in: [
+								64
+							]
+						}
+					},
+					{
+						$or: [
+							{
+								$nin: [
+									'this should become an array'
+								]
+							}
+						]
+					},
+					{
+						$regex: '123'
+					}
+				],
+				bip: {
+					$elemMatch: {
+						bop: {
+							$wildcard: '4'
+						}
+					}
+				}
+			};
+
+			const data = query.getData();
+
+			expect(data).to.deep.equal(expected);
+		});
+	});
+
 	describe('#_traverse', function() {
 		it('should traverse a query and call handlers with proper arguments', function() {
 			const query = createQuery({
