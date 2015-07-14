@@ -3,12 +3,20 @@ let { createQuery } = require('../lib/index');
 
 describe('Core Expression Operators', function() {
 	describe('$exists', function() {
-		let query1 = createQuery({ foo: { $exists: true }, bar: { $exists: false } });
-		expect(query1.matches({ foo: 'fuz' })).to.be.true;
-		expect(query1.matches({ foo: null })).to.be.true;
-		expect(query1.matches({ foo: undefined })).to.be.false;
-		expect(query1.matches({ foo: 'fuz', bar: 'biz' })).to.be.false;
-		expect(query1.matches({ })).to.be.false;
+		it('$exists', function() {
+			let query1 = createQuery({ foo: { $exists: true }, bar: { $exists: false } });
+			expect(query1.matches({ foo: 'fuz' })).to.be.true;
+			expect(query1.matches({ foo: null })).to.be.true;
+			expect(query1.matches({ foo: undefined })).to.be.false;
+			expect(query1.matches({ foo: 'fuz', bar: 'biz' })).to.be.false;
+			expect(query1.matches({ })).to.be.false;
+		});
+
+		it('normalizes queries to booleans', function() {
+			let query1 = createQuery({ foo: { $exists: 1 }, bar: { $exists: 0 } });
+			expect(query1.matches({ foo: 'fuz' })).to.be.true;
+			expect(query1.matches({ foo: undefined })).to.be.false;
+		});
 	});
 
 	describe('$not', function() {
@@ -38,6 +46,14 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.false;
 			expect(query1.matches({ foo: 'bar' })).to.be.false;
 		});
+
+		it('normalizes queries to arrays', function() {
+			let query1 = createQuery({ foo: { $in: 3 } });
+			expect(query1.matches({ foo: 3 })).to.be.true;
+			expect(query1.matches({ foo: [ 3, 4, 5 ] })).to.be.true;
+			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.false;
+			expect(query1.matches({ foo: 'bar' })).to.be.false;
+		});
 	});
 
 	describe('$nin', function() {
@@ -48,6 +64,12 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.true;
 			expect(query1.matches({ foo: 'bar' })).to.be.true;
 		});
+
+		it('normalizes queries to arrays', function() {
+			let query1 = createQuery({ foo: { $nin: 3 } });
+			expect(query1.matches({ foo: 3 })).to.be.false;
+			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.true;
+		});
 	});
 
 	describe('$text', function() {
@@ -55,6 +77,16 @@ describe('Core Expression Operators', function() {
 			let query1 = createQuery({ foo: { $text: 'zip zup' } });
 			expect(query1.matches({ foo: 'zip van zup' })).to.be.true;
 			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+		});
+
+		it('normalizes queries to text', function() {
+			let query1 = createQuery({ foo: { $text: [ 'zip', 'zup' ] } });
+			expect(query1.matches({ foo: 'zip,zup' })).to.be.true;
+			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+
+			let query2 = createQuery({ foo: { $text: true } });
+			expect(query2.matches({ foo: 'true' })).to.be.true;
+			expect(query2.matches({ foo: 'false' })).to.be.false;
 		});
 	});
 
@@ -67,8 +99,18 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ foo: 'zizup' })).to.be.false;
 			expect(query1.matches({ foo: 'azipzup' })).to.be.false;
 		});
-		it('takes an "$options" operator', function() {
 
+		it('takes an "$options" operator', function() {
+		});
+
+		it('normalizes queries to text', function() {
+			let query1 = createQuery({ foo: { $text: [ 'zip', 'zup' ] } });
+			expect(query1.matches({ foo: 'zip,zup' })).to.be.true;
+			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+
+			let query2 = createQuery({ foo: { $text: true } });
+			expect(query2.matches({ foo: 'true' })).to.be.true;
+			expect(query2.matches({ foo: 'false' })).to.be.false;
 		});
 	});
 
@@ -82,8 +124,18 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ foo: 'azipzup' })).to.be.false;
 			expect(query1.matches({ foo: 'ZIPZUP' })).to.be.true;
 		});
-		it('takes an "$options" operator', function() {
 
+		it('takes an "$options" operator', function() {
+		});
+
+		it('normalizes queries to text', function() {
+			let query1 = createQuery({ foo: { $text: [ 'zip', 'zup' ] } });
+			expect(query1.matches({ foo: 'zip,zup' })).to.be.true;
+			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+
+			let query2 = createQuery({ foo: { $text: true } });
+			expect(query2.matches({ foo: 'true' })).to.be.true;
+			expect(query2.matches({ foo: 'false' })).to.be.false;
 		});
 	});
 
