@@ -314,16 +314,8 @@ describe('Query', function() {
 				$and: [
 					{
 						buz: {
-							$text: 1024,
-							$in: 64
+							$text: 1024
 						}
-					},
-					{
-						$or: [
-							{
-								$nin: 'this should become an array'
-							}
-						]
 					},
 					{
 						$regex: 123
@@ -346,20 +338,8 @@ describe('Query', function() {
 				$and: [
 					{
 						buz: {
-							$text: '1024',
-							$in: [
-								64
-							]
+							$text: '1024'
 						}
-					},
-					{
-						$or: [
-							{
-								$nin: [
-									'this should become an array'
-								]
-							}
-						]
 					},
 					{
 						$regex: '123'
