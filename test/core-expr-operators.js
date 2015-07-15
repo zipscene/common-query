@@ -46,14 +46,6 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.false;
 			expect(query1.matches({ foo: 'bar' })).to.be.false;
 		});
-
-		it('normalizes queries to arrays', function() {
-			let query1 = createQuery({ foo: { $in: 3 } });
-			expect(query1.matches({ foo: 3 })).to.be.true;
-			expect(query1.matches({ foo: [ 3, 4, 5 ] })).to.be.true;
-			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.false;
-			expect(query1.matches({ foo: 'bar' })).to.be.false;
-		});
 	});
 
 	describe('$nin', function() {
@@ -63,12 +55,6 @@ describe('Core Expression Operators', function() {
 			expect(query1.matches({ foo: [ 3, 4, 5 ] })).to.be.true;
 			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.true;
 			expect(query1.matches({ foo: 'bar' })).to.be.true;
-		});
-
-		it('normalizes queries to arrays', function() {
-			let query1 = createQuery({ foo: { $nin: 3 } });
-			expect(query1.matches({ foo: 3 })).to.be.false;
-			expect(query1.matches({ foo: [ 4, 5, 6 ] })).to.be.true;
 		});
 	});
 
