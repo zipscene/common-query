@@ -40,7 +40,7 @@ describe('Geo-Expression Operators', function() {
 			expect(query.getMatchProperty('distance')).to.be.below(maxDistance);
 		});
 
-		it('normalizes $maxDistance and $minDistance into numbers', function() {
+		it('normalizes $maxDistance and $minDistance', function() {
 			const query = createQuery({ loc: {
 				$near: { $geometry: zipsceneHQ, $maxDistance: '10000', $minDistance: '0' }
 			} });
