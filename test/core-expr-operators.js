@@ -15,8 +15,9 @@ describe('Core Expression Operators', function() {
 
 		it('normalizes queries', function() {
 			const query1 = createQuery({ foo: { $exists: 1 }, bar: { $exists: 0 } });
-			expect(query1.matches({ foo: 'fuz' })).to.be.true;
-			expect(query1.matches({ foo: undefined })).to.be.false;
+			expect(query1.getData()).to.deep.equal({
+				foo: { $exists: true }, bar: { $exists: false }
+			});
 		});
 	});
 
@@ -90,12 +91,14 @@ describe('Core Expression Operators', function() {
 
 		it('normalizes queries', function() {
 			const query1 = createQuery({ foo: { $text: [ 'zip', 'zup' ] } });
-			expect(query1.matches({ foo: 'zip,zup' })).to.be.true;
-			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+			expect(query1.getData()).to.deep.equal({
+				foo: { $text: 'zip,zup' }
+			});
 
 			const query2 = createQuery({ foo: { $text: true } });
-			expect(query2.matches({ foo: 'true' })).to.be.true;
-			expect(query2.matches({ foo: 'false' })).to.be.false;
+			expect(query2.getData()).to.deep.equal({
+				foo: { $text: 'true' }
+			});
 
 			const query3 = createQuery({
 				foo: { $text: 1024 }
@@ -123,12 +126,14 @@ describe('Core Expression Operators', function() {
 
 		it('normalizes queries', function() {
 			const query1 = createQuery({ foo: { $wildcard: [ 'zip', 'zup' ] } });
-			expect(query1.matches({ foo: 'zip,zup' })).to.be.true;
-			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+			expect(query1.getData()).to.deep.equal({
+				foo: { $wildcard: 'zip,zup' }
+			});
 
 			const query2 = createQuery({ foo: { $wildcard: true } });
-			expect(query2.matches({ foo: 'true' })).to.be.true;
-			expect(query2.matches({ foo: 'false' })).to.be.false;
+			expect(query2.getData()).to.deep.equal({
+				foo: { $wildcard: 'true' }
+			});
 
 			const query3 = createQuery({
 				foo: { $wildcard: 1024 }
@@ -157,12 +162,14 @@ describe('Core Expression Operators', function() {
 
 		it('normalizes queries', function() {
 			const query1 = createQuery({ foo: { $regex: /foo/ } });
-			expect(query1.matches({ foo: 'foo' })).to.be.true;
-			expect(query1.matches({ foo: 'bar' })).to.be.false;
+			expect(query1.getData()).to.deep.equal({
+				foo: { $regex: 'foo' }
+			});
 
 			const query2 = createQuery({ foo: { $regex: true } });
-			expect(query2.matches({ foo: 'true' })).to.be.true;
-			expect(query2.matches({ foo: 'false' })).to.be.false;
+			expect(query2.getData()).to.deep.equal({
+				foo: { $regex: 'true' }
+			});
 
 			const query3 = createQuery({
 				foo: { $regex: 1024 }
