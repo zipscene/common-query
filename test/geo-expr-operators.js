@@ -39,6 +39,15 @@ describe('Geo-Expression Operators', function() {
 			expect(query.matches(doc2)).to.be.true;
 			expect(query.getMatchProperty('distance')).to.be.below(maxDistance);
 		});
+
+		it('normalizes $maxDistance and $minDistance', function() {
+			const query = createQuery({ loc: {
+				$near: { $geometry: zipsceneHQ, $maxDistance: '10000', $minDistance: '0' }
+			} });
+			expect(query.matches({ loc: [ -84.5087746, 39.0972566 ] })).to.be.true;
+			expect(query.getMatchProperty('distance')).to.exist;
+			expect(query.getMatchProperty('distance')).to.be.below(maxDistance);
+		});
 	});
 
 	describe('$geoIntersects', function() {
