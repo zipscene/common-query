@@ -43,44 +43,44 @@ data object is invalid, or if the query/update is applied to an invalid object.
 
 The following mongo query operators are supported by default:
 
-- $and
-- $or
-- $nor
-- $exists
-- $not
-- $elemMatch
-- $in
-- $nin
-- $text
-- $regex
-- $gt
-- $gte
-- $lt
-- $lte
-- $ne
+- `$and`
+- `$or`
+- `$nor`
+- `$exists`
+- `$not`
+- `$elemMatch`
+- `$in`
+- `$nin`
+- `$text`
+- `$regex`
+- `$gt`
+- `$gte`
+- `$lt`
+- `$lte`
+- `$ne`
 
-See the MongoDB docs [here](http://docs.mongodb.org/manual/reference/operator/query) for documentation 
+See the MongoDB docs [here](http://docs.mongodb.org/manual/reference/operator/query) for documentation
 on these operators.
 
 The following extra operators are included:
 
-- $wildcard: A simplified version of $regex, supporting glob-like expressions using the operators `*` and `?`.
-- $var: See the detailed query documentation below. (Not really an operator)
+- `$wildcard`: A simplified version of `$regex`, supporting glob-like expressions using the operators `*` and `?`.
+- `$var`: See the detailed query documentation below. (Not really an operator)
 
 The following mongo update operators are supported by default:
 
-- $set
-- $unset
-- $inc
-- $mul
-- $rename
-- $min
-- $max
-- $addToSet
-- $push
-- $pop
+- `$set`
+- `$unset`
+- `$inc`
+- `$mul`
+- `$rename`
+- `$min`
+- `$max`
+- `$addToSet`
+- `$push`
+- `$pop`
 
-See the MongoDB docs [here](http://docs.mongodb.org/manual/reference/operator/update) for documentation 
+See the MongoDB docs [here](http://docs.mongodb.org/manual/reference/operator/update) for documentation
 on these operators.
 
 ## Query
@@ -88,7 +88,7 @@ on these operators.
 createQuery() takes an optional options object as the second argument - see the docs directory for
 a complete list.
 
-A query with variable parameters can be specified using the 'fake' $var operator. Example:
+A query with variable parameters can be specified using the 'fake' `$var` operator. Example:
 
 ```javascript
 let queryData = {
@@ -107,8 +107,8 @@ console.log(query.matches({
 }));  // true
 ```
 
-During query construction, the $var objects are replaced with the value specified by the vars option. Note that
-any missing $var substitution will result in an invalid query.
+During query construction, the `$var` objects are replaced with the value specified by the vars option. Note that
+any missing `$var` substitution will result in an invalid query.
 
 The query object also includes some additional functionality:
 
@@ -139,11 +139,12 @@ query.getExactMatches();  // { exactMatches: [ 'field1', 'field2' ], onlyExactMa
 // Get a list of operators used by this query
 query.getOperators();  // [ '$and', '$gt', '$regex' ]
 ```
+
 ## Update
 
 createUpdate() takes an optional options object as the second argument. Some options are:
 
-- allowFullReplace: By default, if an update has no operators, it will be automatically wrapped in a $set
+- allowFullReplace: By default, if an update has no operators, it will be automatically wrapped in a `$set`
   operation, and updated only the stated fields. If you set allowFullReplace, this will not occur, and such
   an update will replace the entire object (as is the default MongoDB behavior).
 
@@ -200,7 +201,7 @@ Each factory will load the default set of operators when it is instantiated. Add
 added by subclassing QueryOperator or ExprOperator for queries, or UpdateOperator for updates, and registering them
 to the query factory. An example follows:
 
-```javascript```
+```javascript
 class HorseUpdateOperator extends commonQuery.ExprOperator {
 
 	constructor(name) {
