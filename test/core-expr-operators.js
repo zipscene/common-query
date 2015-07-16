@@ -115,11 +115,11 @@ describe('Core Expression Operators', function() {
 		});
 
 		it('normalizes queries to text', function() {
-			let query1 = createQuery({ foo: { $text: [ 'zip', 'zup' ] } });
-			expect(query1.matches({ foo: 'zip,zup' })).to.be.true;
-			expect(query1.matches({ foo: 'zip bar' })).to.be.false;
+			let query1 = createQuery({ foo: { $regex: /foo/ } });
+			expect(query1.matches({ foo: 'foo' })).to.be.true;
+			expect(query1.matches({ foo: 'bar' })).to.be.false;
 
-			let query2 = createQuery({ foo: { $text: true } });
+			let query2 = createQuery({ foo: { $regex: true } });
 			expect(query2.matches({ foo: 'true' })).to.be.true;
 			expect(query2.matches({ foo: 'false' })).to.be.false;
 		});
