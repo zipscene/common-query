@@ -124,7 +124,7 @@ query.getQueryFactory();
 let func = query.createMatchFn();
 func(objectToMatch);  // true
 
-/* Normalize a query, optionally to a provided schema. Generally validates the query as well.
+/* Normalize a query, optionally to a provided schema. Validates the query as well.
    This is done by default in the constructor; pass the skipValidate option to opt out of
    this behavior. */
 query.normalize();
@@ -169,7 +169,7 @@ update.getUpdateFactory();
 let func = update.createUpdateFn();
 func(objectToUpdate);  // true
 
-/* Normalize an update, optionally to a provided schema. Generally validates the update as well.
+/* Normalize an update, optionally to a provided schema. Validates the update as well.
    This is done by default in the constructor; pass the skipValidate option to opt out of
    this behavior. */
 update.normalize();
