@@ -63,6 +63,23 @@ describe('Geo-Expression Operators', function() {
 				}
 			});
 		});
+
+		it('normalizes coordinates', function() {
+			const zipsceneHQ = { type: 'Point', coordinates: [ '-84.5099628', '39.1031535' ] }; // 602 Main St 45202
+			const query = createQuery({ loc: { $near: { $geometry: zipsceneHQ } } });
+			expect(query.getData()).to.deep.equal({
+				loc: {
+					$near: {
+						$geometry: {
+							type: 'Point',
+							coordinates: [ -84.5099628, 39.1031535 ]
+						},
+						$maxDistance: NaN,
+						$minDistance: NaN
+					}
+				}
+			});
+		});
 	});
 
 	describe('$geoIntersects', function() {
