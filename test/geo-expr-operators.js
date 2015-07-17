@@ -41,12 +41,27 @@ describe('Geo-Expression Operators', function() {
 		});
 
 		it('normalizes $maxDistance and $minDistance', function() {
-			const query = createQuery({ loc: {
-				$near: { $geometry: zipsceneHQ, $maxDistance: '10000', $minDistance: '0' }
-			} });
-			expect(query.matches({ loc: [ -84.5087746, 39.0972566 ] })).to.be.true;
-			expect(query.getMatchProperty('distance')).to.exist;
-			expect(query.getMatchProperty('distance')).to.be.below(maxDistance);
+			const query = createQuery({
+				loc: {
+					$near: {
+						$geometry: zipsceneHQ,
+						$maxDistance: '10000',
+						$minDistance: '0'
+					}
+				}
+			});
+			expect(query.getData()).to.deep.equal({
+				loc: {
+					$near: {
+						$geometry: {
+							type: 'Point',
+							coordinates: [ -84.5099628, 39.1031535 ]
+						},
+						$maxDistance: 10000,
+						$minDistance: 0
+					}
+				}
+			});
 		});
 	});
 
