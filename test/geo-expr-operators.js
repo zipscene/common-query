@@ -73,9 +73,7 @@ describe('Geo-Expression Operators', function() {
 						$geometry: {
 							type: 'Point',
 							coordinates: [ -84.5099628, 39.1031535 ]
-						},
-						$maxDistance: NaN,
-						$minDistance: NaN
+						}
 					}
 				}
 			});

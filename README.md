@@ -129,6 +129,13 @@ func(objectToMatch);  // true
    this behavior. */
 query.normalize();
 
+query.normalize({
+	schema: createSchema({
+		foo: String,
+		bar: [ { baz: [ { qux: Number } ] } ]
+	})
+});
+
 /* Ensure that a query is valid; will throw an error if the query is invalid. This is done by default
    in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
    matches() on an invalid query results in undefined behavior. */
@@ -173,6 +180,13 @@ func(objectToUpdate);  // true
    This is done by default in the constructor; pass the skipValidate option to opt out of
    this behavior. */
 update.normalize();
+
+update.normalize({
+	schema: createSchema({
+		foo: String,
+		bar: [ { baz: [ { qux: Number } ] } ]
+	})
+});
 
 /* Ensure that an update is valid; will throw an error if the update is invalid. This is done by default
    in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
