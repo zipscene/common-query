@@ -39,6 +39,45 @@ describe('Geo-Expression Operators', function() {
 			expect(query.matches(doc2)).to.be.true;
 			expect(query.getMatchProperty('distance')).to.be.below(maxDistance);
 		});
+
+		it('normalizes $maxDistance and $minDistance', function() {
+			const query = createQuery({
+				loc: {
+					$near: {
+						$geometry: zipsceneHQ,
+						$maxDistance: '10000',
+						$minDistance: '0'
+					}
+				}
+			});
+			expect(query.getData()).to.deep.equal({
+				loc: {
+					$near: {
+						$geometry: {
+							type: 'Point',
+							coordinates: [ -84.5099628, 39.1031535 ]
+						},
+						$maxDistance: 10000,
+						$minDistance: 0
+					}
+				}
+			});
+		});
+
+		it('normalizes coordinates', function() {
+			const zipsceneHQ = { type: 'Point', coordinates: [ '-84.5099628', '39.1031535' ] }; // 602 Main St 45202
+			const query = createQuery({ loc: { $near: { $geometry: zipsceneHQ } } });
+			expect(query.getData()).to.deep.equal({
+				loc: {
+					$near: {
+						$geometry: {
+							type: 'Point',
+							coordinates: [ -84.5099628, 39.1031535 ]
+						}
+					}
+				}
+			});
+		});
 	});
 
 	describe('$geoIntersects', function() {
