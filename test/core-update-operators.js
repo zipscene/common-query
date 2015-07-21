@@ -13,6 +13,7 @@ describe('Core Update Operators', function() {
 			const expected= { abc: 321, arr: [ 1, 1, '1' ] };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object', function() {
 			expectInvalid({ $set: 123 });
 			expectInvalid({ $set: [ 123 ] });
