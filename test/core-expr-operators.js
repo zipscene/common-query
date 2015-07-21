@@ -1,6 +1,6 @@
-let { expect } = require('chai');
-let { createQuery } = require('../lib/index');
-let { createSchema } = require('zs-common-schema');
+const { expect } = require('chai');
+const { createQuery } = require('../lib/index');
+const { createSchema } = require('zs-common-schema');
 
 describe('Core Expression Operators', function() {
 	describe('$exists', function() {
