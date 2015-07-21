@@ -1,5 +1,5 @@
-let { expect } = require('chai');
-let { createUpdate, Update, UpdateValidationError, defaultUpdateFactory } = require('../lib/index');
+const { expect } = require('chai');
+const { createUpdate, Update, UpdateValidationError, defaultUpdateFactory } = require('../lib/index');
 
 describe('Update', function() {
 	describe('constructor', function() {
@@ -73,6 +73,23 @@ describe('Update', function() {
 		it('shouldSkip as function', function() {
 			const shouldSkipParam = (fieldName) => fieldName.indexOf('uk') !== -1;
 			shouldSkipTester(shouldSkipParam);
+		});
+	});
+
+	describe('#normalize()', function() {
+		it('normalizes updates', function() {
+			// `createQuery` calls `query.normalize`
+			const update = createUpdate({
+				foo: 1024
+			});
+
+			const expected = {
+				$set: {
+					foo: 1024
+				}
+			};
+
+			expect(update.getData()).to.deep.equal(expected);
 		});
 	});
 
