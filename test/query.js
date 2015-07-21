@@ -295,14 +295,6 @@ describe('Query', function() {
 		});
 	});
 
-	describe('#validate()', function() {
-		it('basic valid query and return value', function() {
-			const query = createQuery({ foo: 'bar', biz: 'baz' });
-			let validateResult = query.validate();
-			expect(validateResult).to.be.true;
-		});
-	});
-
 	describe('#normalize()', function() {
 		it('normalizes queries', function() {
 			// `createQuery` calls `query.normalize`
@@ -354,9 +346,15 @@ describe('Query', function() {
 				}
 			};
 
-			const data = query.getData();
+			expect(query.getData()).to.deep.equal(expected);
+		});
+	});
 
-			expect(data).to.deep.equal(expected);
+	describe('#validate()', function() {
+		it('basic valid query and return value', function() {
+			const query = createQuery({ foo: 'bar', biz: 'baz' });
+			let validateResult = query.validate();
+			expect(validateResult).to.be.true;
 		});
 	});
 
