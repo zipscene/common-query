@@ -31,12 +31,21 @@ describe('Core Update Operators', function() {
 			});
 
 			const update2 = createUpdate({
-				$set: { foo: 32 }
+				$set: {
+					foo: 32,
+					'bar.2.baz': '123'
+				}
 			}, {
-				schema: createSchema({ foo: String })
+				schema: createSchema({
+					foo: String,
+					bar: [ { baz: Number } ]
+				})
 			});
 			expect(update2.getData()).to.deep.equal({
-				$set: { foo: '32' }
+				$set: {
+					foo: '32',
+					'bar.2.baz': 123
+				}
 			});
 		});
 	});
@@ -55,12 +64,20 @@ describe('Core Update Operators', function() {
 
 		it('normalizes queries', function() {
 			const update = createUpdate({
-				$unset: { foo: '16' }
+				$unset: {
+					foo: '16',
+					bar: '',
+					'baz.qux': false
+				}
 			}, {
 				schema: createSchema({ foo: Number })
 			});
 			expect(update.getData()).to.deep.equal({
-				$unset: { foo: 16 }
+				$unset: {
+					foo: true,
+					bar: true,
+					'baz.qux': true
+				}
 			});
 		});
 	});
