@@ -320,15 +320,6 @@ describe('Query', function() {
 				},
 				borp: { $in: [ '0', '1', '2' ] },
 				blep: { $nin: [ 'true', 'false', 'true' ] }
-			}, {
-				schema: createSchema({
-					foo: String,
-					baz: Number,
-					buz: Boolean,
-					bip: String,
-					borp: Number,
-					blep: Boolean
-				})
 			});
 
 			const expected = {
@@ -343,13 +334,57 @@ describe('Query', function() {
 						bop: { $wildcard: '4' }
 					}
 				},
+				borp: { $in: [ '0', '1', '2' ] },
+				blep: { $nin: [ 'true', 'false', 'true' ] }
+			};
+
+			expect(query.getData()).to.deep.equal(expected);
+
+			const queryWithSchema = createQuery({
+				foo: 'bar',
+				baz: { $exists: 'truthy because string' },
+				biz: '2001-01-01T00:00:00Z',
+				$and: [
+					{ buz: { $text: 1024 } },
+					{ buz: { $regex: 123 } }
+				],
+				bip: {
+					$elemMatch: {
+						bop: { $wildcard: 4 }
+					}
+				},
+				borp: { $in: [ '0', '1', '2' ] },
+				blep: { $nin: [ 'true', 'false', 'true' ] }
+			}, {
+				schema: createSchema({
+					foo: String,
+					baz: Number,
+					biz: Date,
+					buz: Boolean,
+					bip: String,
+					borp: Number,
+					blep: Boolean
+				})
+			});
+
+			const expectedWithSchema = {
+				foo: 'bar',
+				baz: { $exists: true },
+				biz: new Date('2001-01-01T00:00:00Z'),
+				$and: [
+					{ buz: { $text: '1024' } },
+					{ buz: { $regex: '123' } }
+				],
+				bip: {
+					$elemMatch: {
+						bop: { $wildcard: '4' }
+					}
+				},
 				borp: { $in: [ 0, 1, 2 ] },
 				blep: { $nin: [ true, false, true ] }
 			};
 
-			const data = query.getData();
-
-			expect(data).to.deep.equal(expected);
+			expect(queryWithSchema.getData()).to.deep.equal(expectedWithSchema);
 		});
 
 		it('handles nonexistent fields', function() {
