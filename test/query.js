@@ -351,6 +351,24 @@ describe('Query', function() {
 
 			expect(data).to.deep.equal(expected);
 		});
+
+		it('handles nonexistent fields', function() {
+			const queryData = {
+				nonexist: 'foo'
+			};
+			const schema = createSchema({
+				key1: { type: String, key: true },
+				foo: {
+					key2: { type: Date, key: true },
+					bar: { type: String, required: true },
+					baz: Number
+				},
+				biz: [ String ],
+				buz: Boolean
+			});
+
+			expect(() => createQuery(queryData, { schema })).to.throw(QueryValidationError);
+		});
 	});
 
 	describe('#_traverse', function() {

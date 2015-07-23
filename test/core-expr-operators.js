@@ -208,23 +208,23 @@ describe('Core Expression Operators', function() {
 
 		it('normalizes queries', function() {
 			const query1 = createQuery({
-				foo: { $gt: '0' },
-				bar: { $gte: '1' },
-				baz: { $lt: '2' },
+				foo: { $gt: 32 },
+				bar: { $gte: '64' },
+				baz: { $lt: '2010-10-20T00:00:00Z' },
 				qux: { $lte: '3' }
 			}, {
 				schema: createSchema({
-					foo: Number,
+					foo: String,
 					bar: Number,
-					baz: Number,
+					baz: Date,
 					qux: Number
 				})
 			});
 
 			expect(query1.getData()).to.deep.equal({
-				foo: { $gt: 0 },
-				bar: { $gte: 1 },
-				baz: { $lt: 2 },
+				foo: { $gt: '32' },
+				bar: { $gte: 64 },
+				baz: { $lt: new Date('2010-10-20T00:00:00Z') },
 				qux: { $lte: 3 }
 			});
 		});
