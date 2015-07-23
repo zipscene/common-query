@@ -308,55 +308,66 @@ describe('Query', function() {
 			// `createQuery` calls `query.normalize`
 			const query = createQuery({
 				foo: 'bar',
-				baz: {
-					$exists: 'truthy because string'
-				},
+				baz: { $exists: 'truthy because string' },
 				$and: [
-					{
-						buz: {
-							$text: 1024
-						}
-					},
-					{
-						$regex: 123
-					}
+					{ buz: { $text: 1024 } },
+					{ buz: { $regex: 123 } }
 				],
 				bip: {
 					$elemMatch: {
-						bop: {
-							$wildcard: 4
-						}
+						bop: { $wildcard: 4 }
 					}
-				}
+				},
+				borp: { $in: [ '0', '1', '2' ] },
+				blep: { $nin: [ 'true', 'false', 'true' ] }
+			}, {
+				schema: createSchema({
+					foo: String,
+					baz: Number,
+					buz: Boolean,
+					bip: String,
+					borp: Number,
+					blep: Boolean
+				})
 			});
 
 			const expected = {
 				foo: 'bar',
-				baz: {
-					$exists: true
-				},
+				baz: { $exists: true },
 				$and: [
-					{
-						buz: {
-							$text: '1024'
-						}
-					},
-					{
-						$regex: '123'
-					}
+					{ buz: { $text: '1024' } },
+					{ buz: { $regex: '123' } }
 				],
 				bip: {
 					$elemMatch: {
-						bop: {
-							$wildcard: '4'
-						}
+						bop: { $wildcard: '4' }
 					}
-				}
+				},
+				borp: { $in: [ 0, 1, 2 ] },
+				blep: { $nin: [ true, false, true ] }
 			};
 
 			const data = query.getData();
 
 			expect(data).to.deep.equal(expected);
+		});
+
+		it('handles nonexistent fields', function() {
+			const queryData = {
+				nonexist: 'foo'
+			};
+			const schema = createSchema({
+				key1: { type: String, key: true },
+				foo: {
+					key2: { type: Date, key: true },
+					bar: { type: String, required: true },
+					baz: Number
+				},
+				biz: [ String ],
+				buz: Boolean
+			});
+
+			expect(() => createQuery(queryData, { schema })).to.throw(QueryValidationError);
 		});
 	});
 
