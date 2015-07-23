@@ -14,9 +14,13 @@ describe('Core Expression Operators', function() {
 		});
 
 		it('normalizes queries', function() {
-			const query1 = createQuery({ foo: { $exists: 1 }, bar: { $exists: 0 } });
+			const query1 = createQuery({
+				foo: { $exists: 1 },
+				bar: { $exists: 0 }
+			});
 			expect(query1.getData()).to.deep.equal({
-				foo: { $exists: true }, bar: { $exists: false }
+				foo: { $exists: true },
+				bar: { $exists: false }
 			});
 		});
 	});
@@ -103,7 +107,7 @@ describe('Core Expression Operators', function() {
 			const query3 = createQuery({
 				foo: { $text: 1024 }
 			}, {
-				schema: createSchema({ foo: Number })
+				schema: createSchema({ foo: String })
 			});
 			expect(query3.getData()).to.deep.equal({
 				foo: { $text: '1024' }
@@ -138,7 +142,7 @@ describe('Core Expression Operators', function() {
 			const query3 = createQuery({
 				foo: { $wildcard: 1024 }
 			}, {
-				schema: createSchema({ foo: Number })
+				schema: createSchema({ foo: String })
 			});
 			expect(query3.getData()).to.deep.equal({
 				foo: { $wildcard: '1024' }
@@ -174,7 +178,7 @@ describe('Core Expression Operators', function() {
 			const query3 = createQuery({
 				foo: { $regex: 1024 }
 			}, {
-				schema: createSchema({ foo: Number })
+				schema: createSchema({ foo: String })
 			});
 			expect(query3.getData()).to.deep.equal({
 				foo: { $regex: '1024' }
