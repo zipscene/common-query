@@ -69,8 +69,6 @@ describe('Core Update Operators', function() {
 					bar: '',
 					'baz.qux': false
 				}
-			}, {
-				schema: createSchema({ foo: Number })
 			});
 			expect(update.getData()).to.deep.equal({
 				$unset: {
@@ -110,10 +108,17 @@ describe('Core Update Operators', function() {
 		it('normalizes queries', function() {
 			const update = createUpdate({
 				$inc: { foo: '4' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$inc: { foo: 4 }
+			});
+
+			const update2 = createUpdate({
+				$inc: { foo: '4' }
 			}, {
 				schema: createSchema({ foo: Number })
 			});
-			expect(update.getData()).to.deep.equal({
+			expect(update2.getData()).to.deep.equal({
 				$inc: { foo: 4 }
 			});
 		});
@@ -147,11 +152,82 @@ describe('Core Update Operators', function() {
 		it('normalizes queries', function() {
 			const update = createUpdate({
 				$mul: { foo: '8' }
-			}, {
-				schema: createSchema({ foo: Number })
 			});
 			expect(update.getData()).to.deep.equal({
 				$mul: { foo: 8 }
+			});
+
+			const update2 = createUpdate({
+				$mul: { foo: '8' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$mul: { foo: 8 }
+			});
+		});
+	});
+
+	describe('$min', function() {
+		it('updates if update value is less than current value', function() {
+			const update = { $min: { zero: -2, five: 6 } };
+			const result = createUpdate(update).apply({ zero: 0, five: 5 });
+			const expected = { zero: -2, five: 5 };
+			expect(result).to.deep.equal(expected);
+		});
+
+		it('takes an object w/ number values', function() {
+			expectInvalid({ $min: 123 });
+			expectInvalid({ $min: { value: '1234aaa' } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$min: { foo: '4' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$min: { foo: 4 }
+			});
+
+			const update2 = createUpdate({
+				$min: { foo: '4' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$min: { foo: 4 }
+			});
+		});
+	});
+
+	describe('$max', function() {
+		it('updates if update value is greater than current value', function() {
+			const update = { $max: { minusten: -14, twenty: 44 } };
+			const result = createUpdate(update).apply({ minusten: -10, twenty: 20 });
+			const expected = { minusten: -10, twenty: 44 };
+			expect(result).to.deep.equal(expected);
+		});
+
+		it('takes an object w/ number values', function() {
+			expectInvalid({ $max: 123 });
+			expectInvalid({ $max: { value: '1234aaa' } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$max: { foo: '128' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$max: { foo: 128 }
+			});
+
+			const update2 = createUpdate({
+				$max: { foo: '128' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$max: { foo: 128 }
 			});
 		});
 	});
@@ -183,56 +259,6 @@ describe('Core Update Operators', function() {
 			});
 			expect(update.getData()).to.deep.equal({
 				$rename: { foo: '128' }
-			});
-		});
-	});
-
-	describe('$max', function() {
-		it('updates if update value is greater than current value', function() {
-			const update = { $max: { minusten: -14, twenty: 44 } };
-			const result = createUpdate(update).apply({ minusten: -10, twenty: 20 });
-			const expected = { minusten: -10, twenty: 44 };
-			expect(result).to.deep.equal(expected);
-		});
-
-		it('takes an object w/ number values', function() {
-			expectInvalid({ $max: 123 });
-			expectInvalid({ $max: { value: '1234aaa' } });
-		});
-
-		it('normalizes queries', function() {
-			const update = createUpdate({
-				$max: { foo: '128' }
-			}, {
-				schema: createSchema({ foo: Number })
-			});
-			expect(update.getData()).to.deep.equal({
-				$max: { foo: 128 }
-			});
-		});
-	});
-
-	describe('$min', function() {
-		it('updates if update value is less than current value', function() {
-			const update = { $min: { zero: -2, five: 6 } };
-			const result = createUpdate(update).apply({ zero: 0, five: 5 });
-			const expected = { zero: -2, five: 5 };
-			expect(result).to.deep.equal(expected);
-		});
-
-		it('takes an object w/ number values', function() {
-			expectInvalid({ $min: 123 });
-			expectInvalid({ $min: { value: '1234aaa' } });
-		});
-
-		it('normalizes queries', function() {
-			const update = createUpdate({
-				$min: { foo: '4' }
-			}, {
-				schema: createSchema({ foo: Number })
-			});
-			expect(update.getData()).to.deep.equal({
-				$min: { foo: 4 }
 			});
 		});
 	});
