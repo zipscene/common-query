@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const { createUpdate, Update, UpdateValidationError, defaultUpdateFactory } = require('../lib/index');
+const { createSchema } = require('zs-common-schema');
 
 describe('Update', function() {
 	describe('constructor', function() {
