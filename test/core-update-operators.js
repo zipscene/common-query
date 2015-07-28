@@ -265,16 +265,20 @@ describe('Core Update Operators', function() {
 
 	describe('$addToSet', function() {
 		it('scalar $addToSet', function() {
-			const update = createUpdate({ $addToSet: { 'nested.set': 'f' } });
+			const update = createUpdate({
+				$addToSet: { 'nested.set': 'f' }
+			});
 			const result = update.apply({ nested: { set: [ 'a', 'b', 'c', 'd', 'e' ] } });
 			const expected = { nested: { set: [ 'a', 'b', 'c', 'd', 'e', 'f' ] } };
 			expect(result).to.deep.equal(expected);
 		});
 
 		it('adds multiple values w/ $each', function() {
-			const update = createUpdate({ $addToSet: {
-				set: { $each: [ 6, 3, 1, 7 ] }
-			} });
+			const update = createUpdate({
+				$addToSet: {
+					set: { $each: [ 6, 3, 1, 7 ] }
+				}
+			});
 			const result = update.apply({ set: [ 1, 2, 3, 4, 5 ] });
 			const expected = { set: [ 1, 2, 3, 4, 5, 6, 7 ] };
 			expect(result).to.deep.equal(expected);
@@ -340,6 +344,19 @@ describe('Core Update Operators', function() {
 			});
 			expect(update.getData()).to.deep.equal({
 				$addToSet: { set: 4 }
+			});
+
+			const update2 = createUpdate({
+				$addToSet: {
+					set: { $each: [ 1, 3, 3, 7 ] }
+				}
+			}, {
+				schema: createSchema({ set: [ String ] })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$addToSet: {
+					set: { $each: [ '1', '3', '3', '7' ] }
+				}
 			});
 		});
 	});
