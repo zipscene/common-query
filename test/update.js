@@ -98,6 +98,102 @@ describe('Update', function() {
 
 			expect(update.getData()).to.deep.equal(expected);
 		});
+
+		it('normalizes updates', function() {
+			const update = createUpdate({
+				$set: { jake: 'Jake!' },
+				$unset: { alice: 'Do it. Do it! COME ON, DO IT NOW!!!' },
+				$inc: { sam: '32.32', 'bob.age': -1 },
+				$mul: { mark: '32.32', 'jimmy.age': 16 },
+				$rename: { frankerz: 'kappa' },
+				$min: { apples: 12341234 },
+				$addToSet: { 'adjectives.purdue': 'swell', 'adjectives.uc': 'coolio' },
+				$push: {
+					foodArr: { $each: [ 'rice', 'cookies', 'pancakes' ] }
+				},
+				$pop: { balloon: 1 }
+			});
+
+			const expected = {
+				$set: { jake: 'Jake!' },
+				$unset: { alice: true },
+				$inc: { sam: 32.32, 'bob.age': -1 },
+				$mul: { mark: 32.32, 'jimmy.age': 16 },
+				$rename: { frankerz: 'kappa' },
+				$min: { apples: 12341234 },
+				$addToSet: { 'adjectives.purdue': 'swell', 'adjectives.uc': 'coolio' },
+				$push: {
+					foodArr: { $each: [ 'rice', 'cookies', 'pancakes' ] }
+				},
+				$pop: { balloon: 1 }
+			};
+
+			expect(update.getData()).to.deep.equal(expected);
+
+			const updateWithSchema = createUpdate({
+				$set: { jake: 'Jake!' },
+				$unset: { alice: 'Do it. Do it! COME ON, DO IT NOW!!!' },
+				$inc: { sam: '32.32', 'bob.age': -1 },
+				$mul: { mark: '32.32', 'jimmy.age': 16 },
+				$rename: { frankerz: 'kappa' },
+				$min: { apples: 12341234 },
+				$addToSet: {
+					'dates': '1999-12-31',
+					'adjectives.uc': 'dapper',
+					'adjectives.purdue': {
+						$each: [ 'silly', 'jerks' ]
+					}
+				},
+				$push: {
+					foodArr: { $each: [ 'rice', 'cookies', 'pancakes' ] }
+				},
+				$pop: { balloon: 1 }
+			}, {
+				schema: createSchema({
+					jake: String,
+					alice: String,
+					sam: Number,
+					bob: {
+						age: Number
+					},
+					mark: Number,
+					jimmy: {
+						age: Number
+					},
+					frankerz: String,
+					apples: Number,
+					dates: [ Date ],
+					adjectives: {
+						uc: [ String ],
+						purdue: [ String ]
+					},
+					foodArr: [ String ],
+					balloon: Number
+				})
+			});
+
+			const expectedWithSchema = {
+				$set: { jake: 'Jake!' },
+				$unset: { alice: true },
+				$inc: { sam: 32.32, 'bob.age': -1 },
+				$mul: { mark: 32.32, 'jimmy.age': 16 },
+				$rename: { frankerz: 'kappa' },
+				$min: { apples: 12341234 },
+				$addToSet: {
+					'dates': new Date('1999-12-31'),
+					'adjectives.uc': 'dapper',
+					'adjectives.purdue': {
+						$each: [ 'silly', 'jerks' ]
+					}
+				},
+				$push: {
+					foodArr: { $each: [ 'rice', 'cookies', 'pancakes' ] }
+				},
+				$pop: { balloon: 1 }
+			};
+
+			expect(updateWithSchema.getData()).to.deep.equal(expectedWithSchema);
+		});
 	});
 
 	describe('#validate()', function() {
