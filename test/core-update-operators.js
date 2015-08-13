@@ -340,7 +340,7 @@ describe('Core Update Operators', function() {
 			const update = createUpdate({
 				$addToSet: { set: '4' }
 			}, {
-				schema: createSchema({ set: Number })
+				schema: createSchema({ set: [ Number ] })
 			});
 			expect(update.getData()).to.deep.equal({
 				$addToSet: { set: 4 }
