@@ -11,3 +11,4 @@ project.sublime-project
 project.sublime-workspace
 /test*.js
 *.swp
+.jshintrc

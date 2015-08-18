@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const { createUpdate, UpdateValidationError } = require('../lib/index');
+const { createSchema } = require('zs-common-schema');
 
 describe('Core Update Operators', function() {
 	function expectInvalid(updateData) {
@@ -13,9 +14,39 @@ describe('Core Update Operators', function() {
 			const expected= { abc: 321, arr: [ 1, 1, '1' ] };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object', function() {
 			expectInvalid({ $set: 123 });
 			expectInvalid({ $set: [ 123 ] });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				foo: '16'
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update.getData()).to.deep.equal({
+				$set: { foo: 16 }
+			});
+
+			const update2 = createUpdate({
+				$set: {
+					foo: 32,
+					'bar.2.baz': '123'
+				}
+			}, {
+				schema: createSchema({
+					foo: String,
+					bar: [ { baz: Number } ]
+				})
+			});
+			expect(update2.getData()).to.deep.equal({
+				$set: {
+					foo: '32',
+					'bar.2.baz': 123
+				}
+			});
 		});
 	});
 
@@ -26,8 +57,26 @@ describe('Core Update Operators', function() {
 			const expected = {};
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object', function() {
 			expectInvalid({ $unset: '321' });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$unset: {
+					foo: '16',
+					bar: '',
+					'baz.qux': false
+				}
+			});
+			expect(update.getData()).to.deep.equal({
+				$unset: {
+					foo: true,
+					bar: true,
+					'baz.qux': true
+				}
+			});
 		});
 	});
 
@@ -50,9 +99,28 @@ describe('Core Update Operators', function() {
 			};
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object w/ number values', function() {
 			expectInvalid({ $inc: '123aa' });
 			expectInvalid({ $inc: { value: '1234aaa' } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$inc: { foo: '4' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$inc: { foo: 4 }
+			});
+
+			const update2 = createUpdate({
+				$inc: { foo: '4' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$inc: { foo: 4 }
+			});
 		});
 	});
 
@@ -75,40 +143,28 @@ describe('Core Update Operators', function() {
 			};
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object w/ number values', function() {
 			expectInvalid({ $mul: '123aa' });
 			expectInvalid({ $mul: { value: '1234aaa' } });
 		});
-	});
 
-	describe('$rename', function() {
-		it('renames stuff', function() {
-			const update = { $rename: { hi: 'hello', sup: 'wassup' } };
-			const result = createUpdate(update).apply({ hi: 'hi', bye: 'bye' });
-			const expected = { hello: 'hi', bye: 'bye' };
-			expect(result).to.deep.equal(expected);
-		});
-		it('$rename to identical name', function() {
-			const update = { $rename: { hi: 'hi', bye: 'goodbye' } };
-			const result = createUpdate(update).apply({ hi: 'hi', bye: 'bye' });
-			const expected = { hi: 'hi', goodbye: 'bye' };
-			expect(result).to.deep.equal(expected);
-		});
-		it('takes an object ', function() {
-			expectInvalid({ $rename: { oldName: { new: 'name' } } });
-		});
-	});
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$mul: { foo: '8' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$mul: { foo: 8 }
+			});
 
-	describe('$max', function() {
-		it('updates if update value is greater than current value', function() {
-			const update = { $max: { minusten: -14, twenty: 44 } };
-			const result = createUpdate(update).apply({ minusten: -10, twenty: 20 });
-			const expected = { minusten: -10, twenty: 44 };
-			expect(result).to.deep.equal(expected);
-		});
-		it('takes an object w/ number values', function() {
-			expectInvalid({ $max: 123 });
-			expectInvalid({ $max: { value: '1234aaa' } });
+			const update2 = createUpdate({
+				$mul: { foo: '8' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$mul: { foo: 8 }
+			});
 		});
 	});
 
@@ -119,27 +175,115 @@ describe('Core Update Operators', function() {
 			const expected = { zero: -2, five: 5 };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object w/ number values', function() {
 			expectInvalid({ $min: 123 });
 			expectInvalid({ $min: { value: '1234aaa' } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$min: { foo: '4' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$min: { foo: 4 }
+			});
+
+			const update2 = createUpdate({
+				$min: { foo: '4' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$min: { foo: 4 }
+			});
+		});
+	});
+
+	describe('$max', function() {
+		it('updates if update value is greater than current value', function() {
+			const update = { $max: { minusten: -14, twenty: 44 } };
+			const result = createUpdate(update).apply({ minusten: -10, twenty: 20 });
+			const expected = { minusten: -10, twenty: 44 };
+			expect(result).to.deep.equal(expected);
+		});
+
+		it('takes an object w/ number values', function() {
+			expectInvalid({ $max: 123 });
+			expectInvalid({ $max: { value: '1234aaa' } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$max: { foo: '128' }
+			});
+			expect(update.getData()).to.deep.equal({
+				$max: { foo: 128 }
+			});
+
+			const update2 = createUpdate({
+				$max: { foo: '128' }
+			}, {
+				schema: createSchema({ foo: Number })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$max: { foo: 128 }
+			});
+		});
+	});
+
+	describe('$rename', function() {
+		it('renames stuff', function() {
+			const update = { $rename: { hi: 'hello', sup: 'wassup' } };
+			const result = createUpdate(update).apply({ hi: 'hi', bye: 'bye' });
+			const expected = { hello: 'hi', bye: 'bye' };
+			expect(result).to.deep.equal(expected);
+		});
+
+		it('$rename to identical name', function() {
+			const update = { $rename: { hi: 'hi', bye: 'goodbye' } };
+			const result = createUpdate(update).apply({ hi: 'hi', bye: 'bye' });
+			const expected = { hi: 'hi', goodbye: 'bye' };
+			expect(result).to.deep.equal(expected);
+		});
+
+		it('takes an object ', function() {
+			expectInvalid({ $rename: { oldName: { new: 'name' } } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$rename: { foo: 128 }
+			}, {
+				schema: createSchema({ foo: String })
+			});
+			expect(update.getData()).to.deep.equal({
+				$rename: { foo: '128' }
+			});
 		});
 	});
 
 	describe('$addToSet', function() {
 		it('scalar $addToSet', function() {
-			const update = createUpdate({ $addToSet: { 'nested.set': 'f' } });
+			const update = createUpdate({
+				$addToSet: { 'nested.set': 'f' }
+			});
 			const result = update.apply({ nested: { set: [ 'a', 'b', 'c', 'd', 'e' ] } });
 			const expected = { nested: { set: [ 'a', 'b', 'c', 'd', 'e', 'f' ] } };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('adds multiple values w/ $each', function() {
-			const update = createUpdate({ $addToSet: {
-				set: { $each: [ 6, 3, 1, 7 ] }
-			} });
+			const update = createUpdate({
+				$addToSet: {
+					set: { $each: [ 6, 3, 1, 7 ] }
+				}
+			});
 			const result = update.apply({ set: [ 1, 2, 3, 4, 5 ] });
 			const expected = { set: [ 1, 2, 3, 4, 5, 6, 7 ] };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('adds mixed scalar values', function() {
 			const update = createUpdate({ $addToSet: {
 				set: { $each: [ true, false, 2, '2', 'gareth' ] }
@@ -148,6 +292,7 @@ describe('Core Update Operators', function() {
 			const expected = { set: [ 1, 14, '1', 2, false, 'gareth', true, '2' ] };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('adds complex values', function() {
 			const update = createUpdate({ $addToSet: {
 				set: { $each: [
@@ -180,13 +325,39 @@ describe('Core Update Operators', function() {
 			] };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object', function() {
 			expectInvalid({ $addToSet: 'doggy' });
 		});
+
 		it('takes an array w/ $each', function() {
 			expectInvalid({ $addToSet: { theseones: {
 				$each: { 'thisone': 'yes', 'thatone': 'yes' }
 			} } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$addToSet: { set: '4' }
+			}, {
+				schema: createSchema({ set: [ Number ] })
+			});
+			expect(update.getData()).to.deep.equal({
+				$addToSet: { set: 4 }
+			});
+
+			const update2 = createUpdate({
+				$addToSet: {
+					set: { $each: [ 1, 3, 3, 7 ] }
+				}
+			}, {
+				schema: createSchema({ set: [ String ] })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$addToSet: {
+					set: { $each: [ '1', '3', '3', '7' ] }
+				}
+			});
 		});
 	});
 
@@ -201,6 +372,7 @@ describe('Core Update Operators', function() {
 			};
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('pushes multiple values with $each', function() {
 			const update = { $push: {
 				set: { $each: [ true, false, 2, '2', 'gareth' ] }
@@ -213,6 +385,7 @@ describe('Core Update Operators', function() {
 			};
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('treats fields as paths', function() {
 			const update = { $push: { 'nested.set': 'appendectomy' } };
 			const result = createUpdate(update).apply({
@@ -224,12 +397,25 @@ describe('Core Update Operators', function() {
 			expect(result).to.deep.equal(expected);
 		});
 		it('takes an object', function() {
+
 			expectInvalid({ $push: 'this thing' });
 		});
+
 		it('takes an array w/ $each', function() {
 			expectInvalid({ $push: { theseones: {
 				$each: { 'thisone': 'yes', 'thatone': 'yes' }
 			} } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$push: { set: '4' }
+			}, {
+				schema: createSchema({ set: Number })
+			});
+			expect(update.getData()).to.deep.equal({
+				$push: { set: 4 }
+			});
 		});
 	});
 
@@ -240,15 +426,28 @@ describe('Core Update Operators', function() {
 			const expected = { set: [ 1, 14, '1', 2, false ] };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('pops a value from the tail of an array with -1', function() {
 			const update = { $pop: { 'nested.set': -1 } };
 			const result = createUpdate(update).apply({ nested: { set: [ true, 'waifu', 976 ] } });
 			const expected = { nested: { set: [ 'waifu', 976 ] } };
 			expect(result).to.deep.equal(expected);
 		});
+
 		it('takes an object w/ values 1 or -1', function() {
 			expectInvalid({ $pop: 'this thing as well' });
 			expectInvalid({ $pop: { 'a.cool.array': 0 } });
+		});
+
+		it('normalizes queries', function() {
+			const update = createUpdate({
+				$pop: { set: '-1' }
+			}, {
+				schema: createSchema({ set: Number })
+			});
+			expect(update.getData()).to.deep.equal({
+				$pop: { set: -1 }
+			});
 		});
 	});
 });

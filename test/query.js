@@ -1,6 +1,6 @@
-let { expect } = require('chai');
-let { createSchema } = require('zs-common-schema');
-let { createQuery, Query, ObjectMatchError, QueryValidationError } = require('../lib/index');
+const { expect } = require('chai');
+const { createSchema } = require('zs-common-schema');
+const { createQuery, Query, ObjectMatchError, QueryValidationError } = require('../lib/index');
 
 describe('Query', function() {
 	describe('constructor', function() {
@@ -295,14 +295,6 @@ describe('Query', function() {
 		});
 	});
 
-	describe('#validate()', function() {
-		it('basic valid query and return value', function() {
-			const query = createQuery({ foo: 'bar', biz: 'baz' });
-			let validateResult = query.validate();
-			expect(validateResult).to.be.true;
-		});
-	});
-
 	describe('#normalize()', function() {
 		it('normalizes queries', function() {
 			// `createQuery` calls `query.normalize`
@@ -484,6 +476,14 @@ describe('Query', function() {
 			});
 
 			expect(() => createQuery(queryData, { schema })).to.throw(QueryValidationError);
+		});
+	});
+
+	describe('#validate()', function() {
+		it('basic valid query and return value', function() {
+			const query = createQuery({ foo: 'bar', biz: 'baz' });
+			let validateResult = query.validate();
+			expect(validateResult).to.be.true;
 		});
 	});
 
