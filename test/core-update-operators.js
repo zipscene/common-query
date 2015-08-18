@@ -416,6 +416,15 @@ describe('Core Update Operators', function() {
 			expect(update.getData()).to.deep.equal({
 				$push: { set: 4 }
 			});
+
+			const update2 = createUpdate({
+				$push: { set: { $each: [ '2', '4' ] } }
+			}, {
+				schema: createSchema({ set: [ Number ] })
+			});
+			expect(update2.getData()).to.deep.equal({
+				$push: { set: { $each: [ 2, 4 ] } }
+			});
 		});
 	});
 
