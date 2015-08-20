@@ -16,19 +16,19 @@ describe('Update', function() {
 
 	describe.only('createFromObjectDiff()', function() {
 		it('creates diff for empty objects', function() {
-			let lhs1 = {};
+			let fromValue = {};
 
-			let rhs1 = {};
+			let toValue = {};
 
-			let patch1 = Update.createFromObjectDiff(lhs1, rhs1);
+			let patch = Update.createFromObjectDiff(fromValue, toValue);
 
-			let expected1 = {};
+			let expected = {};
 
-			expect(patch1).to.deep.equal(expected1)
+			expect(patch).to.deep.equal(expected)
 		});
 
 		it('creates diff between two objects', function() {
-			let lhs1 = {
+			let fromValue = {
 				same: 'foo',
 				changed: 'foo',
 				removed: false,
@@ -55,7 +55,7 @@ describe('Update', function() {
 				boolToArray: 'I am a string.'
 			};
 
-			let rhs1 = {
+			let toValue = {
 				same: 'foo',
 				changed: 'bar',
 				added: true,
@@ -83,9 +83,9 @@ describe('Update', function() {
 				boolToArray: [ 'Now', 'I', 'am', 'an', 'Array' ]
 			};
 
-			let patch1 = Update.createFromObjectDiff(lhs1, rhs1);
+			let patch = Update.createFromObjectDiff(fromValue, toValue);
 
-			let expected1 = {
+			let expected = {
 				$set: {
 					changed: 'bar',
 					added: true,
@@ -117,7 +117,29 @@ describe('Update', function() {
 				}
 			};
 
-			expect(patch1).to.deep.equal(expected1)
+			expect(patch).to.deep.equal(expected);
+		});
+
+		it('creates diff for replaced arrays', function() {
+			let fromValue = {
+				foo: ['one', 'two', 'three']
+			};
+
+			let toValue = {
+				foo: ['one', 'three']
+			};
+
+			let patch = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceSmallerArrays: true
+			});
+
+			let expected = {
+				$set: {
+					foo: [ 'one', 'three' ]
+				}
+			};
+
+			expect(patch).to.deep.equal(expected);
 		});
 	});
 
