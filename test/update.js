@@ -111,35 +111,154 @@ describe('Update', function() {
 					'child.dad.isAlive': true
 				},
 				$push: {
-					'removedElements': {
-						$slice: 2
-					}
+					'removedElements': { $slice: 2 }
 				}
 			};
 
 			expect(patch).to.deep.equal(expected);
 		});
 
-		it('creates diff for replaced arrays', function() {
+		it('replaces arrays entirely when desired', function() {
 			let fromValue = {
-				foo: ['one', 'two', 'three']
+				addedElements: [ 1 ],
+				removedElements: [ 1, 2, 3 ],
+				changedElements: [ 2, 4, 7, 16 ],
+				addedAndChangedElement: [ 2, 4, 7, 16 ],
+				changedItem: [
+					{ foo: 'foo' },
+					{ foo: 'bar' }
+				]
 			};
 
 			let toValue = {
-				foo: ['one', 'three']
+				addedElements: [ 1, 2, 3 ],
+				removedElements: [ 1, 3 ],
+				changedElements: [ 2, 4, 8, 16 ],
+				addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
+				changedItem: [
+					{ foo: 'foo' },
+					{ foo: 'baz' }
+				]
 			};
 
-			let patch = Update.createFromObjectDiff(fromValue, toValue, {
-				replaceSmallerArrays: true
+			let patchReplacingNone = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceArrays: false
+			});
+			let patchReplacingAll = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceArrays: true
+			});
+			let patchReplacingEqual = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceArrays: 'EQUAL'
+			});
+			let patchReplacingDifferent = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceArrays: 'DIFFERENT'
+			});
+			let patchReplacingSmaller = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceArrays: 'SMALLER'
+			});
+			let patchReplacingLarger = Update.createFromObjectDiff(fromValue, toValue, {
+				replaceArrays: 'LARGER'
 			});
 
-			let expected = {
+			let expectedReplacingNone = {
 				$set: {
-					foo: [ 'one', 'three' ]
+					'addedElements.1': 2,
+					'addedElements.2': 3,
+					'removedElements.1': 3,
+					'changedElements.2': 8,
+					'addedAndChangedElement.2': 8,
+					'addedAndChangedElement.3': 10,
+					'addedAndChangedElement.4': 16,
+					'changedItem.1.foo': 'baz'
+				},
+				$unset: {
+					'removedElements.2': true
+				},
+				$push: {
+					'removedElements': { $slice: 2 }
 				}
 			};
 
-			expect(patch).to.deep.equal(expected);
+			let expectedReplacingAll = {
+				$set: {
+					addedElements: [ 1, 2, 3 ],
+					removedElements: [ 1, 3 ],
+					changedElements: [ 2, 4, 8, 16 ],
+					addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
+					changedItem: [
+						{ foo: 'foo' },
+						{ foo: 'baz' }
+					]
+				}
+			};
+
+			let expectedReplacingEqual = {
+				$set: {
+					'addedElements.1': 2,
+					'addedElements.2': 3,
+					'removedElements.1': 3,
+					changedElements: [ 2, 4, 8, 16 ],
+					'addedAndChangedElement.2': 8,
+					'addedAndChangedElement.3': 10,
+					'addedAndChangedElement.4': 16,
+					changedItem: [
+						{ foo: 'foo' },
+						{ foo: 'baz' }
+					]
+				},
+				$unset: {
+					'removedElements.2': true
+				},
+				$push: {
+					'removedElements': { $slice: 2 }
+				}
+			};
+
+			let expectedReplacingDifferent = {
+				$set: {
+					addedElements: [ 1, 2, 3 ],
+					removedElements: [ 1, 3 ],
+					'changedElements.2': 8,
+					addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
+					'changedItem.1.foo': 'baz'
+				}
+			};
+
+			let expectedReplacingSmaller = {
+				$set: {
+					'addedElements.1': 2,
+					'addedElements.2': 3,
+					removedElements: [ 1, 3 ],
+					'changedElements.2': 8,
+					'addedAndChangedElement.2': 8,
+					'addedAndChangedElement.3': 10,
+					'addedAndChangedElement.4': 16,
+					'changedItem.1.foo': 'baz'
+				}
+			};
+
+			let expectedReplacingLarger = {
+				$set: {
+					addedElements: [ 1, 2, 3 ],
+					'removedElements.1': 3,
+					'changedElements.2': 8,
+					addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
+					'changedItem.1.foo': 'baz'
+				},
+				$unset: {
+					'removedElements.2': true
+				},
+				$push: {
+					'removedElements': { $slice: 2 }
+				}
+			};
+
+			expect(patchReplacingNone).to.deep.equal(expectedReplacingNone);
+			expect(patchReplacingAll).to.deep.equal(expectedReplacingAll);
+			expect(patchReplacingEqual).to.deep.equal(expectedReplacingEqual);
+			expect(patchReplacingDifferent).to.deep.equal(expectedReplacingDifferent);
+			expect(patchReplacingSmaller).to.deep.equal(expectedReplacingSmaller);
+			expect(patchReplacingLarger).to.deep.equal(expectedReplacingLarger);
 		});
 	});
 
