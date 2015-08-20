@@ -71,7 +71,7 @@ describe('Update', function() {
 					name: 'Batman',
 					numParents: 0,
 					dad: {
-						DOB: new Date(1965, 1, 1),
+						DOB: new Date(1960, 1, 1),
 						DOD: new Date(2000, 1, 1)
 					},
 					mom: {
@@ -99,6 +99,7 @@ describe('Update', function() {
 					'changedItem.1.foo': 'baz',
 					'child.name': 'Batman',
 					'child.numParents': 0,
+					'child.dad.DOB': new Date(1960, 1, 1),
 					'child.dad.DOD': new Date(2000, 1, 1),
 					'child.mom.DOD': new Date(2000, 1, 1),
 					'child.mom.isAlive': false,
