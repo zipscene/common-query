@@ -4,7 +4,10 @@ const { createSchema } = require('zs-common-schema');
 
 describe('Core Update Operators', function() {
 	function expectInvalid(updateData) {
-		expect(function() { createUpdate(updateData); }).to.throw(UpdateValidationError);
+		expect(() => {
+			let update = createUpdate(updateData, { skipValidate: true });
+			update.validate();
+		}).to.throw(UpdateValidationError);
 	}
 
 	describe('$set', function() {
