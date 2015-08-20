@@ -14,6 +14,112 @@ describe('Update', function() {
 		});
 	});
 
+	describe.only('createFromObjectDiff()', function() {
+		it('creates diff for empty objects', function() {
+			let lhs1 = {};
+
+			let rhs1 = {};
+
+			let patch1 = Update.createFromObjectDiff(lhs1, rhs1);
+
+			let expected1 = {};
+
+			expect(patch1).to.deep.equal(expected1)
+		});
+
+		it('creates diff between two objects', function() {
+			let lhs1 = {
+				same: 'foo',
+				changed: 'foo',
+				removed: false,
+				addedElements: [ 1 ],
+				removedElements: [ 1, 2, 3 ],
+				changedElements: [ 2, 4, 7, 16 ],
+				addedAndChangedElement: [ 2, 4, 7, 16 ],
+				changedItem: [
+					{ foo: 'foo' },
+					{ foo: 'bar' }
+				],
+				child: {
+					name: 'Bruce Wayne',
+					numParents: 2,
+					dad: {
+						DOB: new Date(1965, 1, 1),
+						isAlive: true
+					},
+					mom: {
+						DOB: new Date(1950, 1, 1),
+						isAlive: true
+					}
+				},
+				boolToArray: 'I am a string.'
+			};
+
+			let rhs1 = {
+				same: 'foo',
+				changed: 'bar',
+				added: true,
+				addedElements: [ 1, 2, 3 ],
+				removedElements: [ 1, 3 ],
+				changedElements: [ 2, 4, 8, 16 ],
+				addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
+				changedItem: [
+					{ foo: 'foo' },
+					{ foo: 'baz' }
+				],
+				child: {
+					name: 'Batman',
+					numParents: 0,
+					dad: {
+						DOB: new Date(1965, 1, 1),
+						DOD: new Date(2000, 1, 1)
+					},
+					mom: {
+						DOB: new Date(1950, 1, 1),
+						DOD: new Date(2000, 1, 1),
+						isAlive: false
+					}
+				},
+				boolToArray: [ 'Now', 'I', 'am', 'an', 'Array' ]
+			};
+
+			let patch1 = Update.createFromObjectDiff(lhs1, rhs1);
+
+			let expected1 = {
+				$set: {
+					changed: 'bar',
+					added: true,
+					'addedElements.1': 2,
+					'addedElements.2': 3,
+					'removedElements.1': 3,
+					'changedElements.2': 8,
+					'addedAndChangedElement.2': 8,
+					'addedAndChangedElement.3': 10,
+					'addedAndChangedElement.4': 16,
+					'changedItem.1.foo': 'baz',
+					'child.name': 'Batman',
+					'child.numParents': 0,
+					'child.dad.DOD': new Date(2000, 1, 1),
+					'child.mom.DOD': new Date(2000, 1, 1),
+					'child.mom.isAlive': false,
+					boolToArray: [ 'Now', 'I', 'am', 'an', 'Array' ]
+				},
+				$unset: {
+					removed: true,
+					'removedElements.2': true,
+					'child.dad.isAlive': true
+				},
+				$push: {
+					'removedElements': {
+						$slice: 2
+					}
+				}
+			};
+
+			expect(patch1).to.deep.equal(expected1)
+		});
+	});
+
 	describe('#apply()', function() {
 		// Used by the shouldSkip testers
 		function shouldSkipTester(shouldSkipParam) {
