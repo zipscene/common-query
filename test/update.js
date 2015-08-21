@@ -14,13 +14,13 @@ describe('Update', function() {
 		});
 	});
 
-	describe.only('createFromObjectDiff()', function() {
+	describe.only('createFromDiff()', function() {
 		it('creates diff for empty objects', function() {
 			let fromValue = {};
 
 			let toValue = {};
 
-			let patch = Update.createFromObjectDiff(fromValue, toValue);
+			let patch = Update.createFromDiff(fromValue, toValue);
 
 			let expected = {};
 
@@ -83,7 +83,7 @@ describe('Update', function() {
 				boolToArray: [ 'Now', 'I', 'am', 'an', 'Array' ]
 			};
 
-			let patch = Update.createFromObjectDiff(fromValue, toValue);
+			let patch = Update.createFromDiff(fromValue, toValue);
 
 			let expected = {
 				$set: {
@@ -141,22 +141,22 @@ describe('Update', function() {
 				]
 			};
 
-			let patchReplacingNone = Update.createFromObjectDiff(fromValue, toValue, {
+			let patchReplacingNone = Update.createFromDiff(fromValue, toValue, {
 				replaceArrays: false
 			});
-			let patchReplacingAll = Update.createFromObjectDiff(fromValue, toValue, {
+			let patchReplacingAll = Update.createFromDiff(fromValue, toValue, {
 				replaceArrays: true
 			});
-			let patchReplacingEqual = Update.createFromObjectDiff(fromValue, toValue, {
+			let patchReplacingEqual = Update.createFromDiff(fromValue, toValue, {
 				replaceArrays: 'EQUAL'
 			});
-			let patchReplacingDifferent = Update.createFromObjectDiff(fromValue, toValue, {
+			let patchReplacingDifferent = Update.createFromDiff(fromValue, toValue, {
 				replaceArrays: 'DIFFERENT'
 			});
-			let patchReplacingSmaller = Update.createFromObjectDiff(fromValue, toValue, {
+			let patchReplacingSmaller = Update.createFromDiff(fromValue, toValue, {
 				replaceArrays: 'SMALLER'
 			});
-			let patchReplacingLarger = Update.createFromObjectDiff(fromValue, toValue, {
+			let patchReplacingLarger = Update.createFromDiff(fromValue, toValue, {
 				replaceArrays: 'LARGER'
 			});
 
