@@ -24,7 +24,7 @@ describe('Update', function() {
 
 			let expected = {};
 
-			expect(patch).to.deep.equal(expected)
+			expect(patch).to.deep.equal(expected);
 		});
 
 		it('creates diff between two objects', function() {
