@@ -211,6 +211,7 @@ In addition to the instance methods, there are also some notable static methods 
 
 ```javascript
 // Create an update from the recursive diff of two objects
+// See the method's documentation for accepted options
 Update.createFromDiff({
 	foo: 'bar',
 	baz: true,
@@ -220,6 +221,25 @@ Update.createFromDiff({
 	boom: 4,
 	plork: [ { aoeu: true, asdf: false } ]
 });
+
+// Results in:
+{
+        "$set": {
+                "foo": "boar",
+                "boom": 4,
+                "plork.0.aoeu": true,
+                "plork.0.asdf": false
+        },
+        "$unset": {
+                "baz": true,
+                "plork.1": true
+        },
+        "$push": {
+                "plork": {
+                        "$slice": 1
+                }
+        }
+}
 ```
 
 ## Query and update factories
