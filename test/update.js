@@ -14,7 +14,7 @@ describe('Update', function() {
 		});
 	});
 
-	describe.only('createFromDiff()', function() {
+	describe('createFromDiff()', function() {
 		it('creates diff for empty objects', function() {
 			let fromValue = {};
 
