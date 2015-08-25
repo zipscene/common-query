@@ -19,6 +19,7 @@
     "crisphooks": "^2.0.0",
     "geolib": "^2.0.14",
     "lodash": "^3.6.0",
+    "moment": "^2.10.6",
     "regexp-quote": "0.0.0",
     "xerror": "^1.0.0",
     "zs-common-schema": "^1.2.0",
