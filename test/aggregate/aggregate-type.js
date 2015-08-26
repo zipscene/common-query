@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const AggregateType = require('../../lib/aggregate/aggregate-type');
 const AggregateValidationError = require('../../lib/aggregate/aggregate-validation-error');
 
-describe('GroupByType', function() {
+describe('AggregateType', function() {
 	let type = new AggregateType('test');
 
 	describe('#getName', function() {
