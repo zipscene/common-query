@@ -8,7 +8,7 @@ const {
 
 describe('AggregateFactory', function() {
 
-	describe('#createAggregate()', function() {
+	describe('AggregateFactory#createAggregate()', function() {
 
 		it('handles the skipValidate option', function() {
 			let aggregateData = { 'really': 'invalid' };
