@@ -1,6 +1,6 @@
 let spawn = require('child_process').spawn;
 
-describe.skip('Linter', function() {
+describe('Linter', function() {
 
 	it('should not have any linter problems', function(done) {
 

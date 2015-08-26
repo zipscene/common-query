@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { createSchema } = require('zs-common-schema');
 const { createQuery, Query, ObjectMatchError, QueryValidationError } = require('../lib/index');
 
-describe.skip('Query', function() {
+describe('Query', function() {
 	describe('constructor', function() {
 		it('skips validation with the skipValidate option', function() {
 			const queryData = { 'really': 'invalid', '$super': 'invalid' };

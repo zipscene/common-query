@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { createQuery } = require('../lib/index');
 const { createSchema } = require('zs-common-schema');
 
-describe.skip('Core Expression Operators', function() {
+describe('Core Expression Operators', function() {
 	describe('$exists', function() {
 		it('$exists', function() {
 			const query = createQuery({ foo: { $exists: true }, bar: { $exists: false } });

@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const { createQuery, QueryValidationError } = require('../lib/index');
 
-describe.skip('Query Operators', function() {
+describe('Query Operators', function() {
 	function valid(query) {
 		createQuery(query).validate();
 	}
