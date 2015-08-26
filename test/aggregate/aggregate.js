@@ -2,8 +2,6 @@ const { expect } = require('chai');
 const { createSchema } = require('zs-common-schema');
 const { createAggregate, AggregateValidationError } = require('../../lib/index');
 
-// These are a few insufficient tests as examples.
-
 describe('Aggregate', function() {
 
 	describe('Aggregate#normalize', function() {
