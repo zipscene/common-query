@@ -1,0 +1,22 @@
+const { expect } = require('chai');
+const { createSchema } = require('zs-common-schema');
+
+const StatsAggregateType = require('../../lib/aggregate/aggregate-types/stats');
+const AggregateValidationError = require('../../lib/aggregate/aggregate-validation-error');
+
+describe('AggregateType - Stats', function() {
+
+	describe('Stats', function() {
+		let stats = new StatsAggregateType();
+
+		if('should have the name "stats"', function() {
+			expect(stats.getName()).to.equal('stats');
+		});
+
+		it('should match aggregates that have a non-empty stats field', function() {
+			J
+		});
+
+	});
+
+});

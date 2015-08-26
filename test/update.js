@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { createSchema } = require('zs-common-schema');
 const { createUpdate, Update, UpdateValidationError, defaultUpdateFactory } = require('../lib/index');
 
-describe('Update', function() {
+describe.skip('Update', function() {
 	describe('constructor', function() {
 		it('skips validation with the skipValidate option', function() {
 			const updateData = { '$mega': 'invalid', '$dude': 'like are you even trying' };

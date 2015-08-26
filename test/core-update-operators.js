@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { createUpdate, UpdateValidationError } = require('../lib/index');
 const { createSchema } = require('zs-common-schema');
 
-describe('Core Update Operators', function() {
+describe.skip('Core Update Operators', function() {
 	function expectInvalid(updateData) {
 		expect(() => {
 			let update = createUpdate(updateData, { skipValidate: true });
