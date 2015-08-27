@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { createQuery } = require('../lib/index');
+const { createQuery } = require('../../lib/index');
 
 describe('Geo-Expression Operators', function() {
 	const zipsceneHQ = { type: 'Point', coordinates: [ -84.5099628, 39.1031535 ] }; // 602 Main St 45202

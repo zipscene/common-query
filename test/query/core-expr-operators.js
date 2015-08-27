@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { createQuery } = require('../lib/index');
+const { createQuery } = require('../../lib/index');
 const { createSchema } = require('zs-common-schema');
 
 describe('Core Expression Operators', function() {

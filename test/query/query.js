@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { createSchema } = require('zs-common-schema');
-const { createQuery, Query, ObjectMatchError, QueryValidationError } = require('../lib/index');
+const { createQuery, Query, ObjectMatchError, QueryValidationError } = require('../../lib/index');
 
 describe('Query', function() {
 	describe('constructor', function() {

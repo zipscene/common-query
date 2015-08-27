@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { createQuery, QueryValidationError } = require('../lib/index');
+const { createQuery, QueryValidationError } = require('../../lib/index');
 
 describe('Query Operators', function() {
 	function valid(query) {
