@@ -68,15 +68,17 @@ describe('IntervalGroupByType', function() {
 		});
 
 		it('should normalize duration intervals with base', function() {
-			let durationB = { field: 'bar', interval: 'PT8H', base: new Date(2015, 0, 1, 0, 0, 0) };
+			let durationB = { field: 'bar', interval: 'PT8H', base: new Date('2015-01-01T05:00:00.000Z') };
 			type.normalize(durationB, { schema });
-			expect(durationB).to.deep.equal({ field: 'bar', interval: 'PT8H', base: new Date(2015, 0, 1, 0, 0, 0) });
+			expect(durationB)
+				.to.deep.equal({ field: 'bar', interval: 'PT8H', base: new Date('2015-01-01T05:00:00.000Z') });
 		});
 
 		it('should normalize duration intervals with string base', function() {
 			let durationC = { field: 'bar', interval: 'PT8H', base: '2015-01-01T05:00:00.000Z' };
 			type.normalize(durationC, { schema });
-			expect(durationC).to.deep.equal({ field: 'bar', interval: 'PT8H', base: new Date(2015, 0, 1, 0, 0, 0) });
+			expect(durationC)
+				.to.deep.equal({ field: 'bar', interval: 'PT8H', base: new Date('2015-01-01T05:00:00.000Z') });
 
 		});
 
