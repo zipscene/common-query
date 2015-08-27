@@ -6,11 +6,10 @@ describe('Update', function() {
 	describe('constructor', function() {
 		it('skips validation with the skipValidate option', function() {
 			const updateData = { '$mega': 'invalid', '$dude': 'like are you even trying' };
-			const options = { skipValidate: true };
-			const wrappedNoSkip = () => new Update(updateData, defaultUpdateFactory);
-			expect(wrappedNoSkip).to.throw(UpdateValidationError);
-			const wrappedSkip = () => new Update(updateData, defaultUpdateFactory, options);
-			expect(wrappedSkip).to.not.throw(Error);
+			expect(() => new Update(updateData, defaultUpdateFactory))
+				.to.throw(UpdateValidationError);
+			expect(() => new Update(updateData, defaultUpdateFactory, { skipValidate: true }))
+				.to.not.throw(Error);
 		});
 	});
 
@@ -445,10 +444,6 @@ describe('Update', function() {
 	});
 
 	describe('#validate()', function() {
-		function expectInvalid(updateData) {
-			expect(() => createUpdate(updateData)).to.throw(UpdateValidationError);
-		}
-
 		it('complex update validates correctly', function() {
 			const updateData = {
 				$set: { bob: 1, alice: 2, alexander: { three: 3, four: 4 } },
@@ -461,20 +456,25 @@ describe('Update', function() {
 				$push: { foodArr: { $each: [ 'rice', 'cookies', 'pancakes' ] } },
 				$pop: { balloon: 1 }
 			};
-			createUpdate(updateData);  // Will validate in constructor
+			const update = createUpdate(updateData, { skipValidate: true });
+			expect(update.validate()).to.be.true;
 		});
 
-		it('can call validate() explicitly', function() {
-			const update = createUpdate({ $set: { a: 1 }, $unset: { b: true } });
-			expect(update.validate()).to.equal(true);
+		it('validates full updates to true', function() {
+			const update = createUpdate({ a: 3 }, { skipValidate: true });
+			expect(update.validate()).to.be.true;
 		});
 
 		it('mixed properties and operators', function() {
-			expectInvalid({ $set: { a: 1 }, $unset: { b: 2 }, c: 3 });
+			const update = createUpdate({ $set: { a: 1 }, $unset: { b: 2 }, c: 3 }, { skipValidate: true });
+			expect(() => update.validate())
+				.to.throw(UpdateValidationError, /Update cannot be a mix of operators and non-operators/);
 		});
 
-		it('invalid operator', function() {
-			expectInvalid({ $set: { a: 'b' }, $ultraset: { c: 'd' } });
+		it('should fail validation on unrecognized operators', function() {
+			const update = createUpdate({ $set: { a: 'b' }, $ultraset: { c: 'd' } }, { skipValidate: true });
+			expect(() => update.validate())
+				.to.throw(UpdateValidationError, /Unrecognized update operator: \$ultraset/);
 		});
 	});
 });
