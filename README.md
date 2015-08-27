@@ -317,8 +317,6 @@ matched by a query).
 
 ```js
 {
-	// Statistics across the whole collection
-	type: 'stats',
 	// Perform statistics on a field
 	stats: {
 		age: {
@@ -361,11 +359,11 @@ The different types of stats you can ask for are:
 Not all model types need support all of these types of stats, and model types may add
 additional stats if they are supported.
 
+The stats object is a mapping between field paths and the statistics to perform.  
 You can also supply more than one stats field in the aggregate:
 
 ```js
 {
-	type: 'stats',
 	stats: {
 		age: {
 			max: true
@@ -397,7 +395,6 @@ a field name, and the `count` stat is executed on it:
 
 ```js
 {
-	type: 'stats',
 	stats: 'animalType'
 }
 ```
@@ -406,7 +403,6 @@ is converted to:
 
 ```js
 {
-	type: 'stats',
 	stats: {
 		animalType: {
 			count: true
@@ -417,16 +413,14 @@ is converted to:
 
 ### Group by Discrete Values of Field
 
-This type of aggregate will return statistics grouped by different values of a field.
+This type of aggregate will return statistics grouped by discrete values of a field.
 
 ```js
 {
-	// Group by field values
-	type: 'group',
 	// The field to group by is 'animalType'
-	groupBy: {
+	groupBy: [ {
 		field: 'animalType'
-	},
+	} ],
 	// Perform statistics within each group on the 'age' field
 	stats: {
 		age: {
@@ -476,7 +470,17 @@ Results look like:
 ]
 ```
 
-As a shorthand, you can specify a string as `groupBy`:
+As a shorthand, you can specify the `groupBy` field as a single object:
+
+```js
+{
+	groupBy: {
+		field: 'animalType'
+	}
+}
+```
+
+or as a string:
 
 ```js
 {
@@ -484,7 +488,7 @@ As a shorthand, you can specify a string as `groupBy`:
 }
 ```
 
-is converted to:
+Both shorthand forms are converted to:
 
 ```js
 {
@@ -498,8 +502,7 @@ You can also leave off `stats` to get only totals:
 
 ```js
 {
-	type: 'group',
-	groupBy: { field: 'animalType' },
+	groupBy: [ { field: 'animalType' } ],
 	total: true
 }
 ```
@@ -526,13 +529,12 @@ May yield:
 
 ### Group by Ranges of a Field Value
 
-This will group by ranges of a numeric field.
+This will group by ranges of a numeric or date field.
 
 ```js
 {
-	type: 'group',
-	groupBy: {
-		// Continuously-valued field to group by
+	groupBy: [ {
+		// Numeric/date field to group by
 		field: 'age',
 		ranges: [
 			// First group (group 0) is animals less than 1 year old
@@ -544,7 +546,7 @@ This will group by ranges of a numeric field.
 			// Fourth group (group 3) is animals more than 9 years old
 			{ start: 9 }
 		]
-	},
+	} ],
 	// Give total matching for each group
 	// Note that you can also supply stats here as well
 	total: true
@@ -581,15 +583,14 @@ These ranges can also be dates if applied to a date field:
 
 ```js
 {
-	type: 'group',
-	groupBy: {
+	groupBy: [ {
 		field: 'dateFound',
 		ranges: [
 			{ end: '2010-01-01T00:00:00Z' },
 			{ start: '2010-01-01T00:00:00Z', end: '2013-01-01T00:00:00Z' },
 			{ start: '2013-01-01T00:00:00Z' }
 		]
-	},
+	} ],
 	total: true
 }
 ```
@@ -598,11 +599,27 @@ For convenience, a continuous series of non-overlapping ranges can be specified 
 
 ```js
 {
-	type: 'group',
-	groupBy: {
+	groupBy: [ {
 		field: 'age',
 		ranges: [ 1, 3, 9 ]
-	},
+	} ],
+	total: true
+}
+```
+
+Will be converted to:
+
+```js
+{
+	groupBy: [ {
+		field: 'age',
+		ranges: [
+			{ end: 1 },
+			{ start: 1, end: 3 },
+			{ start: 3, end: 9 },
+			{ start: 9 }
+		]
+	} ],
 	total: true
 }
 ```
@@ -636,12 +653,70 @@ The output of this is:
 ]
 ```
 
-### Group by Fixed Sized Intervals
+Strings found in start/end properties will also attempt to be parsed into number/date values.
+For example:
 
 ```js
 {
-	type: 'group',
-	groupBy: {
+	groupBy: [ {
+		field: 'age',
+		ranges: [ '3', 5 ]
+	} ],
+	total: true
+}
+```
+
+will be converted to:
+
+```js
+{
+	groupBy: [ {
+		field: 'age',
+		ranges: [
+			{ end: 3 },
+			{ start: 3, end: 5 },
+			{ start: 5 }
+		]
+	} ],
+	total: true
+}
+```
+
+and:
+
+```js
+{
+	groupBy: [ {
+		field: 'dateFound',
+		ranges: [ '2015-01-01T05:00:00.000Z', new Date(2015, 1, 1, 0, 0, 0) ]
+	} ],
+	total: true
+}
+```
+
+will be converted to:
+
+```js
+{
+	groupBy: [ {
+		field: 'age',
+		ranges: [
+			{ end: new Date('2015-01-01T00:00:00.000Z') },
+			{ start: new Date('2015-01-01T00:00:00.000Z'), end: new Date('2015-02-01T00:00:00.000Z') },
+			{ start: new Date('2015-02-01T00:00:00.000Z') }
+		]
+	} ],
+	total: true
+}
+```
+
+### Group by Fixed Sized Intervals
+
+This will group continuous values across fixed intervals.
+
+```js
+{
+	groupBy: [ {
 		// Segment the numeric field 'age'
 		field: 'age',
 		// Each interval is of length 3
@@ -650,7 +725,7 @@ The output of this is:
 		// This supplies a different offset
 		// When set to 1, the intervals become -2, 1, 4, 7, etc
 		base: 1
-	},
+	} ],
 	total: true
 }
 ```
@@ -683,14 +758,13 @@ ISO 8601 time Duration.  For example, an interval of 'P3H15M' is an interval of 
 
 ```js
 {
-	type: 'group',
-	groupBy: {
+	groupBy: [ {
 		field: 'dateFound',
 		interval: 'P8H',
 		// The default base when using time intervals is not defined.
 		// Override bases are specified as an ISO8601 timestamp.
 		base: '2010-01-01T00:00:00Z'
-	},
+	} ],
 	total: true
 }
 ```
@@ -712,6 +786,33 @@ Results in:
 ]
 ```
 
+As a convenience, you string values from base and interval will be converted to proper number/date values.
+For instance:
+
+```js
+{
+	groupBy: [ {
+		field: 'age',
+		interval: '3',
+		base: '1'
+	} ],
+	total: true
+}
+```
+
+will be converted to:
+
+```js
+{
+	groupBy: [ {
+		field: 'age',
+		interval: 3,
+		base: 1
+	} ],
+	total: true
+}
+```
+
 ### Group by Time Components
 
 Usually, when you want to group by (for example) month, you don't actually want to use a time
@@ -720,15 +821,14 @@ you to group by time components.
 
 ```js
 {
-	type: 'group',
-	groupBy: {
+	groupBy: [ {
 		// Field to group by
 		field: 'dateFound',
 		// Time component to group into
 		timeComponent: 'year',
 		// The number of time components in each group (optional)
 		timeComponentCount: 1
-	},
+	} ],
 	total: true
 }
 ```
@@ -771,11 +871,11 @@ The `timeComponentCount` field is optional, and can be used to create longer int
 ```js
 {
 	type: 'group',
-	groupBy: {
+	groupBy: [ {
 		field: 'dateFound',
 		timeComponent: 'day',
 		timeComponentCount: 2
-	},
+	} ],
 	total: true
 }
 ```
@@ -809,12 +909,12 @@ For `year`, the base point in time used is year 1.
 
 ### Grouping By Multiple Fields
 
-The `groupBy` parameter can contain an array of grouping specifiers.  In this case, each combination
-of values is considered a group.
+The `groupBy` parameter in it's most verbose form is an array of goruping specifiers.
+When multiple specifiers are present, a powerset of the results will be producsed.
+For example:
 
 ```js
 {
-	type: 'group',
 	groupBy: [
 		{
 			field: 'animalType'
@@ -855,6 +955,3 @@ This groups by age (in intervals of 4) and animalType.  The results for this loo
 	...
 ]
 ```
-
-
-
