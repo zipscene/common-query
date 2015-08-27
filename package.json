@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "node ./node_modules/.bin/eslint . || exit 0",
     "docs": "node ./node_modules/.bin/yuidoc .",
-    "test": "npm run-script build && node ./node_modules/.bin/mocha ./dist/test -R spec",
+    "test": "npm run-script build && node ./node_modules/.bin/mocha ./dist/test -R spec --recursive",
     "build": "rm -rf dist && ./node_modules/.bin/broccoli build dist && rm -rf tmp",
     "prepublish": "npm run-script build && npm run-script docs"
   },
@@ -19,6 +19,7 @@
     "crisphooks": "^2.0.0",
     "geolib": "^2.0.14",
     "lodash": "^3.6.0",
+    "moment": "^2.10.6",
     "regexp-quote": "0.0.0",
     "xerror": "^1.0.0",
     "zs-common-schema": "^1.2.0",
