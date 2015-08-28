@@ -1,6 +1,5 @@
 let expect = require('chai').expect;
-let queryFactory = require('../lib/index').defaultQueryFactory;
-let QueryValidationError = require('../lib/query-validation-error');
+let { QueryValidationError, defaultQueryFactory: queryFactory } = require('../../lib/index');
 
 describe('QueryFactory', function() {
 	describe('#createQuery()', function() {

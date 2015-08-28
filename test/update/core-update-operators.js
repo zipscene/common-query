@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { createUpdate, UpdateValidationError } = require('../lib/index');
+const { createUpdate, UpdateValidationError } = require('../../lib/index');
 const { createSchema } = require('zs-common-schema');
 
 describe('Core Update Operators', function() {
