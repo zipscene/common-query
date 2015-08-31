@@ -110,7 +110,10 @@ describe('Update', function() {
 					'child.dad.isAlive': true
 				},
 				$push: {
-					'removedElements': { $slice: 2 }
+					'removedElements': {
+						$each: [],
+						$slice: 2
+					}
 				}
 			};
 
@@ -174,7 +177,10 @@ describe('Update', function() {
 					'removedElements.2': true
 				},
 				$push: {
-					'removedElements': { $slice: 2 }
+					'removedElements': {
+						$each: [],
+						$slice: 2
+					}
 				}
 			};
 
@@ -209,7 +215,10 @@ describe('Update', function() {
 					'removedElements.2': true
 				},
 				$push: {
-					'removedElements': { $slice: 2 }
+					'removedElements': {
+						$each: [],
+						$slice: 2
+					}
 				}
 			};
 
@@ -248,7 +257,10 @@ describe('Update', function() {
 					'removedElements.2': true
 				},
 				$push: {
-					'removedElements': { $slice: 2 }
+					'removedElements': {
+						$each: [],
+						$slice: 2
+					}
 				}
 			};
 
