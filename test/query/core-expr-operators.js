@@ -113,8 +113,8 @@ describe('Core Expression Operators', function() {
 	describe('$all', function() {
 		it('$all', function() {
 			const query = createQuery({ foo: { $all: [ 1, 2, 3 ] } });
-			// expect(query.matches({ foo: [ 1, 2, 3 ] })).to.be.true;
-			// expect(query.matches({ foo: [ 1, 2, 3, 4, 5 ] })).to.be.true;
+			expect(query.matches({ foo: [ 1, 2, 3 ] })).to.be.true;
+			expect(query.matches({ foo: [ 1, 2, 3, 4, 5 ] })).to.be.true;
 			expect(query.matches({ foo: [ 1, 2 ] })).to.be.false;
 			expect(query.matches({ foo: 'bar' })).to.be.false;
 		});
