@@ -51,6 +51,7 @@ The following mongo query operators are supported by default:
 - `$elemMatch`
 - `$in`
 - `$nin`
+- `$all`
 - `$text`
 - `$regex`
 - `$gt`
