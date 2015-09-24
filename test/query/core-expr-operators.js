@@ -136,6 +136,56 @@ describe('Core Expression Operators', function() {
 		});
 	});
 
+	describe('$size', function() {
+		it('$size', function() {
+			const query = createQuery({ foo: { $size: 3 } });
+			expect(query.matches({ foo: [ 1, 2, 3 ] })).to.be.true;
+			expect(query.matches({ foo: [ 'a', { a: 1 }, 453 ] })).to.be.true;
+			expect(query.matches({ foo: [ 0, 0 ] })).to.be.false;
+			expect(query.matches({ foo: { a: 1, b: 2 } })).to.be.false;
+			expect(query.matches({ foo: 100 })).to.be.false;
+			expect(query.matches({ foo: 'a test' })).to.be.false;
+			expect(query.matches({ foo: true })).to.be.false;
+			expect(query.matches({ foo: null })).to.be.false;
+			expect(query.matches({})).to.be.false;
+		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({ foo: { $size: '10' } });
+			expect(query.getData()).to.deep.equal({
+				foo: { $size: 10 }
+			});
+			const query2 = createQuery({ foo: { $size: 10.2 } });
+			expect(query2.getData()).to.deep.equal({
+				foo: { $size: 10 }
+			});
+			const query3 = createQuery({ foo: { $size: '10.2' } });
+			expect(query3.getData()).to.deep.equal({
+				foo: { $size: 10 }
+			});
+			try {
+				createQuery({ foo: { $size: true } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+			try {
+				createQuery({ foo: { $size: 'Invalid value' } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+			try {
+				createQuery({ foo: { $size: { a: 1 } } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+			try {
+				createQuery({ foo: { $size: undefined } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+		});
+	});
+
 	describe('$text', function() {
 		it('$text', function() {
 			const query = createQuery({ foo: { $text: 'zip zup' } });
