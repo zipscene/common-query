@@ -164,7 +164,22 @@ describe('Core Expression Operators', function() {
 				foo: { $size: 10 }
 			});
 			try {
-				const query4 = createQuery({ foo: { $size: true } }); /*eslint "no-unused-vars": 0*/
+				createQuery({ foo: { $size: true } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+			try {
+				createQuery({ foo: { $size: 'Invalid value' } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+			try {
+				createQuery({ foo: { $size: { a: 1 } } });
+			} catch (ex) {
+				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
+			}
+			try {
+				createQuery({ foo: { $size: undefined } });
 			} catch (ex) {
 				expect(ex.message).to.equal('Invalid query: Argument to $size must be number');
 			}
