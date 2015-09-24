@@ -52,6 +52,7 @@ The following mongo query operators are supported by default:
 - `$in`
 - `$nin`
 - `$all`
+- `$size`
 - `$text`
 - `$regex`
 - `$gt`
