@@ -82,6 +82,36 @@ describe('Core Expression Operators', function() {
 				bar: { $in: [ '0', '1', '2' ] }
 			});
 		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({
+				'foo.bar.baz': { $in: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: { bar: { baz: [ String ] } }
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz': { $in: [ 'foo' ] }
+			});
+		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({
+				'foo.bar.baz.biz.boop': { $in: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: {
+						bar: {
+							baz: [ { biz: { boop: String } } ]
+						}
+					}
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz.biz.boop': { $in: [ 'foo' ] }
+			});
+		});
 	});
 
 	describe('$nin', function() {
@@ -106,6 +136,36 @@ describe('Core Expression Operators', function() {
 			expect(query.getData()).to.deep.equal({
 				foo: { $nin: [ true, false, true ] },
 				bar: { $nin: [ 'true', 'false', 'true' ] }
+			});
+		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({
+				'foo.bar.baz': { $nin: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: { bar: { baz: [ String ] } }
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz': { $nin: [ 'foo' ] }
+			});
+		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({
+				'foo.bar.baz.biz.boop': { $nin: [ '1', '2', '3' ] }
+			}, {
+				schema: createSchema({
+					foo: {
+						bar: {
+							baz: [ { biz: { boop: Number } } ]
+						}
+					}
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz.biz.boop': { $nin: [ 1, 2, 3 ] }
 			});
 		});
 	});

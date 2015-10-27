@@ -22,7 +22,7 @@
     "moment": "^2.10.6",
     "regexp-quote": "0.0.0",
     "xerror": "^1.0.0",
-    "zs-common-schema": "^1.2.0",
+    "zs-common-schema": "^1.7.1",
     "zs-objtools": "^0.3.2"
   },
   "devDependencies": {
