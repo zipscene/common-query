@@ -67,7 +67,7 @@ describe('Core Expression Operators', function() {
 			expect(query.matches({ foo: 'bar' })).to.be.false;
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries non-nested arrays', function() {
 			const query = createQuery({
 				foo: { $in: [ '0', '1', '2' ] },
 				bar: { $in: [ '0', '1', '2' ] }
@@ -83,7 +83,7 @@ describe('Core Expression Operators', function() {
 			});
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries of nested objects with arrays', function() {
 			const query = createQuery({
 				'foo.bar.baz': { $in: [ 'foo' ] }
 			}, {
@@ -96,7 +96,7 @@ describe('Core Expression Operators', function() {
 			});
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries of nested objects with arrays of nested objects', function() {
 			const query = createQuery({
 				'foo.bar.baz.biz.boop': { $in: [ 'foo' ] }
 			}, {
@@ -123,7 +123,7 @@ describe('Core Expression Operators', function() {
 			expect(query.matches({ foo: 'bar' })).to.be.true;
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries non-nested arrays', function() {
 			const query = createQuery({
 				foo: { $nin: [ 'true', 'false', 'true' ] },
 				bar: { $nin: [ 'true', 'false', 'true' ] }
@@ -139,7 +139,7 @@ describe('Core Expression Operators', function() {
 			});
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries of nested objects with arrays', function() {
 			const query = createQuery({
 				'foo.bar.baz': { $nin: [ 'foo' ] }
 			}, {
@@ -152,7 +152,7 @@ describe('Core Expression Operators', function() {
 			});
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries of nested objects with arrays of nested objects', function() {
 			const query = createQuery({
 				'foo.bar.baz.biz.boop': { $nin: [ '1', '2', '3' ] }
 			}, {
@@ -179,7 +179,7 @@ describe('Core Expression Operators', function() {
 			expect(query.matches({ foo: 'bar' })).to.be.false;
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries for non-nested arrays', function() {
 			const query = createQuery({
 				foo: { $all: [ '0', '1', '2' ] },
 				bar: { $all: [ '0', 1, '2' ] }
@@ -195,7 +195,7 @@ describe('Core Expression Operators', function() {
 			});
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries of nested objects with arrays', function() {
 			const query = createQuery({
 				'foo.bar.baz': { $all: [ '1' ] }
 			}, {
@@ -208,7 +208,7 @@ describe('Core Expression Operators', function() {
 			});
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries of nested objects with arrays of nested objects', function() {
 			const query = createQuery({
 				'foo.bar.baz.biz.boop': { $all: [ 'foo' ] }
 			}, {
