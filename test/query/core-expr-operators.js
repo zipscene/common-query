@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { expect } = require('chai');
 const { createQuery } = require('../../lib/index');
 const { createSchema } = require('zs-common-schema');
@@ -111,6 +112,13 @@ describe('Core Expression Operators', function() {
 			expect(query.getData()).to.deep.equal({
 				'foo.bar.baz.biz.boop': { $in: [ 'foo' ] }
 			});
+		});
+
+		it('does not change the schema when normalizing queries on arrays', function() {
+			let schema = createSchema({ foo: [ Number ] });
+			const oldSchemaData = _.cloneDeep(schema.getData());
+			const query = createQuery({ foo: { $in: [ '0', '1', '2' ] } }, { schema });
+			expect(schema.getData()).to.deep.equal(oldSchemaData);
 		});
 	});
 
