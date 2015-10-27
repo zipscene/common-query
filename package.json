@@ -1,6 +1,6 @@
 {
   "name": "zs-common-query",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Base framework for common mongo-style query language",
   "main": "./dist/lib/index.js",
   "repository": {
@@ -23,7 +23,7 @@
     "regexp-quote": "0.0.0",
     "xerror": "^1.0.0",
     "zs-common-schema": "^1.7.1",
-    "zs-objtools": "^0.3.2"
+    "zs-objtools": "^1.2.0"
   },
   "devDependencies": {
     "broccoli": "^0.16.3",
