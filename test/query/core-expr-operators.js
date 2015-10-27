@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { expect } = require('chai');
 const { createQuery } = require('../../lib/index');
 const { createSchema } = require('zs-common-schema');
@@ -67,7 +68,7 @@ describe('Core Expression Operators', function() {
 			expect(query.matches({ foo: 'bar' })).to.be.false;
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries non-nested arrays', function() {
 			const query = createQuery({
 				foo: { $in: [ '0', '1', '2' ] },
 				bar: { $in: [ '0', '1', '2' ] }
@@ -82,6 +83,43 @@ describe('Core Expression Operators', function() {
 				bar: { $in: [ '0', '1', '2' ] }
 			});
 		});
+
+		it('normalizes queries of nested objects with arrays', function() {
+			const query = createQuery({
+				'foo.bar.baz': { $in: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: { bar: { baz: [ String ] } }
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz': { $in: [ 'foo' ] }
+			});
+		});
+
+		it('normalizes queries of nested objects with arrays of nested objects', function() {
+			const query = createQuery({
+				'foo.bar.baz.biz.boop': { $in: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: {
+						bar: {
+							baz: [ { biz: { boop: String } } ]
+						}
+					}
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz.biz.boop': { $in: [ 'foo' ] }
+			});
+		});
+
+		it('does not change the schema when normalizing queries on arrays', function() {
+			let schema = createSchema({ foo: [ Number ] });
+			const oldSchemaData = _.cloneDeep(schema.getData());
+			const query = createQuery({ foo: { $in: [ '0', '1', '2' ] } }, { schema });
+			expect(schema.getData()).to.deep.equal(oldSchemaData);
+		});
 	});
 
 	describe('$nin', function() {
@@ -93,7 +131,7 @@ describe('Core Expression Operators', function() {
 			expect(query.matches({ foo: 'bar' })).to.be.true;
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries non-nested arrays', function() {
 			const query = createQuery({
 				foo: { $nin: [ 'true', 'false', 'true' ] },
 				bar: { $nin: [ 'true', 'false', 'true' ] }
@@ -108,6 +146,36 @@ describe('Core Expression Operators', function() {
 				bar: { $nin: [ 'true', 'false', 'true' ] }
 			});
 		});
+
+		it('normalizes queries of nested objects with arrays', function() {
+			const query = createQuery({
+				'foo.bar.baz': { $nin: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: { bar: { baz: [ String ] } }
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz': { $nin: [ 'foo' ] }
+			});
+		});
+
+		it('normalizes queries of nested objects with arrays of nested objects', function() {
+			const query = createQuery({
+				'foo.bar.baz.biz.boop': { $nin: [ '1', '2', '3' ] }
+			}, {
+				schema: createSchema({
+					foo: {
+						bar: {
+							baz: [ { biz: { boop: Number } } ]
+						}
+					}
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz.biz.boop': { $nin: [ 1, 2, 3 ] }
+			});
+		});
 	});
 
 	describe('$all', function() {
@@ -119,7 +187,7 @@ describe('Core Expression Operators', function() {
 			expect(query.matches({ foo: 'bar' })).to.be.false;
 		});
 
-		it('normalizes queries', function() {
+		it('normalizes queries for non-nested arrays', function() {
 			const query = createQuery({
 				foo: { $all: [ '0', '1', '2' ] },
 				bar: { $all: [ '0', 1, '2' ] }
@@ -132,6 +200,36 @@ describe('Core Expression Operators', function() {
 			expect(query.getData()).to.deep.equal({
 				foo: { $all: [ 0, 1, 2 ] },
 				bar: { $all: [ '0', '1', '2' ] }
+			});
+		});
+
+		it('normalizes queries of nested objects with arrays', function() {
+			const query = createQuery({
+				'foo.bar.baz': { $all: [ '1' ] }
+			}, {
+				schema: createSchema({
+					foo: { bar: { baz: [ Number ] } }
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz': { $all: [ 1 ] }
+			});
+		});
+
+		it('normalizes queries of nested objects with arrays of nested objects', function() {
+			const query = createQuery({
+				'foo.bar.baz.biz.boop': { $all: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: {
+						bar: {
+							baz: [ { biz: { boop: String } } ]
+						}
+					}
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz.biz.boop': { $all: [ 'foo' ] }
 			});
 		});
 	});
