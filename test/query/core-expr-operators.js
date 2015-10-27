@@ -194,6 +194,36 @@ describe('Core Expression Operators', function() {
 				bar: { $all: [ '0', '1', '2' ] }
 			});
 		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({
+				'foo.bar.baz': { $all: [ '1' ] }
+			}, {
+				schema: createSchema({
+					foo: { bar: { baz: [ Number ] } }
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz': { $all: [ 1 ] }
+			});
+		});
+
+		it('normalizes queries', function() {
+			const query = createQuery({
+				'foo.bar.baz.biz.boop': { $all: [ 'foo' ] }
+			}, {
+				schema: createSchema({
+					foo: {
+						bar: {
+							baz: [ { biz: { boop: String } } ]
+						}
+					}
+				})
+			});
+			expect(query.getData()).to.deep.equal({
+				'foo.bar.baz.biz.boop': { $all: [ 'foo' ] }
+			});
+		});
 	});
 
 	describe('$size', function() {
