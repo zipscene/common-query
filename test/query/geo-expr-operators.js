@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const { createQuery } = require('../../lib/index');
+const { createSchema } = require('zs-common-schema');
 
 describe('Geo-Expression Operators', function() {
 	const zipsceneHQ = { type: 'Point', coordinates: [ -84.5099628, 39.1031535 ] }; // 602 Main St 45202
@@ -77,6 +78,26 @@ describe('Geo-Expression Operators', function() {
 					}
 				}
 			});
+		});
+
+		it('normalizes query with schema', function() {
+			const schema = createSchema({
+				point: { type: 'geopoint' }
+			});
+			createQuery({
+				'point': {
+					$near: {
+						$geometry: {
+							type: 'Point',
+							coordinates: [
+								-73.9667,
+								40.78
+							]
+						},
+						$maxDistance: 1000
+					}
+				}
+			}, { schema });
 		});
 	});
 
