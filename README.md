@@ -528,6 +528,13 @@ May yield:
 ]
 ```
 
+#### Arrays
+
+If the `groupBy` `field` is an array, each of the array's elements is treated as a separate
+entry.  This means that, in this case, the counts and totals in the aggregate result won't
+equal the total number of documents (documents can be counted multiple times if the array
+has multiple elements).
+
 
 ### Group by Ranges of a Field Value
 

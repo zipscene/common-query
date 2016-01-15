@@ -10,7 +10,8 @@ describe('FieldGroupByType', function() {
 	let schema = createSchema({
 		foo: Number,
 		bar: String,
-		baz: Date
+		baz: Date,
+		biz: [ Number ]
 	});
 
 	describe('#getName', function() {
@@ -63,6 +64,11 @@ describe('FieldGroupByType', function() {
 		it('should fail normalization with a schema if the field doesn\'t exist', function() {
 			expect(() => numberType.normalize({ field: 'missing' }, { schema }))
 				.to.throw(AggregateValidationError, /groupBy field path must exist in the schema/);
+		});
+
+		it.only('should pass normalize with a schema array field', function() {
+			expect(() => numberType.normalize({ field: 'biz' }, { schema }))
+				.to.not.throw(AggregateValidationError);
 		});
 
 	});
