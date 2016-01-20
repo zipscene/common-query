@@ -276,6 +276,15 @@ describe('Core Update Operators', function() {
 			expect(result).to.deep.equal(expected);
 		});
 
+		it('create the set if it doesnt exist', function() {
+			const update = createUpdate({
+				$addToSet: { foo: 'bar' }
+			});
+			const result = update.apply({});
+			const expected = { foo: [ 'bar' ] };
+			expect(result).to.deep.equal(expected);
+		});
+
 		it('adds multiple values w/ $each', function() {
 			const update = createUpdate({
 				$addToSet: {

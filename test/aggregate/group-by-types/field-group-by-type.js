@@ -66,7 +66,7 @@ describe('FieldGroupByType', function() {
 				.to.throw(AggregateValidationError, /groupBy field path must exist in the schema/);
 		});
 
-		it.only('should pass normalize with a schema array field', function() {
+		it('should pass normalize with a schema array field', function() {
 			expect(() => numberType.normalize({ field: 'biz' }, { schema }))
 				.to.not.throw(AggregateValidationError);
 		});
