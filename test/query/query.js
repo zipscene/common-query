@@ -460,6 +460,28 @@ describe('Query', function() {
 			expect(query2.getData()).to.deep.equal(expected2);
 		});
 
+		it.only('#condense', function() {
+			const query1 = createQuery({
+				$and: [ { foo: 1 } ],
+				$or: [ { bar: 1 } ],
+				$nor: [ { baz: 1 } ]
+			});
+			query1.condense();
+			expect(query1.getData()).to.deep.equal({
+				foo: 1,
+				bar: 1,
+				baz: 1
+			});
+
+			const query2 = createQuery({
+				$and: [],
+				$or: [],
+				$nor: []
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({});
+		});
+
 		it('handles nonexistent fields', function() {
 			const queryData = {
 				nonexist: 'foo'
