@@ -460,7 +460,7 @@ describe('Query', function() {
 			expect(query2.getData()).to.deep.equal(expected2);
 		});
 
-		it.only('#condense', function() {
+		it('#condense should combine single-element $and and $nor clauses', function() {
 			const query1 = createQuery({
 				$and: [ { foo: 1 } ],
 				$or: [ { bar: 1 } ],
@@ -470,16 +470,47 @@ describe('Query', function() {
 			expect(query1.getData()).to.deep.equal({
 				foo: 1,
 				bar: 1,
-				baz: 1
+				$nor: [ { baz: 1 } ]
 			});
 
 			const query2 = createQuery({
+				$and: [ { foo: 1 } ],
+				$or: [ { foo: 2 } ],
+				$nor: [ { foo: 3 } ]
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				$and: [
+					{ foo: 1 },
+					{ foo: 2 }
+				],
+				$nor: [ { foo: 3 } ]
+			});
+
+			const query3 = createQuery({
+				$and: [ { foo: 1 }, { bar: 1 } ],
+				$or: [ { foo: 2 } ],
+				$nor: [ { foo: 3 } ]
+			});
+			query3.condense();
+			expect(query3.getData()).to.deep.equal({
+				$and: [
+					{ foo: 1 },
+					{ bar: 1 }
+				],
+				$nor: [ { foo: 3 } ],
+				foo: 2
+			});
+		});
+
+		it('#condense should remove empty $and, $or, and $nor clauses', function() {
+			const query = createQuery({
 				$and: [],
 				$or: [],
 				$nor: []
 			});
-			query2.condense();
-			expect(query2.getData()).to.deep.equal({});
+			query.condense();
+			expect(query.getData()).to.deep.equal({});
 		});
 
 		it('handles nonexistent fields', function() {
