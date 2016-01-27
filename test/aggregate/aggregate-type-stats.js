@@ -46,6 +46,12 @@ describe('StatsAggregateType', function() {
 			expect(aggr).to.deep.equal({ stats: { foo: { count: true, avg: true } } });
 		});
 
+		it('should normalize stats aggregates', function() {
+			let aggr = { stats: { foo: { sum: 1, avg: 'hi' } } };
+			stats.normalize(aggr, { schema });
+			expect(aggr).to.deep.equal({ stats: { foo: { sum: true, avg: true } } });
+		});
+
 		it('should normalize shorthand stats aggergates', function() {
 			let aggr = { stats: 'foo' };
 			stats.normalize(aggr, { schema });
@@ -81,8 +87,12 @@ describe('StatsAggregateType', function() {
 
 	describe('#validate', function() {
 
-		it('should validate stats aggregates', function() {
+		it('should validate stats "count" aggregates', function() {
 			expect(stats.validate({ stats: { foo: { count: true } } })).to.be.true;
+		});
+
+		it('should validate stats "sum" aggregates', function() {
+			expect(stats.validate({ stats: { foo: { sum: true } } })).to.be.true;
 		});
 
 		it('should fail to validate non-true values in field mask', function() {
