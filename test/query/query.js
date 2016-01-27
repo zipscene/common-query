@@ -513,6 +513,32 @@ describe('Query', function() {
 			expect(query.getData()).to.deep.equal({});
 		});
 
+		it('#condense should condense nested $and clauses', function() {
+			const query = createQuery({
+				$and: [ { $and: [ { foo: 1 } ] } ]
+			});
+			query.condense();
+			expect(query.getData()).to.deep.equal({
+				foo: 1
+			});
+
+			const query2 = createQuery({
+				$and: [ { $and: [ { foo: 1, bar: 1 } ] } ]
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				foo: 1, bar: 1
+			});
+
+			const query3 = createQuery({
+				$and: [ { $and: [ { foo: 1, bar: 1 }, { baz: 1 } ] } ]
+			});
+			query3.condense();
+			expect(query3.getData()).to.deep.equal({
+				$and: [ { foo: 1, bar: 1 }, { baz: 1 } ]
+			});
+		});
+
 		it('handles nonexistent fields', function() {
 			const queryData = {
 				nonexist: 'foo'
