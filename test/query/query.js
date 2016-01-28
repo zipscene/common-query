@@ -295,7 +295,7 @@ describe('Query', function() {
 		});
 	});
 
-	describe('#normalize()', function() {
+	describe('#normalize', function() {
 		it('normalizes queries', function() {
 			// `createQuery` calls `query.normalize`
 			const query = createQuery({
@@ -476,6 +476,163 @@ describe('Query', function() {
 			});
 
 			expect(() => createQuery(queryData, { schema })).to.throw(QueryValidationError);
+		});
+	});
+
+	describe('#condense', function() {
+		it('#condense should combine single-element $and and $nor clauses', function() {
+			const query1 = createQuery({
+				$and: [ { foo: 1 } ],
+				$or: [ { bar: 1 } ],
+				$nor: [ { baz: 1 } ]
+			});
+			query1.condense();
+			expect(query1.getData()).to.deep.equal({
+				foo: 1,
+				bar: 1,
+				$nor: [ { baz: 1 } ]
+			});
+
+			const query2 = createQuery({
+				$and: [ { foo: 1 } ],
+				$or: [ { foo: 2 } ],
+				$nor: [ { foo: 3 } ]
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				$and: [
+					{ foo: 1 },
+					{ foo: 2 }
+				],
+				$nor: [ { foo: 3 } ]
+			});
+
+			const query3 = createQuery({
+				$and: [ { foo: 1 }, { bar: 1 } ],
+				$or: [ { foo: 2 } ],
+				$nor: [ { foo: 3 } ]
+			});
+			query3.condense();
+			expect(query3.getData()).to.deep.equal({
+				$and: [
+					{ foo: 1 },
+					{ bar: 1 }
+				],
+				$nor: [ { foo: 3 } ],
+				foo: 2
+			});
+
+			const query4 = createQuery({
+				$and: [ { foo: 1 }, { bar: 1 }, { $and: [ { baz: 1 } ] } ]
+			});
+			query4.condense();
+			expect(query4.getData()).to.deep.equal({
+				$and: [ { foo: 1 }, { bar: 1 }, { baz: 1 } ]
+			});
+		});
+
+		it('#condense should remove empty $and, $or, and $nor clauses', function() {
+			const query1 = createQuery({
+				$and: [],
+				$or: [],
+				$nor: []
+			});
+			query1.condense();
+			expect(query1.getData()).to.deep.equal({});
+
+			const query2 = createQuery({
+				$and: [ { foo: 1 }, { bar: 1 }, { $and: [] } ],
+				$or: [ { bar: 1 }, { $and: [ { bar: 2 }, { baz: 1 }, { $nor: [] } ] } ],
+				$nor: []
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				$and: [ { foo: 1 }, { bar: 1 } ],
+				$or: [ { bar: 1 }, { $and: [ { bar: 2 }, { baz: 1 } ] } ]
+			});
+		});
+
+		it('#condense should condense nested $and clauses', function() {
+			const query = createQuery({
+				$and: [ { $and: [ { foo: 1 } ] } ]
+			});
+			query.condense();
+			expect(query.getData()).to.deep.equal({
+				foo: 1
+			});
+
+			const query2 = createQuery({
+				$and: [ { $and: [ { foo: 1, bar: 1 } ] } ]
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				foo: 1, bar: 1
+			});
+
+			const query3 = createQuery({
+				$and: [ { $and: [ { foo: 1, bar: 1 }, { baz: 1 } ] } ]
+			});
+			query3.condense();
+			expect(query3.getData()).to.deep.equal({
+				$and: [ { foo: 1, bar: 1 }, { baz: 1 } ]
+			});
+
+			const query4 = createQuery({
+				$or: [ {
+					$and: [
+						{ foo: 1, bar: 1 },
+						{ baz: 1 },
+						{ $and: [ { $and: [ { foo: 1, bar: 1 } ] } ] }
+					]
+				} ]
+			});
+			query4.condense();
+			expect(query4.getData()).to.deep.equal({
+				$and: [
+					{ foo: 1, bar: 1 },
+					{ baz: 1 },
+					{ foo: 1, bar: 1 }
+				]
+			});
+		});
+
+		it('#condense should handle combinations of the above conditions', function() {
+			const query1 = createQuery({
+				$and: [ { $and: [ { foo: 1 } ] } ],
+				$or: [ { bar: 1 } ],
+				$nor: []
+			});
+			query1.condense();
+			expect(query1.getData()).to.deep.equal({
+				foo: 1,
+				bar: 1
+			});
+
+			const query2 = createQuery({
+				$and: [
+					{ foo: 2, bar: 2 }
+				],
+				$or: [ {
+					$and: [
+						{ foo: 1, bar: 1 },
+						{ baz: 1 },
+						{ $nor: [ { $or: [ { $and: [ { foo: 4 }, { $or: [] }, { bar: 4 } ] } ] } ] },
+						{ $and: [ { $and: [ { foo: 1, bar: 1 } ] } ] },
+						{ $and: [ { $and: [] } ] }
+					]
+				} ]
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				foo: 2,
+				bar: 2,
+				$and: [
+					{ foo: 1, bar: 1 },
+					{ baz: 1 },
+					{ $nor: [ { $and: [ { foo: 4 }, { bar: 4 } ] } ] },
+					{ foo: 1, bar: 1 }
+				]
+			});
 		});
 	});
 
