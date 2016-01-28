@@ -295,7 +295,7 @@ describe('Query', function() {
 		});
 	});
 
-	describe('#normalize()', function() {
+	describe('#normalize', function() {
 		it('normalizes queries', function() {
 			// `createQuery` calls `query.normalize`
 			const query = createQuery({
@@ -460,6 +460,26 @@ describe('Query', function() {
 			expect(query2.getData()).to.deep.equal(expected2);
 		});
 
+		it('handles nonexistent fields', function() {
+			const queryData = {
+				nonexist: 'foo'
+			};
+			const schema = createSchema({
+				key1: { type: String, key: true },
+				foo: {
+					key2: { type: Date, key: true },
+					bar: { type: String, required: true },
+					baz: Number
+				},
+				biz: [ String ],
+				buz: Boolean
+			});
+
+			expect(() => createQuery(queryData, { schema })).to.throw(QueryValidationError);
+		});
+	});
+
+	describe('#condense', function() {
 		it('#condense should combine single-element $and and $nor clauses', function() {
 			const query1 = createQuery({
 				$and: [ { foo: 1 } ],
@@ -501,16 +521,35 @@ describe('Query', function() {
 				$nor: [ { foo: 3 } ],
 				foo: 2
 			});
+
+			const query4 = createQuery({
+				$and: [ { foo: 1 }, { bar: 1 }, { $and: [ { baz: 1 } ] } ]
+			});
+			query4.condense();
+			expect(query4.getData()).to.deep.equal({
+				$and: [ { foo: 1 }, { bar: 1 }, { baz: 1 } ]
+			});
 		});
 
 		it('#condense should remove empty $and, $or, and $nor clauses', function() {
-			const query = createQuery({
+			const query1 = createQuery({
 				$and: [],
 				$or: [],
 				$nor: []
 			});
-			query.condense();
-			expect(query.getData()).to.deep.equal({});
+			query1.condense();
+			expect(query1.getData()).to.deep.equal({});
+
+			const query2 = createQuery({
+				$and: [ { foo: 1 }, { bar: 1 }, { $and: [] } ],
+				$or: [ { bar: 1 }, { $and: [ { bar: 2 }, { baz: 1 }, { $nor: [] } ] } ],
+				$nor: []
+			});
+			query2.condense();
+			expect(query2.getData()).to.deep.equal({
+				$and: [ { foo: 1 }, { bar: 1 } ],
+				$or: [ { bar: 1 }, { $and: [ { bar: 2 }, { baz: 1 } ] } ]
+			});
 		});
 
 		it('#condense should condense nested $and clauses', function() {
@@ -529,32 +568,6 @@ describe('Query', function() {
 			expect(query2.getData()).to.deep.equal({
 				foo: 1, bar: 1
 			});
-
-			const query3 = createQuery({
-				$and: [ { $and: [ { foo: 1, bar: 1 }, { baz: 1 } ] } ]
-			});
-			query3.condense();
-			expect(query3.getData()).to.deep.equal({
-				$and: [ { foo: 1, bar: 1 }, { baz: 1 } ]
-			});
-		});
-
-		it('handles nonexistent fields', function() {
-			const queryData = {
-				nonexist: 'foo'
-			};
-			const schema = createSchema({
-				key1: { type: String, key: true },
-				foo: {
-					key2: { type: Date, key: true },
-					bar: { type: String, required: true },
-					baz: Number
-				},
-				biz: [ String ],
-				buz: Boolean
-			});
-
-			expect(() => createQuery(queryData, { schema })).to.throw(QueryValidationError);
 		});
 	});
 
