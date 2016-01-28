@@ -568,6 +568,14 @@ describe('Query', function() {
 			expect(query2.getData()).to.deep.equal({
 				foo: 1, bar: 1
 			});
+
+			const query3 = createQuery({
+				$and: [ { $and: [ { foo: 1, bar: 1 }, { baz: 1 } ] } ]
+			});
+			query3.condense();
+			expect(query3.getData()).to.deep.equal({
+				$and: [ { foo: 1, bar: 1 }, { baz: 1 } ]
+			});
 		});
 	});
 
