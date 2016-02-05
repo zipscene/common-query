@@ -531,10 +531,9 @@ describe('Query', function() {
 			});
 		});
 
-		it('#condense should remove empty $and, $or, and $nor clauses', function() {
+		it('#condense should remove empty $and and $nor clauses', function() {
 			const query1 = createQuery({
 				$and: [],
-				$or: [],
 				$nor: []
 			});
 			query1.condense();
@@ -550,6 +549,18 @@ describe('Query', function() {
 				$and: [ { foo: 1 }, { bar: 1 } ],
 				$or: [ { bar: 1 }, { $and: [ { bar: 2 }, { baz: 1 } ] } ]
 			});
+		});
+
+		it('#condense should replace $and that contains empty $or w/ empty $or', function() {
+			const query = createQuery({ $and: [ { $or: [] } ] });
+			query.condense();
+			expect(query.getData()).to.deep.equal({ $or: [] });
+		});
+
+		it('#condense should remove empty $or from $nor', function() {
+			const query = createQuery({ $nor: [ { foo: 'bar' }, { $or: [] } ] });
+			query.condense();
+			expect(query.getData()).to.deep.equal({ $nor: [ { foo: 'bar' } ] });
 		});
 
 		it('#condense should condense nested $and clauses', function() {
@@ -609,14 +620,12 @@ describe('Query', function() {
 			});
 
 			const query2 = createQuery({
-				$and: [
-					{ foo: 2, bar: 2 }
-				],
+				$and: [ { foo: 2, bar: 2 } ],
 				$or: [ {
 					$and: [
 						{ foo: 1, bar: 1 },
 						{ baz: 1 },
-						{ $nor: [ { $or: [ { $and: [ { foo: 4 }, { $or: [] }, { bar: 4 } ] } ] } ] },
+						{ $nor: [ { $or: [ { $and: [ { foo: 4 }, { bar: 4 } ] } ] } ] },
 						{ $and: [ { $and: [ { foo: 1, bar: 1 } ] } ] },
 						{ $and: [ { $and: [] } ] }
 					]
