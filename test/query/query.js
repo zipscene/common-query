@@ -532,10 +532,7 @@ describe('Query', function() {
 		});
 
 		it('#condense should remove empty $and and $nor clauses', function() {
-			const query1 = createQuery({
-				$and: [],
-				$nor: []
-			});
+			const query1 = createQuery({ $and: [], $nor: [] });
 			query1.condense();
 			expect(query1.getData()).to.deep.equal({});
 
@@ -551,13 +548,37 @@ describe('Query', function() {
 			});
 		});
 
-		it('#condense should replace $and that contains empty $or w/ empty $or', function() {
-			const query = createQuery({ $and: [ { $or: [] } ] });
-			query.condense();
-			expect(query.getData()).to.deep.equal({ $or: [] });
+		// replace contradictions w/ the minimal contradiction
+		it('#condense replaces $and w/ $or: [] or $nor: [ ..., {}, ... ] w/ $nor: [ {} ]', function() {
+			const query1 = createQuery({ $and: [ { $or: [] }, {} ] });
+			const query2 = createQuery({ $and: [ { $nor: [ { foo: 'bar' }, {} ] }, {} ] });
+			query1.condense();
+			query2.condense();
+			expect(query1.getData()).to.deep.equal({ $nor: [ {} ] });
+			expect(query2.getData()).to.deep.equal({ $nor: [ {} ] });
 		});
 
-		it('#condense should remove empty $or from $or and $nor', function() {
+		// replace contradictions w/ the minimal contradiction
+		it('#condense replaces $or: [] and $nor: [ ..., {}, ... ] w/ $nor: [ {} ]', function() {
+			const query1 = createQuery({ $or: [] });
+			const query2 = createQuery({ $nor: [ { foo: 'bar' }, {} ] });
+			query1.condense();
+			query2.condense();
+			expect(query1.getData()).to.deep.equal({ $nor: [ {} ] });
+			expect(query2.getData()).to.deep.equal({ $nor: [ {} ] });
+		});
+
+		// replace contradictions w/ the minimal contradiction
+		it('#condense should replace $and that contains $or: [] or $nor: [ ..., {}, ... ] w/ $nor: [ {} ]', function() {
+			const query1 = createQuery({ $and: [ { $or: [] } ] });
+			const query2 = createQuery({ $and: [ { $nor: [ { foo: 'bar' }, {} ] } ] });
+			query1.condense();
+			query2.condense();
+			expect(query1.getData()).to.deep.equal({ $nor: [ {} ] });
+			expect(query2.getData()).to.deep.equal({ $nor: [ {} ] });
+		});
+
+		it('#condense should remove $or: [] and $nor: [ ..., {}, ... ] from $or and $nor', function() {
 			const query = createQuery({
 				$nor: [ { foo: 'bar' }, { $or: [] } ],
 				$or: [ { foo: 'bar' }, { $or: [] } ]
