@@ -557,10 +557,16 @@ describe('Query', function() {
 			expect(query.getData()).to.deep.equal({ $or: [] });
 		});
 
-		it('#condense should remove empty $or from $nor', function() {
-			const query = createQuery({ $nor: [ { foo: 'bar' }, { $or: [] } ] });
+		it('#condense should remove empty $or from $or and $nor', function() {
+			const query = createQuery({
+				$nor: [ { foo: 'bar' }, { $or: [] } ],
+				$or: [ { foo: 'bar' }, { $or: [] } ]
+			});
 			query.condense();
-			expect(query.getData()).to.deep.equal({ $nor: [ { foo: 'bar' } ] });
+			expect(query.getData()).to.deep.equal({
+				$nor: [ { foo: 'bar' } ],
+				$or: [ { foo: 'bar' } ]
+			});
 		});
 
 		it('#condense should condense nested $and clauses', function() {
