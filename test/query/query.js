@@ -590,6 +590,16 @@ describe('Query', function() {
 			});
 		});
 
+		it('#condense should remove {} from $and', function() {
+			const query = createQuery({
+				$and: [ {}, { foo: 'bar' }, { biz: 'baz' }, { $and: [ {} ] } ]
+			});
+			query.condense();
+			expect(query.getData()).to.deep.equal({
+				$and: [ { foo: 'bar' }, { biz: 'baz' } ]
+			});
+		});
+
 		it('#condense should condense nested $and clauses', function() {
 			const query = createQuery({
 				$and: [ { $and: [ { foo: 1 } ] } ]
