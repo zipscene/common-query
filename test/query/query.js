@@ -11,9 +11,10 @@ describe('Query', function() {
 			expect(() => createQuery(queryData, options)).to.not.throw(Error);
 		});
 		it('substitutes $vars with the vars option', function() {
-			const options = { vars: { var1: 'zip1', var2: 'baz2', var3: 3 } };
+			const options = { vars: { var1: 'zip1', var2: 'baz2', var3: 3, 'nested': { field: 'test' } } };
 			const query = createQuery({
 				foo: 'bar',
+				'nested.field': { $var: 'nested.field' },
 				$and: [
 					{ zip: { $var: 'var1' } },
 					{ $elemMatch: { zap: 'buz', baz: { $var: 'var2' } } },
@@ -22,6 +23,7 @@ describe('Query', function() {
 			}, options);
 			const expected = {
 				foo: 'bar',
+				'nested.field': 'test',
 				$and: [
 					{ zip: 'zip1' },
 					{ $elemMatch: { zap: 'buz', baz: 'baz2' } },

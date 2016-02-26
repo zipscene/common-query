@@ -85,7 +85,7 @@ describe('Geo-Expression Operators', function() {
 				point: { type: 'geopoint' }
 			});
 			createQuery({
-				'point': {
+				point: {
 					$near: {
 						$geometry: {
 							type: 'Point',
