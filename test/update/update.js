@@ -452,6 +452,33 @@ describe('Update', function() {
 			};
 
 			expect(updateWithSchema.getData()).to.deep.equal(expectedWithSchema);
+
+			const serializeUpdate = createUpdate({
+				$inc: { age: 1 },
+				$set: {
+					address: {
+						street: '123 Fake Str.',
+						city: 'Cincinnati'
+					}
+				}
+			}, {
+				schema: createSchema({
+					age: Number,
+					address: {
+						type: 'mixed',
+						serializeMixed: true
+					}
+				}),
+				serialize: true
+			});
+
+			const expectedSerialized = {
+				$inc: { age: 1 },
+				$set: {
+					address: '{"street":"123 Fake Str.","city":"Cincinnati"}'
+				}
+			};
+			expect(serializeUpdate.getData()).to.deep.equal(expectedSerialized);
 		});
 	});
 
