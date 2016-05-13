@@ -1,6 +1,6 @@
 {
   "name": "zs-common-query",
-  "version": "1.9.8",
+  "version": "1.9.9",
   "description": "Base framework for common mongo-style query language",
   "main": "./dist/lib/index.js",
   "repository": {
@@ -22,7 +22,7 @@
     "moment": "^2.10.6",
     "regexp-quote": "0.0.0",
     "xerror": "^1.0.0",
-    "zs-common-schema": "^1.7.11",
+    "zs-common-schema": "^1.7.12",
     "zs-objtools": "^1.6.2"
   },
   "devDependencies": {
