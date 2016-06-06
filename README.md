@@ -357,6 +357,8 @@ The different types of stats you can ask for are:
 - avg - The average value of the field.
 - min - The minimum value of the field.
 - max - The maximum value of the field.
+- sum - The sum of values of the field.
+- stddev - The standard deviation of values of the field.
 
 Not all model types need support all of these types of stats, and model types may add
 additional stats if they are supported.

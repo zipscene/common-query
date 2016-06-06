@@ -95,6 +95,10 @@ describe('StatsAggregateType', function() {
 			expect(stats.validate({ stats: { foo: { sum: true } } })).to.be.true;
 		});
 
+		it('should validate stats "stddev" aggregates', function() {
+			expect(stats.validate({ stats: { foo: { stddev: true } } })).to.be.true;
+		});
+
 		it('should fail to validate non-true values in field mask', function() {
 			expect(() => stats.validate({ stats: { foo: { count: 'truthy' } } }))
 				.to.throw(AggregateValidationError, /stats type mask contains a non-true value/);
