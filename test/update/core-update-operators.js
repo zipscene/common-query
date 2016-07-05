@@ -296,6 +296,22 @@ describe('Core Update Operators', function() {
 			expect(result).to.deep.equal(expected);
 		});
 
+		it('add objects that do not exist, and not add objects that do', function() {
+			const update = createUpdate({
+				$addToSet: { foo: { id: 1, name: 'bar' } }
+			});
+			const result = update.apply({ foo: [
+				{ id: 3, name: 'blue' },
+				{ id: 2, name: 'blah' },
+				{ id: 1, name: 'bar' }
+			] });
+			expect(result.foo).to.deep.equal([
+				{ id: 3, name: 'blue' },
+				{ id: 2, name: 'blah' },
+				{ id: 1, name: 'bar' }
+			]);
+		});
+
 		it('adds mixed scalar values', function() {
 			const update = createUpdate({ $addToSet: {
 				set: { $each: [ true, false, 2, '2', 'gareth' ] }
