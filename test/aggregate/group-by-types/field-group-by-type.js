@@ -11,7 +11,10 @@ describe('FieldGroupByType', function() {
 		foo: Number,
 		bar: String,
 		baz: Date,
-		biz: [ Number ]
+		biz: [ Number ],
+		blah: [ {
+			meh: Number
+		} ]
 	});
 
 	describe('#getName', function() {
@@ -68,6 +71,16 @@ describe('FieldGroupByType', function() {
 
 		it('should pass normalize with a schema array field', function() {
 			expect(() => numberType.normalize({ field: 'biz' }, { schema }))
+				.to.not.throw(AggregateValidationError);
+		});
+
+		it('should pass normalize with a schema array field where the elements are objects', function() {
+			expect(() => numberType.normalize({ field: 'blah.*.meh' }, { schema }))
+				.to.not.throw(AggregateValidationError);
+		});
+
+		it('should pass normalize with a schema array field where the elements are objects', function() {
+			expect(() => numberType.normalize({ field: 'blah.meh' }, { schema }))
 				.to.not.throw(AggregateValidationError);
 		});
 
