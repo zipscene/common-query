@@ -3,6 +3,7 @@ const { createSchema } = require('zs-common-schema');
 
 const { FieldGroupByType } = require('../../../lib/aggregate/aggregate-types/group-by/group-by-types');
 const AggregateValidationError = require('../../../lib/aggregate/aggregate-validation-error');
+const ObjectMatchError = require('../../../lib/object-match-error');
 
 describe('FieldGroupByType', function() {
 	let type = new FieldGroupByType();
@@ -66,7 +67,7 @@ describe('FieldGroupByType', function() {
 
 		it('should fail normalization with a schema if the field doesn\'t exist', function() {
 			expect(() => numberType.normalize({ field: 'missing' }, { schema }))
-				.to.throw(AggregateValidationError, /groupBy field path must exist in the schema/);
+				.to.throw(ObjectMatchError, /Field does not correspond to a field in the schema/);
 		});
 
 		it('should pass normalize with a schema array field', function() {

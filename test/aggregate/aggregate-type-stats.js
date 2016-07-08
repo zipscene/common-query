@@ -3,6 +3,7 @@ const { createSchema } = require('zs-common-schema');
 
 const StatsAggregateType = require('../../lib/aggregate/aggregate-types/stats');
 const AggregateValidationError = require('../../lib/aggregate/aggregate-validation-error');
+const ObjectMatchError = require('../../lib/object-match-error');
 
 describe('StatsAggregateType', function() {
 	let stats = new StatsAggregateType();
@@ -80,7 +81,7 @@ describe('StatsAggregateType', function() {
 
 		it('should fail to normalize if field doesn\' exist in the schema', function() {
 			expect(() => stats.normalize({ stats: 'baz' }, { schema }))
-				.to.throw(AggregateValidationError, /stats aggregate field \(baz\) does not exist in the schema/);
+				.to.throw(ObjectMatchError, /Field does not correspond to a field in the schema/);
 		});
 
 	});
