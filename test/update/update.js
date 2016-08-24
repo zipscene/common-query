@@ -525,6 +525,14 @@ describe('Update', function() {
 
 	describe('#composeUpdate()', function() {
 
+		it('should be a direct copy on an empty update', function() {
+			let update = createUpdate({});
+			update.composeUpdate({ $set: { foo: 1 } });
+			expect(update.getData()).to.deep.equal({
+				$set: { foo: 1 }
+			});
+		});
+
 		it('should throw an error if a $pop attribute is both -1 and 1', function() {
 			let updateData = {
 				$pop: { bob: 1 }
@@ -551,53 +559,112 @@ describe('Update', function() {
 			}).to.throw(ComposeUpdateError, /Invalid composition: Cannot have a key that is both a \$push and a \$pop/);
 		});
 
-		it('should combine each type of update objects properly', function() {
+		it('should handle sets and unsets properly', function() {
 			let updateData = {
-				$set: { bob: 1, alice: 5, tom: 2 },
-				$inc: { frank: 1 },
-				$mul: { thomas: -8 },
-				$rename: { 'unicorn': 'magicalCreatures' },
-				$min: { apples: 123, pineapple: 52 },
-				$max: { peaches: 10 },
-				$addToSet: { fruit: 'watermelon', colors: { $each: [ 'blue', 'pink' ] }, soda: 'coca-cola' },
-				$push: { fruit: 'catelope', color: 'purple' }
-			};
-			let newUpdate = {
-				$unset: { dog: true, tom: true },
-				$set: { alice: 3 },
-				$inc: { bob: 888, frank: 5 },
-				$mul: { thomas: 5, greg: 2 },
-				$rename: { 'bob': 'tom', 'unicorn': 'fantasyHorses' },
-				$max: { apples: 1230, pineapple: 10 },
-				$min: { peaches: 45 },
-				$addToSet: {
-					vegatables: 'carrots',
-					fruit: 'grapes',
-					colors: { $each: [ 'yellow' ] },
-					soda: { $each: [ 'sprite', 'pepsi' ] }
-				},
-				$push: { food: 'carrots', fruit: 'kiwi' }
+				$set: { bob: 1, alice: 5, dog: 'puppy' },
+				$unset: { tom: true }
 			};
 			let update = createUpdate(updateData);
-			update.composeUpdate(newUpdate);
+			update.composeUpdate({
+				$set: { bob: 2, tom: 5 },
+				$unset: { alice: true, cat: true }
+			});
 			expect(update.getData()).to.deep.equal({
-				$set: {
-					bob: 1,
-					alice: 3
-				},
-				$unset: { dog: true, tom: true },
-				$inc: { frank: 6, bob: 888 },
-				$mul: { thomas: -40, greg: 2 },
-				$rename: { 'bob': 'tom', 'unicorn': 'fantasyHorses' },
-				$min: { apples: 123, peaches: 45, pineapple: 52 },
-				$max: { apples: 1230, peaches: 10, pineapple: 10  },
+				$set: { bob: 2, tom: 5, dog: 'puppy' },
+				$unset: { alice: true, cat: true }
+			});
+		});
+
+		it('should add $inc fields together and remove any that are 0 and multiple $mul fields together', function() {
+			let updateData = {
+				$inc: { total: 10, count: -5 },
+				$mul: { time: 5, counter: 5 }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate({
+				$inc: { total: 2, count: 5, steps: 6 },
+				$mul: { time: 2 }
+			});
+			expect(update.getData()).to.deep.equal({
+				$inc: { total: 12, steps: 6 },
+				$mul: { time: 10, counter: 5 }
+			});
+		});
+
+		it('should map $rename ops properly', function() {
+			let updateData = {
+				$rename: { unicorn: 'magicalCreatures', fruit: 'FRUIT' }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate({
+				$rename: {
+					unicorn: 'fantasyHorses',
+					veggies: 'vegatables'
+				}
+			});
+			expect(update.getData()).to.deep.equal({
+				$rename: {
+					unicorn: 'fantasyHorses',
+					fruit: 'FRUIT',
+					veggies: 'vegatables'
+				}
+			});
+		});
+
+		it('should combine $addToSet with and without lists', function() {
+			let updateData = {
 				$addToSet: {
-					vegatables: 'carrots',
-					fruit: { $each: [ 'watermelon', 'grapes' ] },
-					colors: { $each: [ 'blue', 'pink', 'yellow' ] },
-					soda: { $each: [ 'coca-cola', 'sprite', 'pepsi' ] }
+					horse: 'unicorn',
+					fruit: { $each: [ 'peaches', 'apples' ] },
+					veggies: 'carrots'
+				}
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate({
+				$addToSet: {
+					horse: 'mustange',
+					fruit: 'watermelon',
+					veggies: { $each: [ 'brocolli', 'potatoes' ] },
+					color: 'blue'
+				}
+			});
+			expect(update.getData()).to.deep.equal({
+				$addToSet: {
+					horse: { $each: [ 'unicorn', 'mustange' ] },
+					fruit: { $each: [ 'peaches', 'apples', 'watermelon' ] },
+					veggies: { $each: [ 'carrots', 'brocolli', 'potatoes' ] },
+					color: 'blue'
+				}
+			});
+		});
+
+		it('should handle combining lists for $push, and handle $pop properly', function() {
+			let updateData = {
+				$push: {
+					horse: 'unicorn',
+					fruit: { $each: [ 'peaches', 'apples' ] },
+					veggies: 'carrots'
 				},
-				$push: { fruit: { $each: [ 'catelope', 'kiwi' ] }, food: 'carrots', color: 'purple' }
+				$pop: { frank: true }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate({
+				$push: {
+					horse: 'mustange',
+					fruit: 'watermelon',
+					veggies: { $each: [ 'brocolli', 'potatoes' ] },
+					color: 'blue'
+				},
+				$pop: { tim: true }
+			});
+			expect(update.getData()).to.deep.equal({
+				$push: {
+					horse: { $each: [ 'unicorn', 'mustange' ] },
+					fruit: { $each: [ 'peaches', 'apples', 'watermelon' ] },
+					veggies: { $each: [ 'carrots', 'brocolli', 'potatoes' ] },
+					color: 'blue'
+				},
+				$pop: { frank: true, tim: true }
 			});
 		});
 
