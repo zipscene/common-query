@@ -531,6 +531,11 @@ describe('Update', function() {
 			expect(update.getData()).to.deep.equal({
 				$set: { foo: 1 }
 			});
+
+			update.composeUpdate({});
+			expect(update.getData()).to.deep.equal({
+				$set: { foo: 1 }
+			});
 		});
 
 		it('should throw an error if a $pop attribute is both -1 and 1', function() {
@@ -573,6 +578,15 @@ describe('Update', function() {
 				$set: { bob: 2, tom: 5, dog: 'puppy' },
 				$unset: { alice: true, cat: true }
 			});
+		});
+
+		it('should a field on $inc when it is equal to 0', function() {
+			let updateData = { $inc: { total: 10 } };
+			let update = createUpdate(updateData);
+			update.composeUpdate({
+				$inc: { total: -10 }
+			});
+			expect(update.getData()).to.deep.equal({});
 		});
 
 		it('should add $inc fields together and remove any that are 0 and multiple $mul fields together', function() {
