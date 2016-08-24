@@ -1,6 +1,12 @@
 const { expect } = require('chai');
 const { createSchema } = require('zs-common-schema');
-const { createUpdate, Update, UpdateValidationError, defaultUpdateFactory } = require('../../lib/index');
+const {
+	createUpdate,
+	Update,
+	UpdateValidationError,
+	defaultUpdateFactory,
+	ComposeUpdateError
+} = require('../../lib/index');
 
 describe('Update', function() {
 	describe('constructor', function() {
@@ -514,6 +520,117 @@ describe('Update', function() {
 			const update = createUpdate({ $set: { a: 'b' }, $ultraset: { c: 'd' } }, { skipValidate: true });
 			expect(() => update.validate())
 				.to.throw(UpdateValidationError, /Unrecognized update operator: \$ultraset/);
+		});
+	});
+
+	describe('#composeUpdate()', function() {
+
+		it('should throw an error if a $pop attribute is both -1 and 1', function() {
+			let updateData = {
+				$pop: { bob: 1 }
+			};
+			let newUpdate = {
+				$pop: { bob: -1 }
+			};
+			let update = createUpdate(updateData);
+			expect(() => {
+				update.composeUpdate(newUpdate);
+			}).to.throw(ComposeUpdateError, /Invalid composition: \$pop cannot handle -1 and 1 on bob/);
+		});
+
+		it('should throw an error if a push and pop is called on the same field', function() {
+			let updateData = {
+				$push: { bob: 1 }
+			};
+			let newUpdate = {
+				$pop: { bob: -1 }
+			};
+			let update = createUpdate(updateData);
+			expect(() => {
+				update.composeUpdate(newUpdate);
+			}).to.throw(ComposeUpdateError, /Invalid composition: Cannot have a key that is both a \$push and a \$pop/);
+		});
+
+		it('should combine each type of update objects properly', function() {
+			let updateData = {
+				$set: { bob: 1, alice: 5, tom: 2 },
+				$inc: { frank: 1 },
+				$mul: { thomas: -8 },
+				$rename: { 'unicorn': 'magicalCreatures' },
+				$min: { apples: 123, pineapple: 52 },
+				$max: { peaches: 10 },
+				$addToSet: { fruit: 'watermelon', colors: { $each: [ 'blue', 'pink' ] }, soda: 'coca-cola' },
+				$push: { fruit: 'catelope', color: 'purple' }
+			};
+			let newUpdate = {
+				$unset: { dog: true, tom: true },
+				$set: { alice: 3 },
+				$inc: { bob: 888, frank: 5 },
+				$mul: { thomas: 5, greg: 2 },
+				$rename: { 'bob': 'tom', 'unicorn': 'fantasyHorses' },
+				$max: { apples: 1230, pineapple: 10 },
+				$min: { peaches: 45 },
+				$addToSet: {
+					vegatables: 'carrots',
+					fruit: 'grapes',
+					colors: { $each: [ 'yellow' ] },
+					soda: { $each: [ 'sprite', 'pepsi' ] }
+				},
+				$push: { food: 'carrots', fruit: 'kiwi' }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate(newUpdate);
+			expect(update.getData()).to.deep.equal({
+				$set: {
+					bob: 1,
+					alice: 3,
+					peaches: 45,
+					pineapple: 10
+				},
+				$unset: { dog: true, tom: true },
+				$inc: { frank: 6, bob: 888 },
+				$mul: { thomas: -40, greg: 2 },
+				$rename: { 'bob': 'tom', 'unicorn': 'fantasyHorses' },
+				$min: { apples: 123 },
+				$max: { apples: 1230 },
+				$addToSet: {
+					vegatables: 'carrots',
+					fruit: { $each: [ 'watermelon', 'grapes' ] },
+					colors: { $each: [ 'blue', 'pink', 'yellow' ] },
+					soda: { $each: [ 'coca-cola', 'sprite', 'pepsi' ] }
+				},
+				$push: { fruit: { $each: [ 'catelope', 'kiwi' ] }, food: 'carrots', color: 'purple' }
+			});
+		});
+
+		it('should not have any update operators that are undefined after composition', function() {
+			let updateData = {
+				$set: { bob: 1, alice: 5 }
+			};
+			let newUpdate = {
+				$unset: { bob: true, alice: true }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate(newUpdate);
+			expect(update.getData()).to.deep.equal({
+				$unset: { bob: true, alice: true }
+			});
+		});
+
+		it('should use set with min and max when min > max or max < min', function() {
+			let updateData = {
+				$max: { bob: 1 },
+				$min: { alice: 40 }
+			};
+			let newUpdate = {
+				$min: { bob: 30 },
+				$max: { alice: 10 }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate(newUpdate);
+			expect(update.getData()).to.deep.equal({
+				$set: { bob: 30, alice: 10 }
+			});
 		});
 	});
 });
