@@ -523,7 +523,7 @@ describe('Update', function() {
 		});
 	});
 
-	describe('#composeUpdate()', function() {
+	describe.only('#composeUpdate()', function() {
 
 		it('should throw an error if a $pop attribute is both -1 and 1', function() {
 			let updateData = {
@@ -549,6 +549,20 @@ describe('Update', function() {
 			expect(() => {
 				update.composeUpdate(newUpdate);
 			}).to.throw(ComposeUpdateError, /Invalid composition: Cannot have a key that is both a \$push and a \$pop/);
+		});
+
+		it('should not overrwrite a min value if it is greater than the previous', function() {
+			let updateData = {
+				$min: { bob: 10 }
+			};
+			let newUpdate = {
+				$min: { bob: 100 }
+			};
+			let update = createUpdate(updateData);
+			update.composeUpdate(newUpdate);
+			expect(update.getData()).to.deep.equal({
+				$min: { bob: 10 }
+			});
 		});
 
 		it('should combine each type of update objects properly', function() {
@@ -608,12 +622,14 @@ describe('Update', function() {
 				$set: { bob: 1, alice: 5 }
 			};
 			let newUpdate = {
-				$unset: { bob: true, alice: true }
+				$unset: { bob: true, alice: true },
+				$set: { boo: 30 }
 			};
 			let update = createUpdate(updateData);
 			update.composeUpdate(newUpdate);
 			expect(update.getData()).to.deep.equal({
-				$unset: { bob: true, alice: true }
+				$unset: { bob: true, alice: true },
+				$set: { boo: 30 }
 			});
 		});
 
