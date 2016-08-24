@@ -523,7 +523,7 @@ describe('Update', function() {
 		});
 	});
 
-	describe.only('#composeUpdate()', function() {
+	describe('#composeUpdate()', function() {
 
 		it('should throw an error if a $pop attribute is both -1 and 1', function() {
 			let updateData = {
@@ -549,20 +549,6 @@ describe('Update', function() {
 			expect(() => {
 				update.composeUpdate(newUpdate);
 			}).to.throw(ComposeUpdateError, /Invalid composition: Cannot have a key that is both a \$push and a \$pop/);
-		});
-
-		it('should not overrwrite a min value if it is greater than the previous', function() {
-			let updateData = {
-				$min: { bob: 10 }
-			};
-			let newUpdate = {
-				$min: { bob: 100 }
-			};
-			let update = createUpdate(updateData);
-			update.composeUpdate(newUpdate);
-			expect(update.getData()).to.deep.equal({
-				$min: { bob: 10 }
-			});
 		});
 
 		it('should combine each type of update objects properly', function() {
@@ -597,16 +583,14 @@ describe('Update', function() {
 			expect(update.getData()).to.deep.equal({
 				$set: {
 					bob: 1,
-					alice: 3,
-					peaches: 45,
-					pineapple: 10
+					alice: 3
 				},
 				$unset: { dog: true, tom: true },
 				$inc: { frank: 6, bob: 888 },
 				$mul: { thomas: -40, greg: 2 },
 				$rename: { 'bob': 'tom', 'unicorn': 'fantasyHorses' },
-				$min: { apples: 123 },
-				$max: { apples: 1230 },
+				$min: { apples: 123, peaches: 45, pineapple: 52 },
+				$max: { apples: 1230, peaches: 10, pineapple: 10  },
 				$addToSet: {
 					vegatables: 'carrots',
 					fruit: { $each: [ 'watermelon', 'grapes' ] },
@@ -630,22 +614,6 @@ describe('Update', function() {
 			expect(update.getData()).to.deep.equal({
 				$unset: { bob: true, alice: true },
 				$set: { boo: 30 }
-			});
-		});
-
-		it('should use set with min and max when min > max or max < min', function() {
-			let updateData = {
-				$max: { bob: 1 },
-				$min: { alice: 40 }
-			};
-			let newUpdate = {
-				$min: { bob: 30 },
-				$max: { alice: 10 }
-			};
-			let update = createUpdate(updateData);
-			update.composeUpdate(newUpdate);
-			expect(update.getData()).to.deep.equal({
-				$set: { bob: 30, alice: 10 }
 			});
 		});
 	});
