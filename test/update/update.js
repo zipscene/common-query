@@ -697,5 +697,25 @@ describe('Update', function() {
 				$set: { boo: 30 }
 			});
 		});
+
+		it('::compose()', function() {
+			let update1 = {
+				$inc: { foo: 1 }
+			};
+			let update2 = {
+				$inc: { foo: 2, bar: -1 },
+				$set: { zip: 'zip', zap: 'zap' }
+			};
+			let update3 = {
+				$unset: { zap: 1 }
+			};
+			let expected = {
+				$inc: { foo: 3, bar: -1 },
+				$set: { zip: 'zip' },
+				$unset: { zap: true }
+			};
+			let actual = Update.compose(update1, update2, update3).getData();
+			expect(actual).to.deep.equal(expected);
+		});
 	});
 });
