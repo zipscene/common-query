@@ -19,6 +19,47 @@ describe('Update', function() {
 		});
 	});
 
+	describe('#transformUpdatedFields', function() {
+		it('should update the keys on full replace', function() {
+			let fromValue = {
+				foo: 1,
+				bar: 10
+			};
+			let toValue = {
+				$set: {
+					foo1: 1,
+					bar1: 10
+				}
+			};
+			let update = createUpdate(fromValue);
+			let func = function(key) {
+				return key + '1';
+			};
+			update.transformUpdatedFields(func);
+			expect(update.getData()).to.deep.equal(toValue);
+		});
+		it('should update the keys', function() {
+			let fromValue = {
+				$inc: { foo: 1 },
+				$max: { bar: 10 },
+				$push: { batz: { $each: [ 1, 2, 3 ] } },
+				$set: { 'a.thing': 2 }
+			};
+			let toValue = {
+				$inc: { foo1: 1 },
+				$max: { bar1: 10 },
+				$push: { batz1: { $each: [ 1, 2, 3 ] } },
+				$set: { 'a.thing1': 2 }
+			};
+			let update = createUpdate(fromValue);
+			let func = function(key) {
+				return key + '1';
+			};
+			update.transformUpdatedFields(func);
+			expect(update.getData()).to.deep.equal(toValue);
+		});
+	});
+
 	describe('createFromDiff()', function() {
 		it('creates diff for empty objects', function() {
 			let fromValue = {};
