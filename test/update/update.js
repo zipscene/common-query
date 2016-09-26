@@ -40,19 +40,21 @@ describe('Update', function() {
 		});
 		it('should update the keys', function() {
 			let fromValue = {
-				$inc: { foo: 1 },
+				$inc: { foo: 1, bar: 2 },
 				$max: { bar: 10 },
 				$push: { batz: { $each: [ 1, 2, 3 ] } },
 				$set: { 'a.thing': 2 }
 			};
 			let toValue = {
-				$inc: { foo1: 1 },
-				$max: { bar1: 10 },
+				$inc: { bar: 1, foo: 2 },
+				$max: { foo: 10 },
 				$push: { batz1: { $each: [ 1, 2, 3 ] } },
 				$set: { 'a.thing1': 2 }
 			};
 			let update = createUpdate(fromValue);
 			let func = function(key) {
+				if (key === 'foo') return 'bar';
+				if (key === 'bar') return 'foo';
 				return key + '1';
 			};
 			update.transformUpdatedFields(func);
