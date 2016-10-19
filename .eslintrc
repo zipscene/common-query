@@ -1,3 +1,7 @@
 {
-	"extends": "zipscene/environments/node"
+	"extends": "zipscene/environments/node",
+	"rules": {
+		"arrow-body-style": 0,
+		"valid-jsdoc": 1
+	}
 }

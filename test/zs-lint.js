@@ -1,4 +1,5 @@
-let spawn = require('child_process').spawn;
+const path = require('path');
+const { spawn } = require('child_process');
 
 describe('Linter', function() {
 
@@ -12,28 +13,25 @@ describe('Linter', function() {
 			if (finished) return;
 			finished = true;
 			if (error && typeof error === 'number') {
-				throw new Error('Project contains linter errors (exit code ' + error + ')');
+				throw new Error(`Project contains linter errors (exit code ${error})`);
 			} else if (error instanceof Error) {
 				throw error;
 			} else if (error) {
-				throw new Error('' + error);
+				throw new Error(`${error}`);
 			}
 			done();
 		}
 
-		let lintProc = spawn('node', [ __dirname + '/../../node_modules/.bin/eslint', '.' ], {
-			cwd: __dirname + '/../..'
-		});
+		const cwd = path.join(__dirname, '../..');
+		let lintProc = spawn('node', [ path.join(cwd, 'node_modules/.bin/eslint'), '.' ], { cwd });
 
-		lintProc.on('error', function(error) {
-			finish(error);
-		});
+		lintProc.on('error', (error) => finish(error));
 
-		lintProc.on('exit', function(code, signal) {
+		lintProc.on('exit', (code, signal) => {
 			if (code !== null) {
 				finish(code || null);
 			} else if (signal !== null) {
-				finish('Unexpected linter exit: ' + signal);
+				finish(`Unexpected linter exit: ${signal}`);
 			} else {
 				finish('Unexpected linter exit');
 			}

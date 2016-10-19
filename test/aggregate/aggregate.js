@@ -63,7 +63,7 @@ describe('Aggregate', function() {
 			let schema = createSchema({
 				birthdate: Date
 			});
-			expect(() => createAggregate(invalidAggregate, { schema: schema }))
+			expect(() => createAggregate(invalidAggregate, { schema }))
 				.to.throw(AggregateValidationError, /field type \(date\) does not match valid field types/);
 		});
 
@@ -77,7 +77,7 @@ describe('Aggregate', function() {
 				stats: 'shelterName'
 			};
 			let aggregate = createAggregate(shorthandAggregate, { skipValidate: true });
-			expect( () => aggregate.validate(shorthandAggregate) ).to.throw(AggregateValidationError);
+			expect(() => aggregate.validate(shorthandAggregate)).to.throw(AggregateValidationError);
 		});
 
 	});

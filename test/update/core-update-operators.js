@@ -14,7 +14,7 @@ describe('Core Update Operators', function() {
 		it('sets fields to scalar or complex values', function() {
 			const update = { $set: { abc: 321, 'arr.1': 1 } };
 			const result = createUpdate(update).apply({ abc: 123, arr: [ 1, null, '1' ] });
-			const expected= { abc: 321, arr: [ 1, 1, '1' ] };
+			const expected = { abc: 321, arr: [ 1, 1, '1' ] };
 			expect(result).to.deep.equal(expected);
 		});
 
@@ -360,7 +360,7 @@ describe('Core Update Operators', function() {
 
 		it('takes an array w/ $each', function() {
 			expectInvalid({ $addToSet: { theseones: {
-				$each: { 'thisone': 'yes', 'thatone': 'yes' }
+				$each: { thisone: 'yes', thatone: 'yes' }
 			} } });
 		});
 
@@ -431,7 +431,7 @@ describe('Core Update Operators', function() {
 
 		it('takes an array w/ $each', function() {
 			expectInvalid({ $push: { theseones: {
-				$each: { 'thisone': 'yes', 'thatone': 'yes' }
+				$each: { thisone: 'yes', thatone: 'yes' }
 			} } });
 		});
 

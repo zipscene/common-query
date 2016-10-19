@@ -37,7 +37,7 @@ describe('AggregateType', function() {
 	describe('#normalize', function() {
 
 		it('should always pass normalization', function() {
-			expect(() => type.normalize({}, { schema })).to.not.throw(AggregateValidationError);
+			expect(() => type.normalize({}, { schema: undefined })).to.not.throw(AggregateValidationError);
 		});
 
 	});
