@@ -170,7 +170,7 @@ describe('Aggregate', function() {
 						}
 					}
 				];
-				aggregate.transformResults(results);
+				aggregate.transformResultFields(results);
 				expect(results).to.deep.equal([
 					{
 						key: [ 0 ],
