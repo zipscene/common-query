@@ -5,13 +5,13 @@ const { createQuery, Query, ObjectMatchError, QueryValidationError } = require('
 describe('Query', function() {
 	describe('constructor', function() {
 		it('skips validation with the skipValidate option', function() {
-			const queryData = { 'really': 'invalid', '$super': 'invalid' };
+			const queryData = { really: 'invalid', $super: 'invalid' };
 			const options = { skipValidate: true };
 			expect(() => createQuery(queryData)).to.throw(QueryValidationError);
 			expect(() => createQuery(queryData, options)).to.not.throw(Error);
 		});
 		it('substitutes $vars with the vars option', function() {
-			const options = { vars: { var1: 'zip1', var2: 'baz2', var3: 3, 'nested': { field: 'test' } } };
+			const options = { vars: { var1: 'zip1', var2: 'baz2', var3: 3, nested: { field: 'test' } } };
 			const query = createQuery({
 				foo: 'bar',
 				'nested.field': { $var: 'nested.field' },
@@ -194,12 +194,12 @@ describe('Query', function() {
 		it('handles dotted paths as query fields', function() {
 			const query = createQuery({ foo: 'abc', 'bar.baz.qux': 3 });
 			const expected = [ 'foo', 'bar.$.baz.$.qux' ];
-			expect(query.getQueriedFields({ schema: schema })).to.deep.equal(expected);
+			expect(query.getQueriedFields({ schema })).to.deep.equal(expected);
 		});
 		it('expands implied array indices', function() {
 			const query = createQuery({ foo: 'abc', 'bar.baz': { $elemMatch: { qux: 3 } } });
 			const expected = [ 'foo', 'bar.$.baz.$.qux' ];
-			expect(query.getQueriedFields({ schema: schema })).to.deep.equal(expected);
+			expect(query.getQueriedFields({ schema })).to.deep.equal(expected);
 		});
 	});
 
@@ -278,7 +278,7 @@ describe('Query', function() {
 		it('shallowly transforms the fields of a query', function() {
 			let query = createQuery({ foo: 'bar' });
 			const expected = { prefixfoo: 'bar' };
-			query.transformQueriedFields((field) => 'prefix' + field );
+			query.transformQueriedFields((field) => `prefix${field}`);
 			expect(query.getData()).to.deep.equal(expected);
 		});
 		it('transforms the fields of query-operator arguments', function() {
@@ -292,7 +292,7 @@ describe('Query', function() {
 				$and: [ { prefixbar: 1, prefixbaz: 1 }, { prefixqux: 1 } ],
 				$nor: [ { prefixzip: { $elemMatch: { buz: 1 } } } ]
 			};
-			query.transformQueriedFields((field) => 'prefix' + field );
+			query.transformQueriedFields((field) => `prefix${field}`);
 			expect(query.getData()).to.deep.equal(expected);
 		});
 	});
@@ -724,7 +724,7 @@ describe('Query', function() {
 			let expectedTriggers = [
 				{
 					type: 'query',
-					query: query
+					query
 				},
 				{
 					type: 'exactMatch',
@@ -744,7 +744,7 @@ describe('Query', function() {
 					type: 'queryOperator',
 					exprValue: data.$and,
 					operator: '$and',
-					query: query,
+					query,
 					parent: data,
 					parentKey: '$and'
 				},
@@ -805,7 +805,7 @@ describe('Query', function() {
 					field: 'bip',
 					operator: '$elemMatch',
 					expr: data.bip,
-					query: query,
+					query,
 					parent: data.bip,
 					parentKey: '$elemMatch'
 				},
@@ -823,7 +823,7 @@ describe('Query', function() {
 				}
 			];
 			query._traverse({
-				queryOperator: function(exprValue, operator, query, parent, parentKey) {
+				queryOperator(exprValue, operator, query, parent, parentKey) {
 					expect(expectedTriggers.length).to.not.equal(0);
 					const next = expectedTriggers.shift();
 					expect(next.type).to.equal('queryOperator');
@@ -843,7 +843,9 @@ describe('Query', function() {
 						expect(next.parentKey).to.equal(parentKey);
 					}
 				},
-				exprOperator: function(exprValue, field, operator, expr, query, parent, parentKey) {
+				/* eslint-disable max-params */
+				exprOperator(exprValue, field, operator, expr, query, parent, parentKey) {
+					/* eslint-enable max-params */
 					expect(expectedTriggers.length).to.not.equal(0);
 					const next = expectedTriggers.shift();
 					expect(next.type).to.equal('exprOperator');
@@ -869,7 +871,7 @@ describe('Query', function() {
 						expect(next.parentKey).to.equal(parentKey);
 					}
 				},
-				exactMatch: function(value, field, parent, parentKey) {
+				exactMatch(value, field, parent, parentKey) {
 					expect(expectedTriggers.length).to.not.equal(0);
 					const next = expectedTriggers.shift();
 					expect(next.type).to.equal('exactMatch');
@@ -886,7 +888,7 @@ describe('Query', function() {
 						expect(next.parentKey).to.equal(parentKey);
 					}
 				},
-				query: function(query) {
+				query(query) {
 					expect(expectedTriggers.length).to.not.equal(0);
 					const next = expectedTriggers.shift();
 					expect(next.type).to.equal('query');

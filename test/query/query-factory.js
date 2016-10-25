@@ -4,7 +4,7 @@ let { QueryValidationError, defaultQueryFactory: queryFactory } = require('../..
 describe('QueryFactory', function() {
 	describe('#createQuery()', function() {
 		it('handles the skipValidate option', function() {
-			let queryData = { 'really': 'invalid', '$super': 'invalid' };
+			let queryData = { really: 'invalid', $super: 'invalid' };
 			expect(() => queryFactory.createQuery(queryData)).to.throw(QueryValidationError);
 			expect(() => queryFactory.createQuery(queryData, { skipValidate: true })).to.not.throw(Error);
 		});

@@ -11,7 +11,7 @@ const {
 describe('Update', function() {
 	describe('constructor', function() {
 		it('skips validation with the skipValidate option', function() {
-			const updateData = { '$mega': 'invalid', '$dude': 'like are you even trying' };
+			const updateData = { $mega: 'invalid', $dude: 'like are you even trying' };
 			expect(() => new Update(updateData, defaultUpdateFactory))
 				.to.throw(UpdateValidationError);
 			expect(() => new Update(updateData, defaultUpdateFactory, { skipValidate: true }))
@@ -33,7 +33,7 @@ describe('Update', function() {
 			};
 			let update = createUpdate(fromValue);
 			let func = function(key) {
-				return key + '1';
+				return `${key}1`;
 			};
 			update.transformUpdatedFields(func);
 			expect(update.getData()).to.deep.equal(toValue);
@@ -55,7 +55,7 @@ describe('Update', function() {
 			let func = function(key) {
 				if (key === 'foo') return 'bar';
 				if (key === 'bar') return 'foo';
-				return key + '1';
+				return `${key}1`;
 			};
 			update.transformUpdatedFields(func);
 			expect(update.getData()).to.deep.equal(toValue);
@@ -159,7 +159,7 @@ describe('Update', function() {
 					'child.dad.isAlive': true
 				},
 				$push: {
-					'removedElements': {
+					removedElements: {
 						$each: [],
 						$slice: 2
 					}
@@ -226,7 +226,7 @@ describe('Update', function() {
 					'removedElements.2': true
 				},
 				$push: {
-					'removedElements': {
+					removedElements: {
 						$each: [],
 						$slice: 2
 					}
@@ -264,7 +264,7 @@ describe('Update', function() {
 					'removedElements.2': true
 				},
 				$push: {
-					'removedElements': {
+					removedElements: {
 						$each: [],
 						$slice: 2
 					}
@@ -306,7 +306,7 @@ describe('Update', function() {
 					'removedElements.2': true
 				},
 				$push: {
-					'removedElements': {
+					removedElements: {
 						$each: [],
 						$slice: 2
 					}
@@ -446,7 +446,7 @@ describe('Update', function() {
 				$rename: { frankerz: 'kappa' },
 				$min: { apples: 12341234 },
 				$addToSet: {
-					'dates': '1999-12-31',
+					dates: '1999-12-31',
 					'adjectives.uc': 'dapper',
 					'adjectives.purdue': {
 						$each: [ 'silly', 'jerks' ]
@@ -488,7 +488,7 @@ describe('Update', function() {
 				$rename: { frankerz: 'kappa' },
 				$min: { apples: 12341234 },
 				$addToSet: {
-					'dates': new Date('1999-12-31'),
+					dates: new Date('1999-12-31'),
 					'adjectives.uc': 'dapper',
 					'adjectives.purdue': {
 						$each: [ 'silly', 'jerks' ]

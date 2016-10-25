@@ -11,7 +11,7 @@ describe('AggregateFactory', function() {
 	describe('AggregateFactory#createAggregate()', function() {
 
 		it('handles the skipValidate option', function() {
-			let aggregateData = { 'really': 'invalid' };
+			let aggregateData = { really: 'invalid' };
 			expect(() => aggregateFactory.createAggregate(aggregateData))
 				.to.throw(AggregateValidationError);
 			expect(() => aggregateFactory.createAggregate(aggregateData, { skipValidate: true }))

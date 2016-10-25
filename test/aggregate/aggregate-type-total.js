@@ -60,7 +60,6 @@ describe('TotalAggregateType', function() {
 	});
 
 
-
 	describe('#validate', function() {
 
 		it('should validate total aggregates', function() {
