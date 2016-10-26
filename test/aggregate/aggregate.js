@@ -98,4 +98,99 @@ describe('Aggregate', function() {
 
 	});
 
+	describe('Aggregate#transformAggregateFields', function() {
+		it('should transform all the fields in the current aggregate and then revert them', function() {
+			let aggregate = createAggregate({
+				groupBy: [
+					{
+						field: 'foo',
+						ranges: [
+							{ end: 50 },
+							{ start: 51, end: 100 }
+						]
+					}
+				],
+				stats: 'bar'
+			});
+			let transformFun = (field) => {
+				return field + 'baz'
+			};
+			aggregate.transformAggregateFields(transformFun);
+			expect(aggregate.getData()).to.deep.equal({
+				groupBy: [{
+					field: 'foobaz',
+					ranges: [
+						{ end: 50 },
+						{ start: 51, end: 100 }
+					]
+				}],
+				stats: {
+					barbaz: {
+						count: true
+					}
+				}
+			});
+		});
+	});
+
+	describe('Aggregate#transformResults', function() {
+		it('should transform the results back to the orinignal field name', function() {
+			let aggregate = createAggregate({
+					groupBy: [
+						{
+							field: 'foo',
+							ranges: [
+								{ end: 50 },
+								{ start: 51, end: 100 }
+							]
+						}
+					],
+					stats: 'bar'
+				});
+				let transformFun = (field) => {
+					return field + 'baz'
+				};
+				aggregate.transformAggregateFields(transformFun);
+				let results = [
+					{
+						key: [ 0 ],
+						stats: {
+							barbaz: {
+								count: 10
+							}
+						}
+
+					},
+					{
+						key: [ 1 ],
+						stats: {
+							barbaz: {
+								count: 30
+							}
+						}
+					}
+				];
+				aggregate.transformResultFields(results);
+				expect(results).to.deep.equal([
+					{
+						key: [ 0 ],
+						stats: {
+							bar: {
+								count: 10
+							}
+						}
+
+					},
+					{
+						key: [ 1 ],
+						stats: {
+							bar: {
+								count: 30
+							}
+						}
+					}
+				]);
+		});
+	});
+
 });
