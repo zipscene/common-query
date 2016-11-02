@@ -122,13 +122,13 @@ query.getData();
 query.getQueryFactory();
 
 /* Get a generated function to match a query. This may be more efficient than query.matches(), and should
-   be used if a query is to be used many times. */
+	be used if a query is to be used many times. */
 let func = query.createMatchFn();
 func(objectToMatch);  // true
 
 /* Normalize a query, optionally to a provided schema. Validates the query as well.
-   This is done by default in the constructor; pass the skipValidate option to opt out of
-   this behavior. */
+	This is done by default in the constructor; pass the skipValidate option to opt out of
+	this behavior. */
 query.normalize();
 
 query.normalize({
@@ -139,8 +139,8 @@ query.normalize({
 });
 
 /* Ensure that a query is valid; will throw an error if the query is invalid. This is done by default
-   in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
-   matches() on an invalid query results in undefined behavior. */
+	in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
+	matches() on an invalid query results in undefined behavior. */
 query.validate();  // throws QueryValidationError
 
 // Get a list of fields that a query will access during matching
@@ -159,8 +159,8 @@ query.getOperators();  // [ '$and', '$gt', '$regex' ]
 createUpdate() takes an optional options object as the second argument. Some options are:
 
 - allowFullReplace: By default, if an update has no operators, it will be automatically wrapped in a `$set`
-  operation, and updated only the stated fields. If you set allowFullReplace, this will not occur, and such
-  an update will replace the entire object (as is the default MongoDB behavior).
+	operation, and updated only the stated fields. If you set allowFullReplace, this will not occur, and such
+	an update will replace the entire object (as is the default MongoDB behavior).
 
 See the docs directory for a complete list.
 
@@ -174,13 +174,13 @@ update.getData();
 update.getUpdateFactory();
 
 /* Get a generated function to apply an update. This may be more efficient than update.apply(),
-   and should be used if a query is to be used many times. */
+	and should be used if a query is to be used many times. */
 let func = update.createUpdateFn();
 func(objectToUpdate);  // true
 
 /* Normalize an update, optionally to a provided schema. Validates the update as well.
-   This is done by default in the constructor; pass the skipValidate option to opt out of
-   this behavior. */
+	This is done by default in the constructor; pass the skipValidate option to opt out of
+	this behavior. */
 update.normalize();
 
 update.normalize({
@@ -191,8 +191,8 @@ update.normalize({
 });
 
 /* Ensure that an update is valid; will throw an error if the update is invalid. This is done by default
-   in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
-   apply() on an invalid update results in undefined behavior. */
+	in the constructor; pass the skipValidate option to opt out of this behavior. Note that calling
+	apply() on an invalid update results in undefined behavior. */
 update.validate();  // throws UpdateValidationError
 
 // Get a list of fields that will be updated
@@ -226,21 +226,21 @@ Update.createFromDiff({
 
 // Results in:
 {
-        "$set": {
-                "foo": "boar",
-                "boom": 4,
-                "plork.0.aoeu": true,
-                "plork.0.asdf": false
-        },
-        "$unset": {
-                "baz": true,
-                "plork.1": true
-        },
-        "$push": {
-                "plork": {
-                        "$slice": 1
-                }
-        }
+	"$set": {
+		"foo": "boar",
+		"boom": 4,
+		"plork.0.aoeu": true,
+		"plork.0.asdf": false
+	},
+	"$unset": {
+		"baz": true,
+		"plork.1": true
+	},
+	"$push": {
+		"plork": {
+			"$slice": 1
+		}
+	}
 }
 ```
 
