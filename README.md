@@ -969,12 +969,14 @@ This groups by age (in intervals of 4) and animalType.  The results for this loo
 
 ### Restrict aggregation buckets to a subset of keys
 
-You may specify a whitelist of keys to include in the result:
+You may specify a whitelist of keys to include in the result for each groupBy entry:
 
 ```js
 {
-	groupBy: 'animalType',
-	only: [ 'cat', 'dog' ],
+	groupBy: {
+		field: 'animalType',
+		only: [ 'cat', 'dog' ]
+	},
 	total: true
 }
 ```
