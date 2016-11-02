@@ -109,6 +109,30 @@ describe('GroupByAggregateType', function() {
 				.to.throw(AggregateValidationError, /could not find a groupBy type matching a grouping/);
 		});
 
+		it('should normalize the only modifier', function() {
+			let aggrD = {
+				groupBy: [
+					{
+						field: 'foo',
+						only: [ 1, 2 ]
+					}
+				]
+			};
+			groupBy.normalize(aggrD, { schema });
+			expect(aggrD.groupBy[0].only).to.deep.equal([ 1, 2 ]);
+		});
+
+		it('should fail to normalize non-array only modifier', function() {
+			let aggrE = {
+				groupBy: [ {
+					field: 'foo',
+					only: 1
+				} ]
+			};
+			expect(() => groupBy.normalize(aggrE, { schema }))
+				.to.throw(AggregateValidationError);
+		});
+
 	});
 
 	describe('#validate', function() {

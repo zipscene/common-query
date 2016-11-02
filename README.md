@@ -363,7 +363,7 @@ The different types of stats you can ask for are:
 Not all model types need support all of these types of stats, and model types may add
 additional stats if they are supported.
 
-The stats object is a mapping between field paths and the statistics to perform.  
+The stats object is a mapping between field paths and the statistics to perform.
 You can also supply more than one stats field in the aggregate:
 
 ```js
@@ -964,5 +964,34 @@ This groups by age (in intervals of 4) and animalType.  The results for this loo
 		total: 3
 	},
 	...
+]
+```
+
+### Restrict aggregation buckets to a subset of keys
+
+You may specify a whitelist of keys to include in the result for each groupBy entry:
+
+```js
+{
+	groupBy: {
+		field: 'animalType',
+		only: [ 'cat', 'dog' ]
+	},
+	total: true
+}
+```
+
+May yield:
+
+```js
+[
+	{
+		key: [ 'cat' ],
+		total: 18
+	},
+	{
+		key: [ 'dog' ],
+		total: 12
+	}
 ]
 ```
