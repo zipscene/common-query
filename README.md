@@ -1,4 +1,4 @@
-# zs-common-query
+# common-query
 
 A javascript implementation of the MongoDB-style query and update syntax. It also has some useful methods built on top,
 and provides an extensible framework for adding new query and update operators.
@@ -6,7 +6,7 @@ and provides an extensible framework for adding new query and update operators.
 ## Basic usage
 
 ```javascript
-let commonQuery = require('zs-common-query');
+let commonQuery = require('common-query');
 let createQuery = commonQuery.createQuery;
 let createUpdate = commonQuery.createUpdate;
 

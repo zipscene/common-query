@@ -1,12 +1,16 @@
 {
-  "name": "zs-common-query",
+  "name": "common-query",
   "version": "1.10.3",
   "description": "Base framework for common mongo-style query language",
   "main": "./dist/lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git@git.zipscene.com:zsapilibs/zs-common-query.git"
+    "url": "https://github.com/zipscene/common-query.git"
   },
+  "keywords": [
+    "query",
+    "common-query"
+  ],
   "scripts": {
     "lint": "node ./node_modules/.bin/eslint . || exit 0",
     "docs": "node ./node_modules/.bin/yuidoc .",
@@ -22,8 +26,8 @@
     "moment": "^2.10.6",
     "regexp-quote": "0.0.0",
     "xerror": "^1.0.0",
-    "zs-common-schema": "^1.8.0",
-    "zs-objtools": "^1.6.2"
+    "common-schema": "^1.8.0",
+    "objtools": "^1.6.2"
   },
   "devDependencies": {
     "broccoli": "^0.16.3",
@@ -40,7 +44,5 @@
     "source-map-support": "^0.2.10",
     "yuidocjs": "^0.6.0"
   },
-  "publishConfig": {
-    "registry": "https://npm.zipscene.com/"
-  }
+  "license": "Apache-2.0"
 }

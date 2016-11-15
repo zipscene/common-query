@@ -1,6 +1,10 @@
+// Copyright 2016 Zipscene, LLC
+// Licensed under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+
 const { expect } = require('chai');
 const { createUpdate, UpdateValidationError } = require('../../lib/index');
-const { createSchema } = require('zs-common-schema');
+const { createSchema } = require('common-schema');
 
 describe('Core Update Operators', function() {
 	function expectInvalid(updateData) {
@@ -189,7 +193,7 @@ describe('Core Update Operators', function() {
 				$min: { foo: '4' }
 			});
 			expect(update.getData()).to.deep.equal({
-				$min: { foo: 4 }
+				$min: { foo: '4' }
 			});
 
 			const update2 = createUpdate({
@@ -198,7 +202,7 @@ describe('Core Update Operators', function() {
 				schema: createSchema({ foo: Number })
 			});
 			expect(update2.getData()).to.deep.equal({
-				$min: { foo: 4 }
+				$min: { foo: '4' }
 			});
 		});
 	});
@@ -221,7 +225,7 @@ describe('Core Update Operators', function() {
 				$max: { foo: '128' }
 			});
 			expect(update.getData()).to.deep.equal({
-				$max: { foo: 128 }
+				$max: { foo: '128' }
 			});
 
 			const update2 = createUpdate({
@@ -230,7 +234,7 @@ describe('Core Update Operators', function() {
 				schema: createSchema({ foo: Number })
 			});
 			expect(update2.getData()).to.deep.equal({
-				$max: { foo: 128 }
+				$max: { foo: '128' }
 			});
 		});
 	});

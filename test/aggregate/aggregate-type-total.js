@@ -1,5 +1,9 @@
+// Copyright 2016 Zipscene, LLC
+// Licensed under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+
 const { expect } = require('chai');
-const { createSchema } = require('zs-common-schema');
+const { createSchema } = require('common-schema');
 
 const TotalAggregateType = require('../../lib/aggregate/aggregate-types/total');
 const AggregateValidationError = require('../../lib/aggregate/aggregate-validation-error');

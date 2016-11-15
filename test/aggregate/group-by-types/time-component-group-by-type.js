@@ -1,5 +1,9 @@
+// Copyright 2016 Zipscene, LLC
+// Licensed under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+
 const { expect } = require('chai');
-const { createSchema } = require('zs-common-schema');
+const { createSchema } = require('common-schema');
 
 const { TimeComponentGroupByType } = require('../../../lib/aggregate/aggregate-types/group-by/group-by-types');
 const AggregateValidationError = require('../../../lib/aggregate/aggregate-validation-error');

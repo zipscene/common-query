@@ -1,7 +1,11 @@
+// Copyright 2016 Zipscene, LLC
+// Licensed under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+
 const _ = require('lodash');
 const { expect } = require('chai');
 const { createQuery } = require('../../lib/index');
-const { createSchema } = require('zs-common-schema');
+const { createSchema } = require('common-schema');
 
 describe('Core Expression Operators', function() {
 	describe('$exists', function() {
