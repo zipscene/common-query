@@ -324,6 +324,41 @@ describe('Update', function() {
 			expect(patchReplacingSmaller).to.deep.equal(expectedReplacingSmaller);
 			expect(patchReplacingLarger).to.deep.equal(expectedReplacingLarger);
 		});
+
+		it('replace scalar with object and vice versa', function() {
+			let fromValue = {
+				id: 'asdf',
+				arr: [
+					{
+						arrId: 'abc',
+						stuff: true
+					},
+					{
+						hello: true
+					}
+				]
+			};
+			let toValue = {
+				id: 'asdf',
+				arr: [
+					{
+						arrId: '123',
+						stuff: {
+							more: 'stuff'
+						}
+					},
+					650
+				]
+			};
+			let expectedUpdate = {
+				$set: {
+					'arr.0.arrId': '123',
+					'arr.0.stuff': { more: 'stuff' },
+					'arr.1': 650
+				}
+			};
+			expect(Update.createFromDiff(fromValue, toValue)).to.deep.equal(expectedUpdate);
+		});
 	});
 
 	describe('#apply()', function() {
