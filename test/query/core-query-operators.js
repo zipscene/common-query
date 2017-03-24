@@ -65,4 +65,20 @@ describe('Query Operators', function() {
 			invalid({ $and: [ { $or: [ { $and: 'bar' } ] } ] });
 		});
 	});
+
+	describe('$comment', function() {
+		it('adds comment to query data without affecting matching behavior', function() {
+			const query = createQuery({ foo: 'bar', $comment: 'some comment' });
+			expect(query.getData()).to.deep.equal({
+				foo: 'bar',
+				$comment: 'some comment'
+			});
+			expect(query.matches({ foo: 'bar' })).to.be.true;
+			expect(query.matches({ foo: 'baz' })).to.be.false;
+		});
+		it('accepts a string an argument', function() {
+			valid({ foo: 'bar', $comment: 'some comment' });
+			invalid({ foo: 'bar', $comment: { baz: 'qux' } });
+		});
+	});
 });
