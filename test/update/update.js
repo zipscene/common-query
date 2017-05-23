@@ -800,4 +800,34 @@ describe('Update', function() {
 			expect(actual).to.deep.equal(expected);
 		});
 	});
+
+	describe('#getIncTrackingUpdate', function() {
+		const trackingField = 'tracking.field';
+
+		it('Returns an update that will track $inc operations in the provided field', function() {
+			let update = createUpdate({
+				$inc: { foo: 3, bar: -1 },
+				$set: { baz: 'qux' }
+			});
+
+			let result = update.getIncTrackingUpdate(trackingField);
+
+			expect(result.getData()).to.deep.equal({
+				$inc: {
+					[`${trackingField}.foo`]: 3,
+					[`${trackingField}.bar`]: -1
+				}
+			});
+		});
+
+		it('returns empty update if there are no $inc operations', function() {
+			let update = createUpdate({
+				$set: { foo: 'bar' }
+			});
+
+			let result = update.getIncTrackingUpdate(trackingField);
+
+			expect(result.getData()).to.deep.equal({ $set: {} });
+		});
+	});
 });
