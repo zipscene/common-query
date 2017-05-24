@@ -804,7 +804,7 @@ describe('Update', function() {
 	describe('#getIncTrackingUpdate', function() {
 		const trackingField = 'tracking.field';
 
-		it('Returns an update that will track $inc operations in the provided field', function() {
+		it('Returns an update that will track $inc operations using the provided field', function() {
 			let update = createUpdate({
 				$inc: { foo: 3, bar: -1 },
 				$set: { baz: 'qux' }
@@ -814,8 +814,8 @@ describe('Update', function() {
 
 			expect(result.getData()).to.deep.equal({
 				$inc: {
-					[`${trackingField}.foo`]: 3,
-					[`${trackingField}.bar`]: -1
+					[`${trackingField}.foo`]: -3,
+					[`${trackingField}.bar`]: 1
 				}
 			});
 		});
@@ -828,6 +828,20 @@ describe('Update', function() {
 			let result = update.getIncTrackingUpdate(trackingField);
 
 			expect(result.getData()).to.deep.equal({ $set: {} });
+		});
+
+		it('encodes dots in inc operation paths to %', function() {
+			let update = createUpdate({
+				$inc: { 'path.to.thing': 10 }
+			});
+
+			let result = update.getIncTrackingUpdate(trackingField);
+
+			expect(result.getData()).to.deep.equal({
+				$inc: {
+					[`${trackingField}.path%to%thing`]: -10
+				}
+			});
 		});
 	});
 });
