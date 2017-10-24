@@ -20,14 +20,14 @@
   },
   "dependencies": {
     "babel-runtime": "5.6.15",
+    "common-schema": "^1.8.0",
     "crisphooks": "^2.0.0",
     "geolib": "^2.0.14",
     "lodash": "^3.6.0",
     "moment": "^2.10.6",
+    "objtools": "^1.6.2",
     "regexp-quote": "0.0.0",
-    "xerror": "^1.0.0",
-    "common-schema": "^1.8.0",
-    "objtools": "^1.6.2"
+    "xerror": "^1.0.0"
   },
   "devDependencies": {
     "broccoli": "^0.16.3",
@@ -43,6 +43,9 @@
     "mocha": "^2.2.1",
     "source-map-support": "^0.2.10",
     "yuidocjs": "^0.6.0"
+  },
+  "optionalDependencies": {
+    "jsts": "^1.4.0"
   },
   "license": "Apache-2.0"
 }
