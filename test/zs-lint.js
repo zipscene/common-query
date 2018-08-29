@@ -26,7 +26,7 @@ describe('Linter', function() {
 			done();
 		}
 
-		const cwd = path.join(__dirname, '../..');
+		const cwd = path.join(__dirname, '..');
 		let lintProc = spawn('node', [ path.join(cwd, 'node_modules/.bin/eslint'), '.' ], { cwd });
 
 		lintProc.on('error', (error) => finish(error));
