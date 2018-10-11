@@ -443,7 +443,7 @@ describe('Core Update Operators', function() {
 			const update = createUpdate({
 				$push: { set: '4' }
 			}, {
-				schema: createSchema({ set: Number })
+				schema: createSchema({ set: [ Number ] })
 			});
 			expect(update.getData()).to.deep.equal({
 				$push: { set: 4 }
@@ -456,6 +456,30 @@ describe('Core Update Operators', function() {
 			});
 			expect(update2.getData()).to.deep.equal({
 				$push: { set: { $each: [ 2, 4 ] } }
+			});
+		});
+
+		it('normalizes queries 2', function() {
+			const update = createUpdate({
+				$push: {
+					_pendingAddPoints: {
+						point: [ 170, -34 ]
+					}
+				}
+			}, {
+				schema: createSchema({
+					_pendingAddPoints: {
+						type: 'array',
+						elements: {
+							type: 'object',
+							properties: {
+								point: {
+									type: 'geopoint'
+								}
+							}
+						}
+					}
+				})
 			});
 		});
 	});
