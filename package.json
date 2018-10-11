@@ -1,6 +1,6 @@
 {
   "name": "common-query",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Base framework for common mongo-style query language",
   "main": "./lib/index.js",
   "repository": {

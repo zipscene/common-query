@@ -799,5 +799,16 @@ describe('Update', function() {
 			let actual = Update.compose(update1, update2, update3).getData();
 			expect(actual).to.deep.equal(expected);
 		});
+
+		it('compose with 1 argument', function() {
+			let update = {
+				$inc: {
+					foo: -1,
+					bar: -1
+				}
+			};
+			let composed = Update.compose(update).getData();
+			expect(composed).to.deep.equal(update);
+		});
 	});
 });
