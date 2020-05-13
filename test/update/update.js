@@ -69,260 +69,117 @@ describe('Update', function() {
 	describe('createFromDiff()', function() {
 		it('creates diff for empty objects', function() {
 			let fromValue = {};
-
 			let toValue = {};
-
 			let patch = Update.createFromDiff(fromValue, toValue);
-
 			let expected = {};
-
 			expect(patch).to.deep.equal(expected);
 		});
 
-		it('creates diff between two objects', function() {
-			let fromValue = {
-				same: 'foo',
-				changed: 'foo',
-				removed: false,
-				addedElements: [ 1 ],
-				removedElements: [ 1, 2, 3 ],
-				changedElements: [ 2, 4, 7, 16 ],
-				addedAndChangedElement: [ 2, 4, 7, 16 ],
-				changedItem: [
-					{ foo: 'foo' },
-					{ foo: 'bar' }
-				],
-				child: {
-					name: 'Bruce Wayne',
-					numParents: 2,
-					dad: {
-						DOB: new Date(1965, 1, 1),
-						isAlive: true
-					},
-					mom: {
-						DOB: new Date(1950, 1, 1),
-						isAlive: true
-					}
-				},
-				boolToArray: 'I am a string.'
+		it('change array to object', function() {
+			let from = {
+				a: [ 1, 2 ]
 			};
-
-			let toValue = {
-				same: 'foo',
-				changed: 'bar',
-				added: true,
-				addedElements: [ 1, 2, 3 ],
-				removedElements: [ 1, 3 ],
-				changedElements: [ 2, 4, 8, 16 ],
-				addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
-				changedItem: [
-					{ foo: 'foo' },
-					{ foo: 'baz' }
-				],
-				child: {
-					name: 'Batman',
-					numParents: 0,
-					dad: {
-						DOB: new Date(1960, 1, 1),
-						DOD: new Date(2000, 1, 1)
-					},
-					mom: {
-						DOB: new Date(1950, 1, 1),
-						DOD: new Date(2000, 1, 1),
-						isAlive: false
-					}
-				},
-				boolToArray: [ 'Now', 'I', 'am', 'an', 'Array' ]
+			let to = {
+				a: { foo: 1 }
 			};
-
-			let patch = Update.createFromDiff(fromValue, toValue);
-
 			let expected = {
 				$set: {
-					changed: 'bar',
-					added: true,
-					'addedElements.1': 2,
-					'addedElements.2': 3,
-					'removedElements.1': 3,
-					'changedElements.2': 8,
-					'addedAndChangedElement.2': 8,
-					'addedAndChangedElement.3': 10,
-					'addedAndChangedElement.4': 16,
-					'changedItem.1.foo': 'baz',
-					'child.name': 'Batman',
-					'child.numParents': 0,
-					'child.dad.DOB': new Date(1960, 1, 1),
-					'child.dad.DOD': new Date(2000, 1, 1),
-					'child.mom.DOD': new Date(2000, 1, 1),
-					'child.mom.isAlive': false,
-					boolToArray: [ 'Now', 'I', 'am', 'an', 'Array' ]
-				},
-				$unset: {
-					removed: true,
-					'removedElements.2': true,
-					'child.dad.isAlive': true
-				},
-				$push: {
-					removedElements: {
-						$each: [],
-						$slice: 2
-					}
+					a: { foo: 1 }
 				}
 			};
-
-			expect(patch).to.deep.equal(expected);
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
 		});
 
-		it('replaces arrays entirely when desired', function() {
-			let fromValue = {
-				addedElements: [ 1 ],
-				removedElements: [ 1, 2, 3 ],
-				changedElements: [ 2, 4, 7, 16 ],
-				addedAndChangedElement: [ 2, 4, 7, 16 ],
-				changedItem: [
-					{ foo: 'foo' },
-					{ foo: 'bar' }
-				]
+		it('pushes new array elements', function() {
+			let from = {
+				a: [ 1, 2 ]
 			};
-
-			let toValue = {
-				addedElements: [ 1, 2, 3 ],
-				removedElements: [ 1, 3 ],
-				changedElements: [ 2, 4, 8, 16 ],
-				addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
-				changedItem: [
-					{ foo: 'foo' },
-					{ foo: 'baz' }
-				]
+			let to = {
+				a: [ 1, 2, 3 ]
 			};
-
-			let patchReplacingNone = Update.createFromDiff(fromValue, toValue, {
-				replaceArrays: false
-			});
-			let patchReplacingAll = Update.createFromDiff(fromValue, toValue, {
-				replaceArrays: true
-			});
-			let patchReplacingEqual = Update.createFromDiff(fromValue, toValue, {
-				replaceArrays: 'EQUAL'
-			});
-			let patchReplacingDifferent = Update.createFromDiff(fromValue, toValue, {
-				replaceArrays: 'DIFFERENT'
-			});
-			let patchReplacingSmaller = Update.createFromDiff(fromValue, toValue, {
-				replaceArrays: 'SMALLER'
-			});
-			let patchReplacingLarger = Update.createFromDiff(fromValue, toValue, {
-				replaceArrays: 'LARGER'
-			});
-
-			let expectedReplacingNone = {
-				$set: {
-					'addedElements.1': 2,
-					'addedElements.2': 3,
-					'removedElements.1': 3,
-					'changedElements.2': 8,
-					'addedAndChangedElement.2': 8,
-					'addedAndChangedElement.3': 10,
-					'addedAndChangedElement.4': 16,
-					'changedItem.1.foo': 'baz'
-				},
-				$unset: {
-					'removedElements.2': true
-				},
+			let expected = {
 				$push: {
-					removedElements: {
-						$each: [],
-						$slice: 2
+					a: {
+						$each: [ 3 ]
 					}
 				}
 			};
-
-			let expectedReplacingAll = {
-				$set: {
-					addedElements: [ 1, 2, 3 ],
-					removedElements: [ 1, 3 ],
-					changedElements: [ 2, 4, 8, 16 ],
-					addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
-					changedItem: [
-						{ foo: 'foo' },
-						{ foo: 'baz' }
-					]
-				}
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
+		});
+		
+		it('truncates array', function() {
+			let from = {
+				a: [ 1, 2 ]
 			};
-
-			let expectedReplacingEqual = {
-				$set: {
-					'addedElements.1': 2,
-					'addedElements.2': 3,
-					'removedElements.1': 3,
-					changedElements: [ 2, 4, 8, 16 ],
-					'addedAndChangedElement.2': 8,
-					'addedAndChangedElement.3': 10,
-					'addedAndChangedElement.4': 16,
-					changedItem: [
-						{ foo: 'foo' },
-						{ foo: 'baz' }
-					]
-				},
-				$unset: {
-					'removedElements.2': true
-				},
+			let to = {
+				a: [ 1 ]
+			};
+			let expected = {
 				$push: {
-					removedElements: {
+					a: {
 						$each: [],
-						$slice: 2
+						$slice: 1
 					}
 				}
 			};
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
+		});
 
-			let expectedReplacingDifferent = {
+		it('changes array', function() {
+			let from = {
+				a: [ 1, 2 ]
+			};
+			let to = {
+				a: [ 3, 2 ]
+			};
+			let expected = {
 				$set: {
-					addedElements: [ 1, 2, 3 ],
-					removedElements: [ 1, 3 ],
-					'changedElements.2': 8,
-					addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
-					'changedItem.1.foo': 'baz'
+					'a.0': 3
 				}
 			};
-
-			let expectedReplacingSmaller = {
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
+		});
+		
+		it('replaces array on changed length + contents', function() {
+			let from = {
+				a: [ 1, 2, 3 ]
+			};
+			let to = {
+				a: [ 1, 20, 3, 4 ]
+			};
+			let expected = {
 				$set: {
-					'addedElements.1': 2,
-					'addedElements.2': 3,
-					removedElements: [ 1, 3 ],
-					'changedElements.2': 8,
-					'addedAndChangedElement.2': 8,
-					'addedAndChangedElement.3': 10,
-					'addedAndChangedElement.4': 16,
-					'changedItem.1.foo': 'baz'
+					a: [ 1, 20, 3, 4 ]
 				}
 			};
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
+		});
 
-			let expectedReplacingLarger = {
-				$set: {
-					addedElements: [ 1, 2, 3 ],
-					'removedElements.1': 3,
-					'changedElements.2': 8,
-					addedAndChangedElement: [ 2, 4, 8, 10, 16 ],
-					'changedItem.1.foo': 'baz'
-				},
-				$unset: {
-					'removedElements.2': true
-				},
-				$push: {
-					removedElements: {
-						$each: [],
-						$slice: 2
+		it('recursively sets objects', function() {
+			let from = {
+				a: {
+					b: {
+						c: 5,
+						d: 6
 					}
 				}
 			};
-
-			expect(patchReplacingNone).to.deep.equal(expectedReplacingNone);
-			expect(patchReplacingAll).to.deep.equal(expectedReplacingAll);
-			expect(patchReplacingEqual).to.deep.equal(expectedReplacingEqual);
-			expect(patchReplacingDifferent).to.deep.equal(expectedReplacingDifferent);
-			expect(patchReplacingSmaller).to.deep.equal(expectedReplacingSmaller);
-			expect(patchReplacingLarger).to.deep.equal(expectedReplacingLarger);
+			let to = {
+				a: {
+					b: {
+						c: 6
+					}
+				}
+			};
+			let expected = {
+				$set: {
+					'a.b.c': 6
+				},
+				$unset: {
+					'a.b.d': true
+				}
+			};
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
 		});
 
 		it('replace scalar with object and vice versa', function() {
