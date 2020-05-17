@@ -155,6 +155,23 @@ describe('Update', function() {
 			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
 		});
 
+		it('updates dates', function() {
+			let date1 = new Date('2020-01-01T00:00:00Z');
+			let date2 = new Date('2020-01-02T00:00:00Z');
+			let from = {
+				a: date1
+			};
+			let to = {
+				a: date2
+			};
+			let expected = {
+				$set: {
+					a: date2
+				}
+			};
+			expect(Update.createFromDiff(from, to)).to.deep.equal(expected);
+		});
+
 		it('recursively sets objects', function() {
 			let from = {
 				a: {
